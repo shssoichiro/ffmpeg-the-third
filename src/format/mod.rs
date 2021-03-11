@@ -18,8 +18,7 @@ pub use self::format::{Input, Output};
 
 pub mod network;
 
-use std::ffi::CString;
-use std::path::Path;
+use std::ffi::{CString, OsStr};
 use std::ptr;
 
 use crate::ffi::*;
@@ -38,15 +37,10 @@ pub fn license() -> &'static str {
     unsafe { utils::str_from_c_ptr(avformat_license()) }
 }
 
-// XXX: use to_cstring when stable
-fn from_path<P: AsRef<Path>>(path: P) -> CString {
-    CString::new(path.as_ref().as_os_str().to_str().unwrap()).unwrap()
-}
-
-pub fn input<P: AsRef<Path>>(path: P) -> Result<context::Input, Error> {
+pub fn input<P: AsRef<OsStr>>(path_or_url: P) -> Result<context::Input, Error> {
     unsafe {
         let mut ps = ptr::null_mut();
-        let path = from_path(path);
+        let path = from_os_str(path_or_url);
 
         match avformat_open_input(&mut ps, path.as_ptr(), ptr::null_mut(), ptr::null_mut()) {
             0 => match avformat_find_stream_info(ps, ptr::null_mut()) {
@@ -62,14 +56,17 @@ pub fn input<P: AsRef<Path>>(path: P) -> Result<context::Input, Error> {
     }
 }
 
-pub fn input_with_dictionary<P, Dict>(path: P, mut options: Dict) -> Result<context::Input, Error>
+pub fn input_with_dictionary<P, Dict>(
+    path_or_url: P,
+    mut options: Dict,
+) -> Result<context::Input, Error>
 where
     Dict: AsMutPtr<*mut AVDictionary>,
-    P: AsRef<Path>,
+    P: AsRef<OsStr>,
 {
     unsafe {
         let mut ps = ptr::null_mut();
-        let path = from_path(path);
+        let path = from_os_str(path_or_url);
         let res = avformat_open_input(
             &mut ps,
             path.as_ptr(),
@@ -91,13 +88,14 @@ where
     }
 }
 
-pub fn input_with_interrupt<P: AsRef<Path>, F>(path: P, closure: F) -> Result<context::Input, Error>
+pub fn input_with_interrupt<P, F>(path_or_url: P, closure: F) -> Result<context::Input, Error>
 where
+    P: AsRef<OsStr>,
     F: FnMut() -> bool,
 {
     unsafe {
         let mut ps = avformat_alloc_context();
-        let path = from_path(path);
+        let path = from_os_str(path_or_url);
         (*ps).interrupt_callback = interrupt::new(Box::new(closure)).interrupt;
 
         match avformat_open_input(&mut ps, path.as_ptr(), ptr::null_mut(), ptr::null_mut()) {
@@ -114,10 +112,10 @@ where
     }
 }
 
-pub fn output<P: AsRef<Path>>(path: P) -> Result<context::Output, Error> {
+pub fn output<P: AsRef<OsStr>>(path_or_url: P) -> Result<context::Output, Error> {
     unsafe {
         let mut ps = ptr::null_mut();
-        let path = from_path(path);
+        let path = from_os_str(path_or_url);
 
         match avformat_alloc_output_context2(&mut ps, ptr::null_mut(), ptr::null(), path.as_ptr()) {
             0 => match avio_open(&mut (*ps).pb, path.as_ptr(), AVIO_FLAG_WRITE) {
@@ -130,14 +128,14 @@ pub fn output<P: AsRef<Path>>(path: P) -> Result<context::Output, Error> {
     }
 }
 
-pub fn output_with<P, Dict>(path: P, mut options: Dict) -> Result<context::Output, Error>
+pub fn output_with<P, Dict>(path_or_url: P, mut options: Dict) -> Result<context::Output, Error>
 where
-    P: AsRef<Path>,
+    P: AsRef<OsStr>,
     Dict: AsMutPtr<*mut AVDictionary>,
 {
     unsafe {
         let mut ps = ptr::null_mut();
-        let path = from_path(path);
+        let path = from_os_str(path_or_url);
 
         match avformat_alloc_output_context2(&mut ps, ptr::null_mut(), ptr::null(), path.as_ptr()) {
             0 => {
@@ -160,10 +158,10 @@ where
     }
 }
 
-pub fn output_as<P: AsRef<Path>>(path: P, format: &str) -> Result<context::Output, Error> {
+pub fn output_as<P: AsRef<OsStr>>(path_or_url: P, format: &str) -> Result<context::Output, Error> {
     unsafe {
         let mut ps = ptr::null_mut();
-        let path = from_path(path);
+        let path = from_os_str(path_or_url);
         let format = CString::new(format).unwrap();
 
         match avformat_alloc_output_context2(
@@ -188,12 +186,12 @@ pub fn output_as_with<P, Dict>(
     mut options: Dict,
 ) -> Result<context::Output, Error>
 where
-    P: AsRef<Path>,
+    P: AsRef<OsStr>,
     Dict: AsMutPtr<*mut AVDictionary>,
 {
     unsafe {
         let mut ps = ptr::null_mut();
-        let path = from_path(path);
+        let path = from_os_str(path);
         let format = CString::new(format).unwrap();
 
         match avformat_alloc_output_context2(
@@ -220,4 +218,16 @@ where
             e => Err(Error::from(e)),
         }
     }
+}
+
+#[cfg(unix)]
+fn from_os_str(path_or_url: impl AsRef<OsStr>) -> CString {
+    use std::os::unix::ffi::OsStrExt;
+
+    CString::new(path_or_url.as_ref().as_bytes()).unwrap()
+}
+
+#[cfg(not(unix))]
+fn from_os_str(path_or_url: impl AsRef<OsStr>) -> CString {
+    CString::new(path_or_url.as_ref().to_str().unwrap()).unwrap()
 }
