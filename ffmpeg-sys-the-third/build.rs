@@ -128,17 +128,16 @@ impl ParseCallbacks for Callbacks {
     }
 }
 
-fn version() -> String {
-    let major: u8 = env::var("CARGO_PKG_VERSION_MAJOR")
+fn ffmpeg_version() -> String {
+    env!("CARGO_PKG_VERSION")
+        .split('+')
+        .nth(1)
         .unwrap()
-        .parse()
-        .unwrap();
-    let minor: u8 = env::var("CARGO_PKG_VERSION_MINOR")
-        .unwrap()
-        .parse()
-        .unwrap();
+        .replace("ffmpeg-", "")
+}
 
-    format!("{}.{}", major, minor)
+fn ffmpeg_major_version() -> u32 {
+    ffmpeg_version().split('.').next().unwrap().parse().unwrap()
 }
 
 fn output() -> PathBuf {
@@ -146,7 +145,7 @@ fn output() -> PathBuf {
 }
 
 fn source() -> PathBuf {
-    output().join(format!("ffmpeg-{}", version()))
+    output().join(format!("ffmpeg-{}", ffmpeg_version()))
 }
 
 fn search() -> PathBuf {
@@ -159,14 +158,14 @@ fn search() -> PathBuf {
 
 fn fetch() -> io::Result<()> {
     let output_base_path = output();
-    let clone_dest_dir = format!("ffmpeg-{}", version());
+    let clone_dest_dir = format!("ffmpeg-{}", ffmpeg_version());
     let _ = std::fs::remove_dir_all(output_base_path.join(&clone_dest_dir));
     let status = Command::new("git")
         .current_dir(&output_base_path)
         .arg("clone")
         .arg("--depth=1")
         .arg("-b")
-        .arg(format!("release/{}", version()))
+        .arg(format!("release/{}", ffmpeg_version()))
         .arg("https://github.com/FFmpeg/FFmpeg")
         .arg(&clone_dest_dir)
         .status()?;
@@ -265,7 +264,7 @@ fn build() -> io::Result<()> {
     // the binary using ffmpeg-sys cannot be redistributed
     switch(&mut configure, "BUILD_LICENSE_NONFREE", "nonfree");
 
-    let ffmpeg_major_version: u32 = env!("CARGO_PKG_VERSION_MAJOR").parse().unwrap();
+    let ffmpeg_major_version: u32 = ffmpeg_major_version();
 
     // configure building libraries based on features
     for lib in LIBRARIES
@@ -641,7 +640,7 @@ fn link_to_libraries(statik: bool) {
 
 fn main() {
     let statik = env::var("CARGO_FEATURE_STATIC").is_ok();
-    let ffmpeg_major_version: u32 = env!("CARGO_PKG_VERSION_MAJOR").parse().unwrap();
+    let ffmpeg_major_version: u32 = ffmpeg_major_version();
 
     let include_paths: Vec<PathBuf> = if env::var("CARGO_FEATURE_BUILD").is_ok() {
         println!(
