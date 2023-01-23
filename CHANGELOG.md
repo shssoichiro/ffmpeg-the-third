@@ -1,3 +1,8 @@
+## Version 1.0.1
+
+- Remove the "ffmpeg4.x" features that were supposed to have been removed when ffmpeg5 was released.
+  This is _technically_ a breaking change, but I'm publishing it so quickly after the initial release of this fork that hopefully nobody is depending on those old, deprecated features that you should have removed ages ago anyway.
+
 ## Version 1.0.0
 
 - Fork from https://github.com/zmwangx/rust-ffmpeg
