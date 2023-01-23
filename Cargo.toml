@@ -1,6 +1,6 @@
 [package]
 name = "ffmpeg-the-third"
-version = "5.1.1"
+version = "1.0.0+ffmpeg-5.1.2"
 build = "build.rs"
 
 authors = ["meh. <meh@schizofreni.co>", "Zhiming Wang <i@zhimingwang.org>"]
@@ -120,9 +120,9 @@ libc = "0.2"
 bitflags = "1.2"
 
 [dependencies.image]
-version = "0.23"
+version = "0.24"
 optional = true
 
 [dependencies.ffmpeg-sys-the-third]
-version = "5.1.1"
+version = "1.0.0"
 default-features = false

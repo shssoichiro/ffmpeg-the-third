@@ -26,7 +26,7 @@ impl<'a> Chapter<'a> {
     }
 
     pub fn id(&self) -> i64 {
-        unsafe { (*self.as_ptr()).id as i64 }
+        unsafe { (*self.as_ptr()).id }
     }
 
     pub fn time_base(&self) -> Rational {

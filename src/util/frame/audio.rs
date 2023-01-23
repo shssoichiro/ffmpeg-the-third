@@ -69,7 +69,7 @@ impl Audio {
     #[inline]
     pub fn set_channel_layout(&mut self, value: ChannelLayout) {
         unsafe {
-            (*self.as_mut_ptr()).channel_layout = value.bits() as u64;
+            (*self.as_mut_ptr()).channel_layout = value.bits();
         }
     }
 
@@ -140,7 +140,7 @@ impl Audio {
             panic!("out of bounds");
         }
 
-        if !<T as Sample>::is_valid(self.format(), self.channels() as u16) {
+        if !<T as Sample>::is_valid(self.format(), self.channels()) {
             panic!("unsupported type");
         }
 
@@ -153,7 +153,7 @@ impl Audio {
             panic!("out of bounds");
         }
 
-        if !<T as Sample>::is_valid(self.format(), self.channels() as u16) {
+        if !<T as Sample>::is_valid(self.format(), self.channels()) {
             panic!("unsupported type");
         }
 

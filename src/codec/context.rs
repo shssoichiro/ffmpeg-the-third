@@ -101,7 +101,7 @@ impl Context {
         unsafe {
             (*self.as_mut_ptr()).thread_type = config.kind.into();
             (*self.as_mut_ptr()).thread_count = config.count as c_int;
-            (*self.as_mut_ptr()).thread_safe_callbacks = if config.safe { 1 } else { 0 };
+            (*self.as_mut_ptr()).thread_safe_callbacks = i32::from(config.safe);
         }
     }
 
