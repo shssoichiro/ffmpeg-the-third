@@ -13,8 +13,11 @@ use std::mem;
 use ffi::AVSubtitleType::*;
 use ffi::*;
 use libc::{c_uint, size_t};
+#[cfg(feature = "serialize")]
+use serde::{Deserialize, Serialize};
 
 #[derive(Eq, PartialEq, Clone, Copy, Debug)]
+#[cfg_attr(feature = "serialize", derive(Serialize, Deserialize))]
 pub enum Type {
     None,
     Bitmap,

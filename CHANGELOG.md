@@ -1,3 +1,7 @@
+## Version 1.1.0
+
+- Add `serialize` feature, off by default, which derives `serde::{Serialize, Deserialize}` for as many types as possible
+
 ## Version 1.0.1
 
 - Remove the "ffmpeg4.x" features that were supposed to have been removed when ffmpeg5 was released.

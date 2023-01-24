@@ -1,9 +1,12 @@
 use super::Id;
 use ffi::*;
 use libc::c_int;
+#[cfg(feature = "serialize")]
+use serde::{Deserialize, Serialize};
 
 #[allow(non_camel_case_types)]
 #[derive(Eq, PartialEq, Clone, Copy, Debug)]
+#[cfg_attr(feature = "serialize", derive(Serialize, Deserialize))]
 pub enum Profile {
     Unknown,
     Reserved,
@@ -21,6 +24,7 @@ pub enum Profile {
 
 #[allow(non_camel_case_types)]
 #[derive(Eq, PartialEq, Clone, Copy, Debug)]
+#[cfg_attr(feature = "serialize", derive(Serialize, Deserialize))]
 pub enum AAC {
     Main,
     Low,
@@ -37,6 +41,7 @@ pub enum AAC {
 
 #[allow(non_camel_case_types)]
 #[derive(Eq, PartialEq, Clone, Copy, Debug)]
+#[cfg_attr(feature = "serialize", derive(Serialize, Deserialize))]
 pub enum DTS {
     Default,
     ES,
@@ -48,6 +53,7 @@ pub enum DTS {
 
 #[allow(non_camel_case_types)]
 #[derive(Eq, PartialEq, Clone, Copy, Debug)]
+#[cfg_attr(feature = "serialize", derive(Serialize, Deserialize))]
 pub enum MPEG2 {
     _422,
     High,
@@ -59,6 +65,7 @@ pub enum MPEG2 {
 
 #[allow(non_camel_case_types)]
 #[derive(Eq, PartialEq, Clone, Copy, Debug)]
+#[cfg_attr(feature = "serialize", derive(Serialize, Deserialize))]
 pub enum H264 {
     Constrained,
     Intra,
@@ -79,6 +86,7 @@ pub enum H264 {
 
 #[allow(non_camel_case_types)]
 #[derive(Eq, PartialEq, Clone, Copy, Debug)]
+#[cfg_attr(feature = "serialize", derive(Serialize, Deserialize))]
 pub enum VC1 {
     Simple,
     Main,
@@ -88,6 +96,7 @@ pub enum VC1 {
 
 #[allow(non_camel_case_types)]
 #[derive(Eq, PartialEq, Clone, Copy, Debug)]
+#[cfg_attr(feature = "serialize", derive(Serialize, Deserialize))]
 pub enum MPEG4 {
     Simple,
     SimpleScalable,
@@ -109,6 +118,7 @@ pub enum MPEG4 {
 
 #[allow(non_camel_case_types)]
 #[derive(Eq, PartialEq, Clone, Copy, Debug)]
+#[cfg_attr(feature = "serialize", derive(Serialize, Deserialize))]
 pub enum JPEG2000 {
     CStreamRestriction0,
     CStreamRestriction1,
@@ -119,6 +129,7 @@ pub enum JPEG2000 {
 
 #[allow(non_camel_case_types)]
 #[derive(Eq, PartialEq, Clone, Copy, Debug)]
+#[cfg_attr(feature = "serialize", derive(Serialize, Deserialize))]
 pub enum HEVC {
     Main,
     Main10,
@@ -128,6 +139,7 @@ pub enum HEVC {
 
 #[allow(non_camel_case_types)]
 #[derive(Eq, PartialEq, Clone, Copy, Debug)]
+#[cfg_attr(feature = "serialize", derive(Serialize, Deserialize))]
 pub enum VP9 {
     _0,
     _1,

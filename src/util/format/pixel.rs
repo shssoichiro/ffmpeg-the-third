@@ -5,8 +5,11 @@ use std::str::{from_utf8_unchecked, FromStr};
 
 use ffi::AVPixelFormat::*;
 use ffi::*;
+#[cfg(feature = "serialize")]
+use serde::{Deserialize, Serialize};
 
 #[derive(Eq, PartialEq, Copy, Clone, Debug)]
+#[cfg_attr(feature = "serialize", derive(Serialize, Deserialize))]
 pub enum Pixel {
     None,
 

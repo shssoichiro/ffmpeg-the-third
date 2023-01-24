@@ -3,8 +3,11 @@ pub use self::traits::{Gettable, Iterable, Settable, Target};
 
 use ffi::AVOptionType::*;
 use ffi::*;
+#[cfg(feature = "serialize")]
+use serde::{Deserialize, Serialize};
 
 #[derive(PartialEq, Eq, Copy, Clone, Debug)]
+#[cfg_attr(feature = "serialize", derive(Serialize, Deserialize))]
 pub enum Type {
     Flags,
     Int,

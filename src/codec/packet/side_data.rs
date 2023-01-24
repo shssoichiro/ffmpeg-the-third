@@ -4,8 +4,11 @@ use std::slice;
 use super::Packet;
 use ffi::AVPacketSideDataType::*;
 use ffi::*;
+#[cfg(feature = "serialize")]
+use serde::{Deserialize, Serialize};
 
 #[derive(Eq, PartialEq, Copy, Clone, Debug)]
+#[cfg_attr(feature = "serialize", derive(Serialize, Deserialize))]
 pub enum Type {
     Palette,
     NewExtraData,

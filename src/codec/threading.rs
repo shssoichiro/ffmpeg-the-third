@@ -1,5 +1,7 @@
 use ffi::*;
 use libc::c_int;
+#[cfg(feature = "serialize")]
+use serde::{Deserialize, Serialize};
 
 #[derive(Eq, PartialEq, Clone, Copy, Debug)]
 pub struct Config {
@@ -42,6 +44,7 @@ impl Default for Config {
 }
 
 #[derive(Eq, PartialEq, Clone, Copy, Debug)]
+#[cfg_attr(feature = "serialize", derive(Serialize, Deserialize))]
 pub enum Type {
     None,
     Frame,

@@ -6,6 +6,8 @@ use std::str::from_utf8_unchecked;
 
 use ffi::*;
 use libc::{c_char, c_int};
+#[cfg(feature = "serialize")]
+use serde::{Deserialize, Serialize};
 
 // Export POSIX error codes so that users can do something like
 //
@@ -25,6 +27,7 @@ pub use libc::{
 };
 
 #[derive(Copy, Clone, PartialEq, Eq)]
+#[cfg_attr(feature = "serialize", derive(Serialize, Deserialize))]
 pub enum Error {
     Bug,
     Bug2,

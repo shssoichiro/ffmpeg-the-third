@@ -3,8 +3,11 @@ use std::str::from_utf8_unchecked;
 
 use ffi::AVColorSpace::*;
 use ffi::*;
+#[cfg(feature = "serialize")]
+use serde::{Deserialize, Serialize};
 
 #[derive(Eq, PartialEq, Clone, Copy, Debug)]
+#[cfg_attr(feature = "serialize", derive(Serialize, Deserialize))]
 pub enum Space {
     RGB,
     BT709,

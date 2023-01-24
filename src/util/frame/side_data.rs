@@ -6,9 +6,12 @@ use std::str::from_utf8_unchecked;
 use super::Frame;
 use ffi::AVFrameSideDataType::*;
 use ffi::*;
+#[cfg(feature = "serialize")]
+use serde::{Deserialize, Serialize};
 use DictionaryRef;
 
 #[derive(Eq, PartialEq, Copy, Clone, Debug)]
+#[cfg_attr(feature = "serialize", derive(Serialize, Deserialize))]
 pub enum Type {
     PanScan,
     A53CC,

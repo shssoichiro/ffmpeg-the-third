@@ -7,8 +7,11 @@ use std::str::from_utf8_unchecked;
 use ffi::AVSampleFormat::*;
 use ffi::*;
 use libc::{c_int, c_void};
+#[cfg(feature = "serialize")]
+use serde::{Deserialize, Serialize};
 
 #[derive(Eq, PartialEq, Copy, Clone, Debug)]
+#[cfg_attr(feature = "serialize", derive(Serialize, Deserialize))]
 pub enum Sample {
     None,
 
@@ -21,6 +24,7 @@ pub enum Sample {
 }
 
 #[derive(Eq, PartialEq, Copy, Clone, Debug)]
+#[cfg_attr(feature = "serialize", derive(Serialize, Deserialize))]
 pub enum Type {
     Packed,
     Planar,

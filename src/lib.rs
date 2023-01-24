@@ -9,6 +9,8 @@ pub extern crate ffmpeg_sys_the_third as sys;
 #[cfg(feature = "image")]
 extern crate image;
 extern crate libc;
+#[cfg(feature = "serialize")]
+extern crate serde;
 
 pub use sys as ffi;
 

@@ -1,6 +1,6 @@
 [package]
 name = "ffmpeg-the-third"
-version = "1.0.1+ffmpeg-5.1.2"
+version = "1.1.0+ffmpeg-5.1.2"
 build = "build.rs"
 
 authors = ["meh. <meh@schizofreni.co>", "Zhiming Wang <i@zhimingwang.org>"]
@@ -30,6 +30,8 @@ build = ["static", "ffmpeg-sys-the-third/build"]
 
 # mark enums in generated bindings as #[non_exhaustive]
 non-exhaustive-enums = ["ffmpeg-sys-the-third/non-exhaustive-enums"]
+
+serialize = ["serde"]
 
 # licensing
 build-license-gpl = ["ffmpeg-sys-the-third/build-license-gpl"]
@@ -117,3 +119,8 @@ optional = true
 [dependencies.ffmpeg-sys-the-third]
 version = "1.0.0"
 default-features = false
+
+[dependencies.serde]
+version = "1.0.152"
+optional = true
+features = ["derive"]
