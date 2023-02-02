@@ -79,7 +79,7 @@ impl Subtitle {
     }
 
     pub fn start(&self) -> u32 {
-        self.0.start_display_time
+        self.0.start_display_time as u32
     }
 
     pub fn set_start(&mut self, value: u32) {
@@ -87,7 +87,7 @@ impl Subtitle {
     }
 
     pub fn end(&self) -> u32 {
-        self.0.end_display_time
+        self.0.end_display_time as u32
     }
 
     pub fn set_end(&mut self, value: u32) {

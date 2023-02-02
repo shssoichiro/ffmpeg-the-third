@@ -1,3 +1,7 @@
+## Version 1.1.1
+
+- Fix compilation on some non-x64 platforms
+
 ## Version 1.1.0
 
 - Add `serialize` feature, off by default, which derives `serde::{Serialize, Deserialize}` for as many types as possible
