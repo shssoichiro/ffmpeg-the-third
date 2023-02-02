@@ -3,12 +3,12 @@ use Error;
 
 #[inline(always)]
 pub fn current() -> i64 {
-    unsafe { av_gettime() }
+    unsafe { av_gettime() as i64 }
 }
 
 #[inline(always)]
 pub fn relative() -> i64 {
-    unsafe { av_gettime_relative() }
+    unsafe { av_gettime_relative() as i64 }
 }
 
 #[inline(always)]
