@@ -1,3 +1,7 @@
+## Version 1.1.2
+
+- Fix static building after a change in ffmpeg's branch naming structure broke it
+
 ## Version 1.1.1
 
 - Fix compilation on some non-x64 platforms

@@ -1,6 +1,6 @@
 [package]
 name = "ffmpeg-the-third"
-version = "1.1.1+ffmpeg-5.1.2"
+version = "1.1.2+ffmpeg-5.1.2"
 build = "build.rs"
 
 authors = ["meh. <meh@schizofreni.co>", "Zhiming Wang <i@zhimingwang.org>"]
