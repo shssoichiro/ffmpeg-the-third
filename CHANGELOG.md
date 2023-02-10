@@ -1,6 +1,10 @@
-## Version 1.1.2
+## _sys_ Version 1.0.1
 
 - Fix static building after a change in ffmpeg's branch naming structure broke it
+
+## Version 1.1.2
+
+No changes from 1.1.1.
 
 ## Version 1.1.1
 

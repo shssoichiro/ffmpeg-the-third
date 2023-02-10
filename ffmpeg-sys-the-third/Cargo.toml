@@ -1,6 +1,6 @@
 [package]
 name = "ffmpeg-sys-the-third"
-version = "1.0.0+ffmpeg-5.1.2"
+version = "1.0.1+ffmpeg-5.1.2"
 build = "build.rs"
 links = "ffmpeg"
 
