@@ -1,3 +1,7 @@
+## _sys_ Version 1.0.2
+
+- Fix building against clang 16 by using latest bindgen crate
+
 ## _sys_ Version 1.0.1
 
 - Fix static building after a change in ffmpeg's branch naming structure broke it
