@@ -1169,9 +1169,9 @@ fn main() {
         .parse_callbacks(Box::new(Callbacks));
 
     if env::var("CARGO_FEATURE_NON_EXHAUSTIVE_ENUMS").is_ok() {
-        builder = builder.rustified_non_exhaustive_enum("*");
+        builder = builder.rustified_non_exhaustive_enum(".*");
     } else {
-        builder = builder.rustified_enum("*");
+        builder = builder.rustified_enum(".*");
     }
 
     // The input headers we would like to generate
