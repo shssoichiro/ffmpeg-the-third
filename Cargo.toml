@@ -117,7 +117,7 @@ version = "0.24"
 optional = true
 
 [dependencies.ffmpeg-sys-the-third]
-version = "1.0.0"
+version = "1.1.0"
 default-features = false
 
 [dependencies.serde]
