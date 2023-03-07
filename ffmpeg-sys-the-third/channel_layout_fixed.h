@@ -2,7 +2,8 @@
 // https://github.com/rust-lang/rust-bindgen/issues/258 is fixed.
 #include <libavutil/channel_layout.h>
 
-#if LIBAVUTIL_VERSION_MAJOR >= 57 && LIBAVUTIL_VERSION_MINOR >= 28
+#if (LIBAVUTIL_VERSION_MAJOR >= 57 && LIBAVUTIL_VERSION_MINOR >= 28) ||        \
+    LIBAVUTIL_VERSION_MAJOR >= 58
 
 #undef AV_CH_FRONT_LEFT
 #undef AV_CH_FRONT_RIGHT
@@ -37,10 +38,8 @@
 
 const unsigned long long AV_CH_FRONT_LEFT = (1ULL << AV_CHAN_FRONT_LEFT);
 const unsigned long long AV_CH_FRONT_RIGHT = (1ULL << AV_CHAN_FRONT_RIGHT);
-const unsigned long long AV_CH_FRONT_CENTER =
-    (1ULL << AV_CHAN_FRONT_CENTER);
-const unsigned long long AV_CH_LOW_FREQUENCY =
-    (1ULL << AV_CHAN_LOW_FREQUENCY);
+const unsigned long long AV_CH_FRONT_CENTER = (1ULL << AV_CHAN_FRONT_CENTER);
+const unsigned long long AV_CH_LOW_FREQUENCY = (1ULL << AV_CHAN_LOW_FREQUENCY);
 const unsigned long long AV_CH_BACK_LEFT = (1ULL << AV_CHAN_BACK_LEFT);
 const unsigned long long AV_CH_BACK_RIGHT = (1ULL << AV_CHAN_BACK_RIGHT);
 const unsigned long long AV_CH_FRONT_LEFT_OF_CENTER =
@@ -57,15 +56,13 @@ const unsigned long long AV_CH_TOP_FRONT_CENTER =
     (1ULL << AV_CHAN_TOP_FRONT_CENTER);
 const unsigned long long AV_CH_TOP_FRONT_RIGHT =
     (1ULL << AV_CHAN_TOP_FRONT_RIGHT);
-const unsigned long long AV_CH_TOP_BACK_LEFT =
-    (1ULL << AV_CHAN_TOP_BACK_LEFT);
+const unsigned long long AV_CH_TOP_BACK_LEFT = (1ULL << AV_CHAN_TOP_BACK_LEFT);
 const unsigned long long AV_CH_TOP_BACK_CENTER =
     (1ULL << AV_CHAN_TOP_BACK_CENTER);
 const unsigned long long AV_CH_TOP_BACK_RIGHT =
     (1ULL << AV_CHAN_TOP_BACK_RIGHT);
 const unsigned long long AV_CH_STEREO_LEFT = (1ULL << AV_CHAN_STEREO_LEFT);
-const unsigned long long AV_CH_STEREO_RIGHT =
-    (1ULL << AV_CHAN_STEREO_RIGHT);
+const unsigned long long AV_CH_STEREO_RIGHT = (1ULL << AV_CHAN_STEREO_RIGHT);
 const unsigned long long AV_CH_WIDE_LEFT = (1ULL << AV_CHAN_WIDE_LEFT);
 const unsigned long long AV_CH_WIDE_RIGHT = (1ULL << AV_CHAN_WIDE_RIGHT);
 const unsigned long long AV_CH_SURROUND_DIRECT_LEFT =
@@ -74,8 +71,7 @@ const unsigned long long AV_CH_SURROUND_DIRECT_RIGHT =
     (1ULL << AV_CHAN_SURROUND_DIRECT_RIGHT);
 const unsigned long long AV_CH_LOW_FREQUENCY_2 =
     (1ULL << AV_CHAN_LOW_FREQUENCY_2);
-const unsigned long long AV_CH_TOP_SIDE_LEFT =
-    (1ULL << AV_CHAN_TOP_SIDE_LEFT);
+const unsigned long long AV_CH_TOP_SIDE_LEFT = (1ULL << AV_CHAN_TOP_SIDE_LEFT);
 const unsigned long long AV_CH_TOP_SIDE_RIGHT =
     (1ULL << AV_CHAN_TOP_SIDE_RIGHT);
 const unsigned long long AV_CH_BOTTOM_FRONT_CENTER =
