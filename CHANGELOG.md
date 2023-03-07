@@ -1,3 +1,15 @@
+## Version 1.2.1
+
+- Fix ffmpeg 4.x support that was broken in 1.2.0
+
+## Version 1.2.0
+
+- Add ffmpeg 6.0 support
+
+## _sys_ Version 1.1.0
+
+- Add ffmpeg 6.0 support
+
 ## _sys_ Version 1.0.2
 
 - Fix building against clang 16 by using latest bindgen crate

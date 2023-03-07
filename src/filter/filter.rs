@@ -47,10 +47,20 @@ impl Filter {
             if ptr.is_null() {
                 None
             } else {
-                Some(PadIter::new(
-                    (*self.as_ptr()).inputs,
-                    (*self.as_ptr()).nb_inputs as isize,
-                ))
+                #[cfg(feature = "ffmpeg_5_0")]
+                {
+                    Some(PadIter::new(
+                        (*self.as_ptr()).inputs,
+                        (*self.as_ptr()).nb_inputs as isize,
+                    ))
+                }
+                #[cfg(not(feature = "ffmpeg_5_0"))]
+                {
+                    Some(PadIter::new(
+                        (*self.as_ptr()).inputs,
+                        (*self.as_ptr()).inputs as isize,
+                    ))
+                }
             }
         }
     }
@@ -62,10 +72,20 @@ impl Filter {
             if ptr.is_null() {
                 None
             } else {
-                Some(PadIter::new(
-                    (*self.as_ptr()).outputs,
-                    (*self.as_ptr()).nb_outputs as isize,
-                ))
+                #[cfg(feature = "ffmpeg_5_0")]
+                {
+                    Some(PadIter::new(
+                        (*self.as_ptr()).outputs,
+                        (*self.as_ptr()).nb_outputs as isize,
+                    ))
+                }
+                #[cfg(not(feature = "ffmpeg_5_0"))]
+                {
+                    Some(PadIter::new(
+                        (*self.as_ptr()).outputs,
+                        (*self.as_ptr()).outputs as isize,
+                    ))
+                }
             }
         }
     }
