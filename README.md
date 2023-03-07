@@ -4,7 +4,7 @@
 
 This is a fork of the abandoned [ffmpeg-next](https://crates.io/crates/ffmpeg-next) crate which is a fork of the abandoned [ffmpeg](https://crates.io/crates/ffmpeg) crate.
 
-Currently supported FFmpeg versions: 4.x, 5.x.
+Currently supported FFmpeg versions: 4.x, 5.x, 6.x.
 
 Build instructions can be found on the [wiki](https://github.com/zmwangx/rust-ffmpeg/wiki/Notes-on-building).
 
