@@ -1,3 +1,7 @@
+## Version 1.2.2
+
+- Do a better job of fixing ffmpeg 6.0 support :)
+
 ## Version 1.2.1
 
 - Fix ffmpeg 4.x support that was broken in 1.2.0
