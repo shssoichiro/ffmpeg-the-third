@@ -96,9 +96,6 @@ jobs:
           toolchain: stable
           override: true
           components: rustfmt, clippy
-      - name: Build Debug
-        run: |
-          cargo build --verbose
       - name: Build
         run: |
           cargo build --examples
