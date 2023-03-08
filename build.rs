@@ -7,10 +7,6 @@ fn main() {
                 r#"cargo:rustc-cfg=feature="{}""#,
                 name["DEP_FFMPEG_".len()..name.len()].to_lowercase()
             );
-            eprintln!(
-                r#"cargo:rustc-cfg=feature="{}""#,
-                name["DEP_FFMPEG_".len()..name.len()].to_lowercase()
-            );
         }
     }
 }
