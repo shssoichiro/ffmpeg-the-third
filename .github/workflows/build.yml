@@ -44,7 +44,7 @@ jobs:
     # There is no docker image for ffmpeg 6.0, so we have to build it ourselves
     name: Linux - FFmpeg 6.0 - build, test and lint
     runs-on: ubuntu-latest
-    container: jrottenberg/ffmpeg:5.1-ubuntu
+    container: rust:latest
     strategy:
       fail-fast: false
     steps:
