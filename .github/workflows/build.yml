@@ -12,7 +12,8 @@ jobs:
     strategy:
       matrix:
         ffmpeg_version:
-          ["3.4", "4.0", "4.1", "4.2", "4.3", "4.4", "5.0", "5.1", "6.0"]
+          # The windows build tests ffmpeg 6.0. There's no linux image for 6.0 at this time.
+          ["3.4", "4.0", "4.1", "4.2", "4.3", "4.4", "5.0", "5.1"]
       fail-fast: false
     steps:
       - uses: actions/checkout@v2
