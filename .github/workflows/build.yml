@@ -52,7 +52,7 @@ jobs:
       - name: Install dependencies
         run: |
           apt update
-          apt install -y --no-install-recommends clang curl pkg-config
+          apt install -y --no-install-recommends clang curl pkg-config nasm
       - name: Set up Rust
         uses: actions-rs/toolchain@v1
         with:
