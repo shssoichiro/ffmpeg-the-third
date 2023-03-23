@@ -763,10 +763,6 @@ fn main() {
     };
 
     if statik && cfg!(target_os = "macos") {
-        let brew_pkgconfig = cfg!(target_arch = "aarch64")
-            .then_some("/opt/homebrew/lib/pkgconfig/")
-            .unwrap_or("/usr/local/homebrew/lib/pkgconfig/");
-        env::set_var("PKG_CONFIG_PATH", brew_pkgconfig);
         let frameworks = vec![
             "AppKit",
             "AudioToolbox",
@@ -790,7 +786,6 @@ fn main() {
         }
     }
 
-    println!("cargo:warning={include_paths:?}");
     check_features(
         include_paths.clone(),
         &[
