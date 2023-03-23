@@ -59,7 +59,7 @@ fn main() -> Result<(), ffmpeg::Error> {
 }
 
 fn save_file(frame: &Video, index: usize) -> std::result::Result<(), std::io::Error> {
-    let mut file = File::create(format!("frame{}.ppm", index))?;
+    let mut file = File::create(format!("frame{index}.ppm"))?;
     file.write_all(format!("P6\n{} {}\n255\n", frame.width(), frame.height()).as_bytes())?;
     file.write_all(frame.data(0))?;
     Ok(())

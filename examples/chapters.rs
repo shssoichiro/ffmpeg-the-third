@@ -16,7 +16,7 @@ fn main() {
                 println!("\tend: {}", chapter.end());
 
                 for (k, v) in chapter.metadata().iter() {
-                    println!("\t{}: {}", k, v);
+                    println!("\t{k}: {v}");
                 }
             }
 
@@ -49,11 +49,11 @@ fn main() {
                 println!("\tstart: {}", chapter.start());
                 println!("\tend: {}", chapter.end());
                 for (k, v) in chapter.metadata().iter() {
-                    println!("\t{}: {}", k, v);
+                    println!("\t{k}: {v}");
                 }
             }
         }
 
-        Err(error) => println!("error: {}", error),
+        Err(error) => println!("error: {error}"),
     }
 }
