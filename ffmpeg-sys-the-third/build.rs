@@ -399,6 +399,27 @@ fn try_vcpkg(statik: bool) -> Option<Vec<PathBuf>> {
         .ok()
 }
 
+// add well known package manager lib paths us as homebrew (or macports)
+#[cfg(target_os = "macos")]
+fn add_pkg_config_path() {
+    use std::path::Path;
+
+    let pc_path = pkg_config::get_variable("pkg-config", "pc_path").unwrap();
+    // append M1 homebrew pkgconfig path
+    let brew_pkgconfig = cfg!(target_arch = "aarch64")
+        .then_some("/opt/homebrew/lib/pkgconfig/")
+        .unwrap_or("/usr/local/homebrew/lib/pkgconfig/"); // x86 as fallback
+    if !pc_path.to_lowercase().contains(brew_pkgconfig) && Path::new(brew_pkgconfig).is_dir() {
+        let new_pc_path = env::var("PKG_CONFIG_PATH")
+            // PKG_CONFIG_PATH="/our/path:$PKG_CONFIG_PATH"
+            .map(|p| format!("{brew_pkgconfig}:{p}"))
+            .unwrap_or_else(|_| brew_pkgconfig.to_string());
+        env::set_var("PKG_CONFIG_PATH", new_pc_path);
+    }
+}
+#[cfg(not(target_os = "macos"))]
+fn add_pkg_config_path() {}
+
 fn check_features(
     include_paths: Vec<PathBuf>,
     infos: &[(&'static str, Option<&'static str>, &'static str)],
@@ -708,6 +729,7 @@ fn main() {
     }
     // Fallback to pkg-config
     else {
+        add_pkg_config_path();
         pkg_config::Config::new()
             .statik(statik)
             .probe("libavutil")
