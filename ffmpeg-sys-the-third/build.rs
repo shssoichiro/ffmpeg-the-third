@@ -410,13 +410,11 @@ fn add_pkg_config_path() {
         .then_some("/opt/homebrew/lib/pkgconfig/")
         .unwrap_or("/usr/local/homebrew/lib/pkgconfig/"); // x86 as fallback
     if !pc_path.to_lowercase().contains(brew_pkgconfig) && Path::new(brew_pkgconfig).is_dir() {
-        env::var("PKG_CONFIG_PATH")
-            .map(|pc_path| {
-                env::set_var("PKG_CONFIG_PATH", format!("{brew_pkgconfig}:{pc_path}"));
-            })
-            .unwrap_or_else(|_| {
-                env::set_var("PKG_CONFIG_PATH", brew_pkgconfig);
-            });
+        let new_pc_path = env::var("PKG_CONFIG_PATH")
+            // PKG_CONFIG_PATH="/our/path:$PKG_CONFIG_PATH"
+            .map(|p| format!("{brew_pkgconfig}:{p}"))
+            .unwrap_or_else(|_| brew_pkgconfig.to_string());
+        env::set_var("PKG_CONFIG_PATH", new_pc_path);
     }
 }
 #[cfg(not(target_os = "macos"))]
