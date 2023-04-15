@@ -42,7 +42,7 @@ fn main() {
     octx.set_metadata(ictx.metadata().to_owned());
     octx.write_header().unwrap();
 
-    for (stream, mut packet) in ictx.packets() {
+    for (stream, mut packet) in ictx.packets().filter_map(Result::ok) {
         let ist_index = stream.index();
         let ost_index = stream_mapping[ist_index];
         if ost_index < 0 {

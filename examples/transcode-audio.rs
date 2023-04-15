@@ -225,7 +225,7 @@ fn main() {
     octx.set_metadata(ictx.metadata().to_owned());
     octx.write_header().unwrap();
 
-    for (stream, mut packet) in ictx.packets() {
+    for (stream, mut packet) in ictx.packets().filter_map(Result::ok) {
         if stream.index() == transcoder.stream {
             packet.rescale_ts(stream.time_base(), transcoder.in_time_base);
             transcoder.send_packet_to_decoder(&packet);
