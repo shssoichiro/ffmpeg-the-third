@@ -1,12 +1,13 @@
 extern crate bindgen;
 extern crate cc;
+extern crate clang;
 extern crate num_cpus;
 extern crate pkg_config;
 
+use std::collections::HashMap;
 use std::env;
-use std::fmt::Write as FmtWrite;
 use std::fs::{self, File};
-use std::io::{self, BufRead, BufReader, Write};
+use std::io::{self, BufRead, BufReader};
 use std::path::PathBuf;
 use std::process::Command;
 use std::str;
@@ -424,8 +425,13 @@ fn check_features(
     include_paths: Vec<PathBuf>,
     infos: &[(&'static str, Option<&'static str>, &'static str)],
 ) {
-    let mut includes_code = String::new();
-    let mut main_code = String::new();
+    let clang = clang::Clang::new().expect("Cannot find clang");
+    let index = clang::Index::new(&clang, false, false);
+
+    let mut code = String::new();
+    let mut vars = HashMap::new();
+    let mut major = 0;
+    let mut minor = 0;
 
     for &(header, feature, var) in infos {
         if let Some(feature) = feature {
@@ -433,111 +439,60 @@ fn check_features(
                 continue;
             }
         }
-
         let include = format!("#include <{}>", header);
-        if !includes_code.contains(&include) {
-            includes_code.push_str(&include);
-            includes_code.push('\n');
+        if !code.contains(&include) {
+            code.push_str(&include);
+            code.push('\n');
         }
-        let _ = write!(
-            includes_code,
-            r#"
-            #ifndef {var}_is_defined
-            #ifndef {var}
-            #define {var} 0
-            #define {var}_is_defined 0
-            #else
-            #define {var}_is_defined 1
-            #endif
-            #endif
-        "#,
-            var = var
-        );
 
-        let _ = write!(
-            main_code,
-            r#"printf("[{var}]%d%d\n", {var}, {var}_is_defined);
-            "#,
-            var = var
-        );
+        vars.insert(var, (0, false));
     }
 
-    let version_check_info = [("avcodec", 56, 61, 0, 108)];
-    for &(lib, begin_version_major, end_version_major, begin_version_minor, end_version_minor) in
-        version_check_info.iter()
-    {
-        for version_major in begin_version_major..end_version_major {
-            for version_minor in begin_version_minor..end_version_minor {
-                let _ = write!(
-                    main_code,
-                    r#"printf("[{lib}_version_greater_than_{version_major}_{version_minor}]%d\n", LIB{lib_uppercase}_VERSION_MAJOR > {version_major} || (LIB{lib_uppercase}_VERSION_MAJOR == {version_major} && LIB{lib_uppercase}_VERSION_MINOR > {version_minor}));
-                    "#,
-                    lib = lib,
-                    lib_uppercase = lib.to_uppercase(),
-                    version_major = version_major,
-                    version_minor = version_minor
-                );
+    for var in vars.keys() {
+        code.push_str(&format!(
+            "#ifdef {var}\n\
+            \tint {var_name} = {var};\n\
+            #endif\n\n",
+            var_name = var.to_lowercase()
+        ))
+    }
+
+    code.push_str("\tint libavcodec_version_major = LIBAVCODEC_VERSION_MAJOR\n");
+    code.push_str("\tint libavcodec_version_minor = LIBAVCODEC_VERSION_MINOR\n");
+
+    let include_args = include_paths
+        .iter()
+        .map(|path| format!("-I{}", path.to_string_lossy()))
+        .collect::<Vec<_>>();
+
+    let tu = index
+        .parser("check.c")
+        .arguments(&include_args)
+        .unsaved(&[clang::Unsaved::new("check.c", code)])
+        .parse()
+        .expect("Unable to parse unsaved file");
+
+    fn get_int_result(entity: &clang::Entity) -> i64 {
+        if let Some(clang::EvaluationResult::SignedInteger(res)) = entity.evaluate() {
+            res
+        } else {
+            panic!("Unable to evaluate macro {}", entity.get_name().unwrap());
+        }
+    }
+
+    tu.get_entity().visit_children(|entity, _parent| {
+        if let (clang::EntityKind::VarDecl, Some(name)) = (entity.get_kind(), entity.get_name()) {
+            if name == "libavcodec_version_major" {
+                major = get_int_result(&entity);
+            } else if name == "libavcodec_version_minor" {
+                minor = get_int_result(&entity);
+            } else if let Some((val, defined)) = vars.get_mut(name.to_uppercase().as_str()) {
+                *defined = true;
+                *val = get_int_result(&entity);
             }
         }
-    }
-
-    let out_dir = output();
-
-    write!(
-        File::create(out_dir.join("check.c")).expect("Failed to create file"),
-        r#"
-            #include <stdio.h>
-            {includes_code}
-
-            int main()
-            {{
-                {main_code}
-                return 0;
-            }}
-           "#,
-        includes_code = includes_code,
-        main_code = main_code
-    )
-    .expect("Write failed");
-
-    let executable = out_dir.join(if cfg!(windows) { "check.exe" } else { "check" });
-    let mut compiler = cc::Build::new()
-        .target(&env::var("HOST").unwrap()) // don't cross-compile this
-        .get_compiler()
-        .to_command();
-
-    for dir in include_paths {
-        compiler.arg("-I");
-        compiler.arg(dir.to_string_lossy().into_owned());
-    }
-    if !compiler
-        .current_dir(&out_dir)
-        .arg("-o")
-        .arg(&executable)
-        .arg("check.c")
-        .status()
-        .expect("Command failed")
-        .success()
-    {
-        panic!("Compile failed");
-    }
-
-    let check_output = Command::new(out_dir.join(&executable))
-        .current_dir(&out_dir)
-        .output()
-        .expect("Check failed");
-    if !check_output.status.success() {
-        panic!(
-            "{} failed: {}\n{}",
-            executable.display(),
-            String::from_utf8_lossy(&check_output.stdout),
-            String::from_utf8_lossy(&check_output.stderr)
-        );
-    }
-
-    let stdout = str::from_utf8(&check_output.stdout).unwrap();
-
-    println!("stdout of {}={}", executable.display(), stdout);
+        clang::EntityVisitResult::Continue
+    });
 
     for &(_, feature, var) in infos {
         if let Some(feature) = feature {
@@ -546,51 +501,12 @@ fn check_features(
             }
         }
 
-        let var_str = format!("[{var}]", var = var);
-        let pos = var_str.len()
-            + stdout
-                .find(&var_str)
-                .unwrap_or_else(|| panic!("Variable '{}' not found in stdout output", var_str));
-        if &stdout[pos..pos + 1] == "1" {
-            println!(r#"cargo:rustc-cfg=feature="{}""#, var.to_lowercase());
-            println!(r#"cargo:{}=true"#, var.to_lowercase());
-        }
-
-        // Also find out if defined or not (useful for cases where only the definition of a macro
-        // can be used as distinction)
-        if &stdout[pos + 1..pos + 2] == "1" {
-            println!(
-                r#"cargo:rustc-cfg=feature="{}_is_defined""#,
-                var.to_lowercase()
-            );
-            println!(r#"cargo:{}_is_defined=true"#, var.to_lowercase());
-        }
-    }
-
-    for &(lib, begin_version_major, end_version_major, begin_version_minor, end_version_minor) in
-        version_check_info.iter()
-    {
-        for version_major in begin_version_major..end_version_major {
-            for version_minor in begin_version_minor..end_version_minor {
-                let search_str = format!(
-                    "[{lib}_version_greater_than_{version_major}_{version_minor}]",
-                    version_major = version_major,
-                    version_minor = version_minor,
-                    lib = lib
-                );
-                let pos = stdout
-                    .find(&search_str)
-                    .expect("Variable not found in output")
-                    + search_str.len();
-
-                if &stdout[pos..pos + 1] == "1" {
-                    println!(
-                        r#"cargo:rustc-cfg=feature="{}""#,
-                        &search_str[1..(search_str.len() - 1)]
-                    );
-                    println!(r#"cargo:{}=true"#, &search_str[1..(search_str.len() - 1)]);
-                }
+        if let Some(&(val, true)) = vars.get(var) {
+            if val != 0 {
+                println!(r#"cargo:rustc-cfg=feature="{}""#, var.to_lowercase());
+                println!(r#"cargo:{}=true"#, var.to_lowercase());
             }
+            println!(r#"cargo:{}_is_defined=true"#, var.to_lowercase());
         }
     }
 
@@ -609,22 +525,28 @@ fn check_features(
         ("ffmpeg_5_1", 59, 37),
         ("ffmpeg_6_0", 60, 3),
     ];
-    for &(ffmpeg_version_flag, lavc_version_major, lavc_version_minor) in
-        ffmpeg_lavc_versions.iter()
-    {
-        let search_str = format!(
-            "[avcodec_version_greater_than_{lavc_version_major}_{lavc_version_minor}]",
-            lavc_version_major = lavc_version_major,
-            lavc_version_minor = lavc_version_minor - 1
-        );
-        let pos = stdout
-            .find(&search_str)
-            .expect("Variable not found in output")
-            + search_str.len();
-        if &stdout[pos..pos + 1] == "1" {
-            println!(r#"cargo:rustc-cfg=feature="{}""#, ffmpeg_version_flag);
-            println!(r#"cargo:{}=true"#, ffmpeg_version_flag);
+
+    for major_version in 56..61 {
+        for minor_version in 0..108 {
+            if major > major_version || (major == major_version && minor > minor_version) {
+                println!(
+                    r#"cargo:rustc-cfg=feature="avcodec_version_greater_than_{major_version}_{minor_version}""#
+                );
+                println!(
+                    r#"cargo:avcodec_version_greater_than_{major_version}_{minor_version}=true"#
+                );
+            }
         }
+    }
+
+    for (ver, ..) in ffmpeg_lavc_versions
+        .iter()
+        .filter(|&&(_, major_version, minor_version)| {
+            major_version < major || (major_version == major && minor_version < minor)
+        })
+    {
+        println!(r#"cargo:rustc-cfg=feature="{}""#, ver);
+        println!(r#"cargo:{}=true"#, ver);
     }
 }
 
