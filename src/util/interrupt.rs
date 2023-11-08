@@ -8,6 +8,7 @@ pub struct Interrupt {
     pub interrupt: AVIOInterruptCB,
 }
 
+#[allow(clippy::needless_borrow)]
 extern "C" fn callback<F>(opaque: *mut c_void) -> c_int
 where
     F: FnMut() -> bool,
