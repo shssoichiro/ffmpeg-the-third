@@ -1944,6 +1944,17 @@ impl From<Id> for AVCodecID {
             Id::VNULL => AV_CODEC_ID_VNULL,
             #[cfg(feature = "ffmpeg_6_0")]
             Id::ANULL => AV_CODEC_ID_ANULL,
+            #[cfg(feature = "ffmpeg_6_1")]
+            Id::ANULL => AV_CODEC_ID_PDV,
+            #[cfg(feature = "ffmpeg_6_1")]
+            Id::ANULL => AV_CODEC_ID_EVC,
+            #[cfg(feature = "ffmpeg_6_1")]
+            Id::ANULL => AV_CODEC_ID_RTV1,
+            #[cfg(feature = "ffmpeg_6_1")]
+            Id::ANULL => AV_CODEC_ID_VMIX,
+            #[cfg(feature = "ffmpeg_6_1")]
+            Id::ANULL => AV_CODEC_ID_AC4,
+
         }
     }
 }
