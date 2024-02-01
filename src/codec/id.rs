@@ -1954,7 +1954,6 @@ impl From<Id> for AVCodecID {
             Id::ANULL => AV_CODEC_ID_VMIX,
             #[cfg(feature = "ffmpeg_6_1")]
             Id::ANULL => AV_CODEC_ID_AC4,
-
         }
     }
 }

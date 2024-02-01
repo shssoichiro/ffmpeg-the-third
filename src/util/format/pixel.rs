@@ -1226,7 +1226,6 @@ impl From<Pixel> for AVPixelFormat {
             #[cfg(feature = "ffmpeg_6_1")]
             Pixel::GBRAP14BE => AV_PIX_FMT_GBRAP14BE,
 
-
             #[cfg(feature = "rpi")]
             Pixel::RPI => AV_PIX_FMT_RPI,
             #[cfg(feature = "rpi")]
