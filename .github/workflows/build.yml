@@ -12,8 +12,7 @@ jobs:
     strategy:
       matrix:
         ffmpeg_version:
-          # The windows build tests ffmpeg 6.0. There's no linux image for 6.0 at this time.
-          ["3.4", "4.0", "4.1", "4.2", "4.3", "4.4", "5.0", "5.1"]
+          ["3.4", "4.0", "4.1", "4.2", "4.3", "4.4", "5.0", "5.1", "6.0", "6.1"]
       fail-fast: false
     steps:
       - uses: actions/checkout@v2
@@ -36,38 +35,6 @@ jobs:
       - name: Lint
         run: |
           cargo clippy --examples -- -D warnings
-      - name: Check format
-        run: |
-          cargo fmt -- --check
-
-  build-test-lint-linux-ffmpeg6:
-    # There is no docker image for ffmpeg 6.0, so we have to build it ourselves
-    name: Linux - FFmpeg 6.0 - build, test and lint
-    runs-on: ubuntu-latest
-    container: rust:latest
-    strategy:
-      fail-fast: false
-    steps:
-      - uses: actions/checkout@v2
-      - name: Install dependencies
-        run: |
-          apt update
-          apt install -y --no-install-recommends clang curl pkg-config nasm
-      - name: Set up Rust
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-          override: true
-          components: rustfmt, clippy
-      - name: Build
-        run: |
-          cargo build --examples --features build
-      - name: Test
-        run: |
-          cargo test --examples --features build
-      - name: Lint
-        run: |
-          cargo clippy --examples --features build -- -D warnings
       - name: Check format
         run: |
           cargo fmt -- --check
