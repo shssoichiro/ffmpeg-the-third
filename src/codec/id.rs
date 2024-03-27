@@ -647,6 +647,17 @@ pub enum Id {
     VNULL,
     #[cfg(feature = "ffmpeg_6_0")]
     ANULL,
+
+    #[cfg(feature = "ffmpeg_6_1")]
+    PDV,
+    #[cfg(feature = "ffmpeg_6_1")]
+    EVC,
+    #[cfg(feature = "ffmpeg_6_1")]
+    RTV1,
+    #[cfg(feature = "ffmpeg_6_1")]
+    VMIX,
+    #[cfg(feature = "ffmpeg_6_1")]
+    AC4,
 }
 
 impl Id {
@@ -1945,15 +1956,15 @@ impl From<Id> for AVCodecID {
             #[cfg(feature = "ffmpeg_6_0")]
             Id::ANULL => AV_CODEC_ID_ANULL,
             #[cfg(feature = "ffmpeg_6_1")]
-            Id::ANULL => AV_CODEC_ID_PDV,
+            Id::PDV => AV_CODEC_ID_PDV,
             #[cfg(feature = "ffmpeg_6_1")]
-            Id::ANULL => AV_CODEC_ID_EVC,
+            Id::EVC => AV_CODEC_ID_EVC,
             #[cfg(feature = "ffmpeg_6_1")]
-            Id::ANULL => AV_CODEC_ID_RTV1,
+            Id::RTV1 => AV_CODEC_ID_RTV1,
             #[cfg(feature = "ffmpeg_6_1")]
-            Id::ANULL => AV_CODEC_ID_VMIX,
+            Id::VMIX => AV_CODEC_ID_VMIX,
             #[cfg(feature = "ffmpeg_6_1")]
-            Id::ANULL => AV_CODEC_ID_AC4,
+            Id::AC4 => AV_CODEC_ID_AC4,
         }
     }
 }
