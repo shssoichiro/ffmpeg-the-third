@@ -404,6 +404,17 @@ pub enum Pixel {
     #[cfg(feature = "ffmpeg_6_0")]
     RGBAF32LE,
 
+    #[cfg(feature = "ffmpeg_6_1")]
+    P212BE,
+    #[cfg(feature = "ffmpeg_6_1")]
+    P212LE,
+    #[cfg(feature = "ffmpeg_6_1")]
+    P412BE,
+    #[cfg(feature = "ffmpeg_6_1")]
+    P412LE,
+    #[cfg(feature = "ffmpeg_6_1")]
+    GBRAP14BE,
+
     #[cfg(feature = "rpi")]
     RPI,
     #[cfg(feature = "rpi")]
