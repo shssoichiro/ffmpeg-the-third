@@ -74,45 +74,49 @@ jobs:
       - name: Test
         run: cargo test $CARGO_FEATURES
 
-  # IDK what's up with the windows CI, it's broken somehow
-  # build-test-lint-windows:
-  #   name: Windows - FFmpeg ${{ matrix.ffmpeg_version }} - build, test and lint
-  #   runs-on: windows-latest
-  #   strategy:
-  #     matrix:
-  #       include:
-  #         - ffmpeg_version: latest
-  #           ffmpeg_download_url: https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-full-shared.7z
-  #     fail-fast: false
-  #   env:
-  #     FFMPEG_DOWNLOAD_URL: ${{ matrix.ffmpeg_download_url }}
-  #   steps:
-  #     - uses: actions/checkout@v2
-  #     - name: Install dependencies
-  #       run: |
-  #         $VCINSTALLDIR = $(& "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe" -latest -property installationPath)
-  #         Add-Content $env:GITHUB_ENV "LIBCLANG_PATH=${VCINSTALLDIR}\VC\Tools\LLVM\x64\bin`n"
-  #         Invoke-WebRequest "${env:FFMPEG_DOWNLOAD_URL}" -OutFile ffmpeg-release-full-shared.7z
-  #         7z x ffmpeg-release-full-shared.7z
-  #         mkdir ffmpeg
-  #         mv ffmpeg-*/* ffmpeg/
-  #         Add-Content $env:GITHUB_ENV "FFMPEG_DIR=${pwd}\ffmpeg`n"
-  #         Add-Content $env:GITHUB_PATH "${pwd}\ffmpeg\bin`n"
-  #     - name: Set up Rust
-  #       uses: actions-rs/toolchain@v1
-  #       with:
-  #         toolchain: stable
-  #         override: true
-  #         components: rustfmt, clippy
-  #     - name: Build
-  #       run: |
-  #         cargo build --examples
-  #     - name: Test
-  #       run: |
-  #         cargo test --examples
-  #     - name: Lint
-  #       run: |
-  #         cargo clippy --examples -- -D warnings
-  #     - name: Check format
-  #       run: |
-  #         cargo fmt -- --check
+  build-test-lint-windows:
+    name: Windows - FFmpeg ${{ matrix.ffmpeg_version }} - build, test and lint
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        # GyanD builds don't go as far back as the Ubuntu builds
+        ffmpeg_version: ["4.4", "5.0", "5.1", "6.0", "6.1"]
+      fail-fast: false
+
+    env:
+      FFMPEG_DOWNLOAD_URL: "https://github.com/GyanD/codexffmpeg/releases/download/VER/ffmpeg-VER-full_build-shared.7z"
+      FFMPEG_INSTALL_PATH: "C:/ffmpeg"
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set libclang path
+        run: |
+          $VCINSTALLDIR = $(& "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe" -latest -property installationPath)
+          Add-Content $env:GITHUB_ENV "LIBCLANG_PATH=${VCINSTALLDIR}\VC\Tools\LLVM\x64\bin"
+
+      - name: Install FFmpeg ${{ matrix.ffmpeg_version }}
+        run: |
+          $tempFile = New-TemporaryFile
+          $uri = ($env:FFMPEG_DOWNLOAD_URL).Replace('VER', "${{ matrix.ffmpeg_version }}")
+          Invoke-WebRequest "$uri" -OutFile "$tempFile" -TimeoutSec 10
+          7z x -y -o"$env:FFMPEG_INSTALL_PATH" "$tempFile"
+          $ffmpegDir = (Get-ChildItem -Directory "$env:FFMPEG_INSTALL_PATH").FullName
+          Add-Content $env:GITHUB_ENV "FFMPEG_DIR=$ffmpegDir"
+          Add-Content $env:GITHUB_PATH "$ffmpegDir/bin"
+
+      - name: Install Rust stable with clippy and rustfmt
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+      - uses: Swatinem/rust-cache@v2
+        with:
+          save-if: ${{ matrix.ffmpeg_version == '6.1' }}
+
+      - name: Check format
+        run: cargo fmt -- --check
+      - name: Lint
+        run: cargo clippy --all-targets $CARGO_FEATURES
+      - name: Build
+        run: cargo build --all-targets $CARGO_FEATURES
+      - name: Test
+        run: cargo test $CARGO_FEATURES
