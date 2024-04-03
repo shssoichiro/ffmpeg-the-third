@@ -658,6 +658,10 @@ pub enum Id {
     VMIX,
     #[cfg(feature = "ffmpeg_6_1")]
     AC4,
+    #[cfg(feature = "ffmpeg_6_1")]
+    OSQ,
+    #[cfg(feature = "ffmpeg_6_1")]
+    SMPTE_2038,
 }
 
 impl Id {
@@ -1309,6 +1313,21 @@ impl From<AVCodecID> for Id {
             AV_CODEC_ID_VNULL => Id::VNULL,
             #[cfg(feature = "ffmpeg_6_0")]
             AV_CODEC_ID_ANULL => Id::ANULL,
+
+            #[cfg(feature = "ffmpeg_6_1")]
+            AV_CODEC_ID_PDV => Id::PDV,
+            #[cfg(feature = "ffmpeg_6_1")]
+            AV_CODEC_ID_EVC => Id::EVC,
+            #[cfg(feature = "ffmpeg_6_1")]
+            AV_CODEC_ID_RTV1 => Id::RTV1,
+            #[cfg(feature = "ffmpeg_6_1")]
+            AV_CODEC_ID_VMIX => Id::VMIX,
+            #[cfg(feature = "ffmpeg_6_1")]
+            AV_CODEC_ID_AC4 => Id::AC4,
+            #[cfg(feature = "ffmpeg_6_1")]
+            AV_CODEC_ID_OSQ => Id::OSQ,
+            #[cfg(feature = "ffmpeg_6_1")]
+            AV_CODEC_ID_SMPTE_2038 => Id::SMPTE_2038,
 
             #[cfg(feature = "non-exhaustive-enums")]
             _ => unimplemented!(),
@@ -1965,6 +1984,10 @@ impl From<Id> for AVCodecID {
             Id::VMIX => AV_CODEC_ID_VMIX,
             #[cfg(feature = "ffmpeg_6_1")]
             Id::AC4 => AV_CODEC_ID_AC4,
+            #[cfg(feature = "ffmpeg_6_1")]
+            Id::OSQ => AV_CODEC_ID_OSQ,
+            #[cfg(feature = "ffmpeg_6_1")]
+            Id::SMPTE_2038 => AV_CODEC_ID_SMPTE_2038,
         }
     }
 }

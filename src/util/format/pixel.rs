@@ -414,6 +414,8 @@ pub enum Pixel {
     P412LE,
     #[cfg(feature = "ffmpeg_6_1")]
     GBRAP14BE,
+    #[cfg(feature = "ffmpeg_6_1")]
+    GBRAP14LE,
 
     #[cfg(feature = "rpi")]
     RPI,
@@ -809,6 +811,19 @@ impl From<AVPixelFormat> for Pixel {
             AV_PIX_FMT_RGBAF32BE => Pixel::RGBAF32BE,
             #[cfg(feature = "ffmpeg_6_0")]
             AV_PIX_FMT_RGBAF32LE => Pixel::RGBAF32LE,
+
+            #[cfg(feature = "ffmpeg_6_1")]
+            AV_PIX_FMT_P212BE => Pixel::P212BE,
+            #[cfg(feature = "ffmpeg_6_1")]
+            AV_PIX_FMT_P212LE => Pixel::P212LE,
+            #[cfg(feature = "ffmpeg_6_1")]
+            AV_PIX_FMT_P412BE => Pixel::P412BE,
+            #[cfg(feature = "ffmpeg_6_1")]
+            AV_PIX_FMT_P412LE => Pixel::P412LE,
+            #[cfg(feature = "ffmpeg_6_1")]
+            AV_PIX_FMT_GBRAP14BE => Pixel::GBRAP14BE,
+            #[cfg(feature = "ffmpeg_6_1")]
+            AV_PIX_FMT_GBRAP14LE => Pixel::GBRAP14LE,
 
             #[cfg(feature = "rpi")]
             AV_PIX_FMT_RPI => Pixel::RPI,
@@ -1236,6 +1251,8 @@ impl From<Pixel> for AVPixelFormat {
             Pixel::P412LE => AV_PIX_FMT_P412LE,
             #[cfg(feature = "ffmpeg_6_1")]
             Pixel::GBRAP14BE => AV_PIX_FMT_GBRAP14BE,
+            #[cfg(feature = "ffmpeg_6_1")]
+            Pixel::GBRAP14LE => AV_PIX_FMT_GBRAP14LE,
 
             #[cfg(feature = "rpi")]
             Pixel::RPI => AV_PIX_FMT_RPI,
