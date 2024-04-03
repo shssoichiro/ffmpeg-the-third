@@ -48,19 +48,11 @@ impl Filter {
                 None
             } else {
                 #[cfg(feature = "ffmpeg_5_0")]
-                {
-                    Some(PadIter::new(
-                        (*self.as_ptr()).inputs,
-                        (*self.as_ptr()).nb_inputs as isize,
-                    ))
-                }
+                let count = (*self.as_ptr()).nb_inputs as isize;
                 #[cfg(not(feature = "ffmpeg_5_0"))]
-                {
-                    Some(PadIter::new(
-                        (*self.as_ptr()).inputs,
-                        (*self.as_ptr()).inputs as isize,
-                    ))
-                }
+                let count = avfilter_pad_count(ptr) as isize;
+
+                Some(PadIter::new(ptr, count))
             }
         }
     }
@@ -73,19 +65,11 @@ impl Filter {
                 None
             } else {
                 #[cfg(feature = "ffmpeg_5_0")]
-                {
-                    Some(PadIter::new(
-                        (*self.as_ptr()).outputs,
-                        (*self.as_ptr()).nb_outputs as isize,
-                    ))
-                }
+                let count = (*self.as_ptr()).nb_outputs as isize;
                 #[cfg(not(feature = "ffmpeg_5_0"))]
-                {
-                    Some(PadIter::new(
-                        (*self.as_ptr()).outputs,
-                        (*self.as_ptr()).outputs as isize,
-                    ))
-                }
+                let count = avfilter_pad_count(ptr) as isize;
+
+                Some(PadIter::new(ptr, count))
             }
         }
     }
