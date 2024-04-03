@@ -1310,6 +1310,17 @@ impl From<AVCodecID> for Id {
             #[cfg(feature = "ffmpeg_6_0")]
             AV_CODEC_ID_ANULL => Id::ANULL,
 
+            #[cfg(feature = "ffmpeg_6_1")]
+            AV_CODEC_ID_PDV => Id::PDV,
+            #[cfg(feature = "ffmpeg_6_1")]
+            AV_CODEC_ID_EVC => Id::EVC,
+            #[cfg(feature = "ffmpeg_6_1")]
+            AV_CODEC_ID_RTV1 => Id::RTV1,
+            #[cfg(feature = "ffmpeg_6_1")]
+            AV_CODEC_ID_VMIX => Id::VMIX,
+            #[cfg(feature = "ffmpeg_6_1")]
+            AV_CODEC_ID_AC4 => Id::AC4,
+
             #[cfg(feature = "non-exhaustive-enums")]
             _ => unimplemented!(),
         }
