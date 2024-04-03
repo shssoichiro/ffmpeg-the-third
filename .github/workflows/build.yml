@@ -41,7 +41,7 @@ jobs:
       - uses: Swatinem/rust-cache@v2
         with:
           # Only save cache for one FFmpeg version
-          save-if: matrix.ffmpeg_version == "6.1"
+          save-if: ${{ matrix.ffmpeg_version == '6.1' }}
 
       - name: Check format
         run: cargo fmt -- --check
