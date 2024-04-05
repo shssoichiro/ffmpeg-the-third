@@ -1,18 +1,18 @@
 use std::ops::{Deref, DerefMut};
 
 #[cfg(not(feature = "ffmpeg_5_0"))]
-use ffi::*;
+use crate::ffi::*;
 #[cfg(not(feature = "ffmpeg_5_0"))]
 use libc::c_int;
 
 use super::Opened;
-use codec::Context;
+use crate::codec::Context;
 #[cfg(not(feature = "ffmpeg_5_0"))]
-use frame;
-use util::format;
+use crate::frame;
+use crate::util::format;
 #[cfg(not(feature = "ffmpeg_5_0"))]
-use {packet, Error};
-use {AudioService, ChannelLayout};
+use crate::{packet, Error};
+use crate::{AudioService, ChannelLayout};
 
 pub struct Audio(pub Opened);
 

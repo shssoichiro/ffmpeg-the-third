@@ -1,7 +1,7 @@
-use ffi::*;
+use crate::ffi::*;
 #[cfg(feature = "serialize")]
 use serde::{Deserialize, Serialize};
-use sys::SwrEngine::*;
+use crate::sys::SwrEngine::*;
 
 #[derive(Eq, PartialEq, Copy, Clone, Debug)]
 #[cfg_attr(feature = "serialize", derive(Serialize, Deserialize))]

@@ -1,5 +1,5 @@
-use ffi::AVRounding::*;
-use ffi::*;
+use crate::ffi::AVRounding::*;
+use crate::ffi::*;
 #[cfg(feature = "serialize")]
 use serde::{Deserialize, Serialize};
 

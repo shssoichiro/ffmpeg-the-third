@@ -4,11 +4,11 @@ use std::slice;
 use std::str::from_utf8_unchecked;
 
 use super::Frame;
-use ffi::AVFrameSideDataType::*;
-use ffi::*;
+use crate::ffi::AVFrameSideDataType::*;
+use crate::ffi::*;
 #[cfg(feature = "serialize")]
 use serde::{Deserialize, Serialize};
-use DictionaryRef;
+use crate::DictionaryRef;
 
 #[derive(Eq, PartialEq, Copy, Clone, Debug)]
 #[cfg_attr(feature = "serialize", derive(Serialize, Deserialize))]

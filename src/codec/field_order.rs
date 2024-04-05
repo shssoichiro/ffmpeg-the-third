@@ -1,5 +1,5 @@
-use ffi::AVFieldOrder::*;
-use ffi::*;
+use crate::ffi::AVFieldOrder::*;
+use crate::ffi::*;
 #[cfg(feature = "serialize")]
 use serde::{Deserialize, Serialize};
 

@@ -1,5 +1,5 @@
-use ffi::AVAudioServiceType::*;
-use ffi::*;
+use crate::ffi::AVAudioServiceType::*;
+use crate::ffi::*;
 #[cfg(feature = "serialize")]
 use serde::{Deserialize, Serialize};
 

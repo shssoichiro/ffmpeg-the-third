@@ -1,5 +1,5 @@
-use ffi::AVPictureType::*;
-use ffi::*;
+use crate::ffi::AVPictureType::*;
+use crate::ffi::*;
 #[cfg(feature = "serialize")]
 use serde::{Deserialize, Serialize};
 
