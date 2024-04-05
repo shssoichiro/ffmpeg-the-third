@@ -5,7 +5,6 @@ pub mod flag;
 pub use self::flag::Flags;
 
 use crate::ffi::*;
-use std::convert::TryInto;
 
 pub fn set_level(value: Level) {
     unsafe { av_log_set_level(value.into()) }

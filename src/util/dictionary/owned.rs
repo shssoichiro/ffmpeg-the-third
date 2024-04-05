@@ -1,5 +1,4 @@
 use std::fmt;
-use std::iter::FromIterator;
 use std::ops::{Deref, DerefMut};
 use std::ptr;
 

@@ -1,5 +1,3 @@
-use std::convert::TryFrom;
-
 use crate::ffi::*;
 use libc::c_int;
 #[cfg(feature = "serialize")]
