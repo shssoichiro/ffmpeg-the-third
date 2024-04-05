@@ -16,6 +16,8 @@ description = "FFI bindings to FFmpeg"
 repository = "https://github.com/shssoichiro/ffmpeg-the-third"
 keywords = ["audio", "video"]
 
+rust-version = "1.61.0"
+
 [lib]
 # Disable doctests as a workaround for https://github.com/rust-lang/rust-bindgen/issues/1313
 doctest = false
