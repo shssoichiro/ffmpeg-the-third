@@ -4,8 +4,8 @@ use std::ptr;
 use crate::device;
 use crate::ffi::*;
 use crate::format::context::common::Context;
-use libc::c_int;
 use crate::Error;
+use libc::c_int;
 
 impl Context {
     pub fn devices(&self) -> Result<DeviceIter, Error> {

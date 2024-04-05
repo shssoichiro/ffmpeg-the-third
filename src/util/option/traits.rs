@@ -4,9 +4,9 @@ use std::ffi::CString;
 use std::mem;
 
 use crate::ffi::*;
-use libc::{c_int, c_void};
 use crate::util::format;
 use crate::{ChannelLayout, Error, Rational};
+use libc::{c_int, c_void};
 
 macro_rules! check {
     ($expr:expr) => {

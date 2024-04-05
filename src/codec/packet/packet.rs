@@ -4,8 +4,8 @@ use std::slice;
 
 use super::{Borrow, Flags, Mut, Ref, SideData};
 use crate::ffi::*;
-use libc::c_int;
 use crate::{format, Error, Rational};
+use libc::c_int;
 
 pub struct Packet(AVPacket);
 

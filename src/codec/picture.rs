@@ -4,8 +4,8 @@ use std::slice;
 
 use crate::ffi::*;
 use crate::format;
-use libc::{c_int, size_t};
 use crate::Error;
+use libc::{c_int, size_t};
 
 pub struct Picture<'a> {
     ptr: *mut AVPicture,

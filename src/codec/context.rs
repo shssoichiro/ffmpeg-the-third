@@ -6,9 +6,9 @@ use super::decoder::Decoder;
 use super::encoder::Encoder;
 use super::{threading, Compliance, Debug, Flags, Id, Parameters};
 use crate::ffi::*;
-use libc::c_int;
 use crate::media;
 use crate::{Codec, Error};
+use libc::c_int;
 
 pub struct Context {
     ptr: *mut AVCodecContext,

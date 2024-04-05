@@ -2,9 +2,9 @@ use std::ptr;
 
 use super::Flags;
 use crate::ffi::*;
-use libc::c_int;
 use crate::util::format;
 use crate::{frame, Error};
+use libc::c_int;
 
 #[derive(Eq, PartialEq, Copy, Clone, Debug)]
 pub struct Definition {

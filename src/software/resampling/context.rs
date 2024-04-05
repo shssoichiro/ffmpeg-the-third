@@ -2,11 +2,11 @@ use std::ptr;
 
 use super::Delay;
 use crate::ffi::*;
-use libc::c_int;
-use std::ffi::c_void;
 use crate::util::format;
 use crate::Dictionary;
 use crate::{frame, ChannelLayout, Error};
+use libc::c_int;
+use std::ffi::c_void;
 
 #[derive(Eq, PartialEq, Copy, Clone)]
 pub struct Definition {

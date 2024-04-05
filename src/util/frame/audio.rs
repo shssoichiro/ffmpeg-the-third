@@ -4,9 +4,9 @@ use std::slice;
 
 use super::Frame;
 use crate::ffi::*;
-use libc::{c_int, c_ulonglong};
 use crate::util::format;
 use crate::ChannelLayout;
+use libc::{c_int, c_ulonglong};
 
 #[derive(PartialEq, Eq)]
 pub struct Audio(Frame);

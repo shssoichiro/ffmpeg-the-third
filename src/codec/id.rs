@@ -3,9 +3,9 @@ use std::str::from_utf8_unchecked;
 
 use crate::ffi::AVCodecID::*;
 use crate::ffi::*;
+use crate::util::media;
 #[cfg(feature = "serialize")]
 use serde::{Deserialize, Serialize};
-use crate::util::media;
 
 #[allow(non_camel_case_types)]
 #[derive(Eq, PartialEq, Clone, Copy, Debug)]

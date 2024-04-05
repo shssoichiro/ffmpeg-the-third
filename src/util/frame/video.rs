@@ -5,11 +5,11 @@ use std::slice;
 use super::Frame;
 use crate::color;
 use crate::ffi::*;
-use libc::c_int;
 use crate::picture;
 use crate::util::chroma;
 use crate::util::format;
 use crate::Rational;
+use libc::c_int;
 
 #[derive(PartialEq, Eq)]
 pub struct Video(Frame);
