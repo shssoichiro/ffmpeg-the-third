@@ -13,8 +13,8 @@ env:
   # to check that FFmpeg versions are properly compatible
   CARGO_FEATURES: "
     --no-default-features
-    -F codec,device,filter,format
-    -F software-resampling,software-scaling"
+    --features codec,device,filter,format
+    --features software-resampling,software-scaling"
 
   SYS_FEATURES: "
     --no-default-features
@@ -144,3 +144,23 @@ jobs:
           $SYS_FEATURES
       - name: Test
         run: cargo test $CARGO_FEATURES
+
+  msrv:
+    runs-on: ubuntu-22.04
+    container: jrottenberg/ffmpeg:6.1-ubuntu
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install dependencies
+        run: |
+          apt-get update
+          apt-get install -y --no-install-recommends clang curl pkg-config
+      # rust-version from Cargo.toml
+      - name: Install Rust 1.61.0
+        uses: dtolnay/rust-toolchain@1.61.0
+      - uses: Swatinem/rust-cache@v2
+
+      - name: Use predefined lockfile
+        run: mv Cargo.lock.MSRV Cargo.lock
+      - name: Run cargo check
+        run: cargo check --locked $CARGO_FEATURES
