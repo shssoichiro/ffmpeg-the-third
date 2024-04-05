@@ -115,7 +115,7 @@ impl ParseCallbacks for Callbacks {
 
     // https://github.com/rust-lang/rust-bindgen/issues/687#issuecomment-388277405
     fn will_parse_macro(&self, name: &str) -> MacroParsingBehavior {
-        use MacroParsingBehavior::*;
+        use crate::MacroParsingBehavior::*;
 
         match name {
             "FP_INFINITE" => Ignore,
