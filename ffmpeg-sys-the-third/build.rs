@@ -82,6 +82,15 @@ static AVUTIL_FEATURES: &[AVFeature] = &[
     AVFeature::new("FIFO_OLD_API"),
     AVFeature::new("OLD_CHANNEL_LAYOUT"),
     AVFeature::new("AV_FOPEN_UTF8"),
+    AVFeature::new("PKT_DURATION"),
+    AVFeature::new("REORDERED_OPAQUE"),
+    AVFeature::new("FRAME_PICTURE_NUMBER"),
+    AVFeature::new("HDR_VIVID_THREE_SPLINE"),
+    AVFeature::new("FRAME_PKT"),
+    AVFeature::new("INTERLACED_FRAME"),
+    AVFeature::new("FRAME_KEY"),
+    AVFeature::new("PALETTE_HAS_CHANGED"),
+    AVFeature::new("VULKAN_CONTIGUOUS_MEMORY"),
 ];
 
 static AVCODEC_FEATURES: &[AVFeature] = &[
@@ -156,6 +165,17 @@ static AVCODEC_FEATURES: &[AVFeature] = &[
     AVFeature::new("SUB_TEXT_FORMAT"),
     AVFeature::new("IDCT_NONE"),
     AVFeature::new("SVTAV1_OPTS"),
+    AVFeature::new("AYUV_CODECID"),
+    AVFeature::new("VT_OUTPUT_CALLBACK"),
+    AVFeature::new("AVCODEC_CHROMA_POS"),
+    AVFeature::new("VT_HWACCEL_CONTEXT"),
+    AVFeature::new("AVCTX_FRAME_NUMBER"),
+    AVFeature::new("SLICE_OFFSET"),
+    AVFeature::new("SUBFRAMES"),
+    AVFeature::new("TICKS_PER_FRAME"),
+    AVFeature::new("DROPCHANGED"),
+    AVFeature::new("AVFFT"),
+    AVFeature::new("FF_PROFILE_LEVEL"),
 ];
 
 static AVFORMAT_FEATURES: &[AVFeature] = &[
@@ -170,6 +190,13 @@ static AVFORMAT_FEATURES: &[AVFeature] = &[
     AVFeature::new("AVIOCONTEXT_WRITTEN"),
     AVFeature::new("AVSTREAM_CLASS"),
     AVFeature::new("R_FRAME_RATE"),
+    AVFeature::new("GET_END_PTS"),
+    AVFeature::new("AVIODIRCONTEXT"),
+    AVFeature::new("AVFORMAT_IO_CLOSE"),
+    AVFeature::new("AVIO_WRITE_NONCONST"),
+    AVFeature::new("LAVF_SHORTEST"),
+    AVFeature::new("ALLOW_FLUSH"),
+    AVFeature::new("AVSTREAM_SIDE_DATA"),
 ];
 
 static AVDEVICE_FEATURES: &[AVFeature] = &[AVFeature::new("DEVICE_CAPABILITIES")];
@@ -186,6 +213,7 @@ static AVFILTER_FEATURES: &[AVFeature] = &[
     AVFeature::new("SWS_PARAM_OPTION"),
     AVFeature::new("BUFFERSINK_ALLOC"),
     AVFeature::new("PAD_COUNT"),
+    AVFeature::new("LIBPLACEBO_OPTS"),
 ];
 
 static AVRESAMPLE_FEATURES: &[AVFeature] = &[AVFeature::new("RESAMPLE_CLOSE_OPEN")];
