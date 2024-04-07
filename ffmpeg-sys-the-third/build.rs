@@ -438,7 +438,7 @@ fn build() -> io::Result<()> {
         configure.enable(&format!("BUILD_LIB_{cargo_feat}"), option_name);
     }
 
-    configure.enable("BUILD_LIB_DRM", "libdrm");
+    configure.enable("BUILD_DRM", "libdrm");
     configure.enable("BUILD_NVENC", "nvenc");
     // configure misc build options
     configure.enable("BUILD_PIC", "pic");
