@@ -1,6 +1,3 @@
-#[macro_use]
-mod macros;
-
 mod error;
 pub use self::error::*;
 
