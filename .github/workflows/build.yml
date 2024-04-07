@@ -16,6 +16,11 @@ env:
     -F codec,device,filter,format
     -F software-resampling,software-scaling"
 
+  SYS_FEATURES: "
+    --no-default-features
+    --features avcodec,avdevice,avfilter,avformat
+    --features swresample,swscale"
+
 jobs:
   build-test-lint-linux:
     name: Linux - FFmpeg ${{ matrix.ffmpeg_version }} - build, test and lint
@@ -49,6 +54,12 @@ jobs:
         run: cargo clippy --all-targets $CARGO_FEATURES
       - name: Build
         run: cargo build --all-targets $CARGO_FEATURES
+      - name: Test bindings
+        run: >
+          cargo test
+          --manifest-path ffmpeg-sys-the-third/Cargo.toml
+          --target-dir target
+          $SYS_FEATURES
       - name: Test
         run: cargo test $CARGO_FEATURES
 
@@ -71,6 +82,12 @@ jobs:
         run: cargo clippy --all-targets $CARGO_FEATURES
       - name: Build
         run: cargo build --all-targets $CARGO_FEATURES
+      - name: Test bindings
+        run: >
+          cargo test
+          --manifest-path ffmpeg-sys-the-third/Cargo.toml
+          --target-dir target
+          $SYS_FEATURES
       - name: Test
         run: cargo test $CARGO_FEATURES
 
@@ -110,6 +127,7 @@ jobs:
           components: rustfmt, clippy
       - uses: Swatinem/rust-cache@v2
         with:
+          prefix-key: "v1-rust"
           save-if: ${{ matrix.ffmpeg_version == '6.1' }}
 
       - name: Check format
@@ -118,5 +136,11 @@ jobs:
         run: cargo clippy --all-targets $CARGO_FEATURES
       - name: Build
         run: cargo build --all-targets $CARGO_FEATURES
+      - name: Test bindings
+        run: >
+          cargo test
+          --manifest-path ffmpeg-sys-the-third/Cargo.toml
+          --target-dir target
+          $SYS_FEATURES
       - name: Test
         run: cargo test $CARGO_FEATURES
