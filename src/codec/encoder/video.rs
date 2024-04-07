@@ -1,17 +1,17 @@
 use std::ops::{Deref, DerefMut};
 use std::ptr;
 
-use ffi::*;
+use crate::ffi::*;
 use libc::{c_float, c_int};
 
 use super::Encoder as Super;
 use super::{Comparison, Decision};
 #[cfg(not(feature = "ffmpeg_5_0"))]
 use super::{MotionEstimation, Prediction};
-use codec::{traits, Context};
-use {color, format, Dictionary, Error, Rational};
+use crate::codec::{traits, Context};
+use crate::{color, format, Dictionary, Error, Rational};
 #[cfg(not(feature = "ffmpeg_5_0"))]
-use {frame, packet};
+use crate::{frame, packet};
 
 pub struct Video(pub Super);
 

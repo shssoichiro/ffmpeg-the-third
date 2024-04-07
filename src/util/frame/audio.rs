@@ -3,10 +3,10 @@ use std::ops::{Deref, DerefMut};
 use std::slice;
 
 use super::Frame;
-use ffi::*;
+use crate::ffi::*;
+use crate::util::format;
+use crate::ChannelLayout;
 use libc::{c_int, c_ulonglong};
-use util::format;
-use ChannelLayout;
 
 #[derive(PartialEq, Eq)]
 pub struct Audio(Frame);

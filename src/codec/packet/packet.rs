@@ -3,9 +3,9 @@ use std::mem;
 use std::slice;
 
 use super::{Borrow, Flags, Mut, Ref, SideData};
-use ffi::*;
+use crate::ffi::*;
+use crate::{format, Error, Rational};
 use libc::c_int;
-use {format, Error, Rational};
 
 pub struct Packet(AVPacket);
 

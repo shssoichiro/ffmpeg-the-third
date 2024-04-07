@@ -10,8 +10,8 @@ pub use self::audio::Audio;
 pub mod flag;
 pub use self::flag::Flags;
 
-use ffi::*;
-use {Dictionary, DictionaryRef};
+use crate::ffi::*;
+use crate::{Dictionary, DictionaryRef};
 
 #[derive(PartialEq, Eq, Copy, Clone, Debug)]
 pub struct Packet {

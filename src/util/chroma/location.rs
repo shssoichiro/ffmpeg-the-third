@@ -1,5 +1,5 @@
-use ffi::AVChromaLocation::*;
-use ffi::*;
+use crate::ffi::AVChromaLocation::*;
+use crate::ffi::*;
 #[cfg(feature = "serialize")]
 use serde::{Deserialize, Serialize};
 

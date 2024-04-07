@@ -1,5 +1,5 @@
-use ffi::SwrFilterType::*;
-use ffi::*;
+use crate::ffi::SwrFilterType::*;
+use crate::ffi::*;
 #[cfg(feature = "serialize")]
 use serde::{Deserialize, Serialize};
 

@@ -1,8 +1,8 @@
 mod traits;
 pub use self::traits::{Gettable, Iterable, Settable, Target};
 
-use ffi::AVOptionType::*;
-use ffi::*;
+use crate::ffi::AVOptionType::*;
+use crate::ffi::*;
 #[cfg(feature = "serialize")]
 use serde::{Deserialize, Serialize};
 

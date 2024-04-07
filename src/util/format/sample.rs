@@ -4,8 +4,8 @@ use std::ptr;
 use std::slice;
 use std::str::from_utf8_unchecked;
 
-use ffi::AVSampleFormat::*;
-use ffi::*;
+use crate::ffi::AVSampleFormat::*;
+use crate::ffi::*;
 use libc::{c_int, c_void};
 #[cfg(feature = "serialize")]
 use serde::{Deserialize, Serialize};

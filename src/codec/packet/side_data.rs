@@ -2,8 +2,8 @@ use std::marker::PhantomData;
 use std::slice;
 
 use super::Packet;
-use ffi::AVPacketSideDataType::*;
-use ffi::*;
+use crate::ffi::AVPacketSideDataType::*;
+use crate::ffi::*;
 #[cfg(feature = "serialize")]
 use serde::{Deserialize, Serialize};
 
