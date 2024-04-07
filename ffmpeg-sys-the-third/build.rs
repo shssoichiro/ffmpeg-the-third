@@ -19,9 +19,18 @@ use bindgen::callbacks::{
 struct Library {
     name: &'static str,
     is_feature: bool,
+    features: &'static [AVFeature],
 }
 
 impl Library {
+    const fn new(name: &'static str, is_feature: bool, features: &'static [AVFeature]) -> Self {
+        Self {
+            name,
+            is_feature,
+            features,
+        }
+    }
+
     fn feature_name(&self) -> Option<String> {
         if self.is_feature {
             Some("CARGO_FEATURE_".to_string() + &self.name.to_uppercase())
@@ -32,43 +41,143 @@ impl Library {
 }
 
 static LIBRARIES: &[Library] = &[
-    Library {
-        name: "avcodec",
-        is_feature: true,
-    },
-    Library {
-        name: "avdevice",
-        is_feature: true,
-    },
-    Library {
-        name: "avfilter",
-        is_feature: true,
-    },
-    Library {
-        name: "avformat",
-        is_feature: true,
-    },
-    Library {
-        name: "avresample",
-        is_feature: true,
-    },
-    Library {
-        name: "avutil",
-        is_feature: false,
-    },
-    Library {
-        name: "postproc",
-        is_feature: true,
-    },
-    Library {
-        name: "swresample",
-        is_feature: true,
-    },
-    Library {
-        name: "swscale",
-        is_feature: true,
-    },
+    Library::new("avutil", false, AVUTIL_FEATURES),
+    Library::new("avcodec", true, AVCODEC_FEATURES),
+    Library::new("avformat", true, AVFORMAT_FEATURES),
+    Library::new("avdevice", true, AVDEVICE_FEATURES),
+    Library::new("avfilter", true, AVFILTER_FEATURES),
+    Library::new("avresample", true, AVRESAMPLE_FEATURES),
+    Library::new("swscale", true, SWSCALE_FEATURES),
+    Library::new("swresample", true, SWRESAMPLE_FEATURES),
+    Library::new("postproc", true, POSTPROC_FEATURES),
 ];
+
+#[derive(Debug)]
+struct AVFeature {
+    name: &'static str,
+}
+
+impl AVFeature {
+    const fn new(name: &'static str) -> Self {
+        Self { name }
+    }
+}
+
+static AVUTIL_FEATURES: &[AVFeature] = &[
+    AVFeature::new("OLD_AVOPTIONS"),
+    AVFeature::new("PIX_FMT"),
+    AVFeature::new("CONTEXT_SIZE"),
+    AVFeature::new("PIX_FMT_DESC"),
+    AVFeature::new("AV_REVERSE"),
+    AVFeature::new("AUDIOCONVERT"),
+    AVFeature::new("CPU_FLAG_MMX2"),
+    AVFeature::new("LLS_PRIVATE"),
+    AVFeature::new("AVFRAME_LAVC"),
+    AVFeature::new("VDPAU"),
+    AVFeature::new("GET_CHANNEL_LAYOUT_COMPAT"),
+    AVFeature::new("XVMC"),
+    AVFeature::new("OPT_TYPE_METADATA"),
+    AVFeature::new("DLOG"),
+    AVFeature::new("HMAC"),
+    AVFeature::new("VAAPI"),
+    AVFeature::new("PKT_PTS"),
+    AVFeature::new("ERROR_FRAME"),
+    AVFeature::new("FRAME_QP"),
+];
+
+static AVCODEC_FEATURES: &[AVFeature] = &[
+    AVFeature::new("VIMA_DECODER"),
+    AVFeature::new("REQUEST_CHANNELS"),
+    AVFeature::new("OLD_DECODE_AUDIO"),
+    AVFeature::new("OLD_ENCODE_AUDIO"),
+    AVFeature::new("OLD_ENCODE_VIDEO"),
+    AVFeature::new("CODEC_ID"),
+    AVFeature::new("AUDIO_CONVERT"),
+    AVFeature::new("AVCODEC_RESAMPLE"),
+    AVFeature::new("DEINTERLACE"),
+    AVFeature::new("DESTRUCT_PACKET"),
+    AVFeature::new("GET_BUFFER"),
+    AVFeature::new("MISSING_SAMPLE"),
+    AVFeature::new("LOWRES"),
+    AVFeature::new("CAP_VDPAU"),
+    AVFeature::new("BUFS_VDPAU"),
+    AVFeature::new("VOXWARE"),
+    AVFeature::new("SET_DIMENSIONS"),
+    AVFeature::new("DEBUG_MV"),
+    AVFeature::new("AC_VLC"),
+    AVFeature::new("OLD_MSMPEG4"),
+    AVFeature::new("ASPECT_EXTENDED"),
+    AVFeature::new("THREAD_OPAQUE"),
+    AVFeature::new("CODEC_PKT"),
+    AVFeature::new("ARCH_ALPHA"),
+    AVFeature::new("ERROR_RATE"),
+    AVFeature::new("QSCALE_TYPE"),
+    AVFeature::new("MB_TYPE"),
+    AVFeature::new("MAX_BFRAMES"),
+    AVFeature::new("NEG_LINESIZES"),
+    AVFeature::new("EMU_EDGE"),
+    AVFeature::new("ARCH_SH4"),
+    AVFeature::new("ARCH_SPARC"),
+    AVFeature::new("UNUSED_MEMBERS"),
+    AVFeature::new("IDCT_XVIDMMX"),
+    AVFeature::new("INPUT_PRESERVED"),
+    AVFeature::new("NORMALIZE_AQP"),
+    AVFeature::new("GMC"),
+    AVFeature::new("MV0"),
+    AVFeature::new("CODEC_NAME"),
+    AVFeature::new("AFD"),
+    AVFeature::new("VISMV"),
+    AVFeature::new("DV_FRAME_PROFILE"),
+    AVFeature::new("AUDIOENC_DELAY"),
+    AVFeature::new("VAAPI_CONTEXT"),
+    AVFeature::new("AVCTX_TIMEBASE"),
+    AVFeature::new("MPV_OPT"),
+    AVFeature::new("STREAM_CODEC_TAG"),
+    AVFeature::new("QUANT_BIAS"),
+    AVFeature::new("RC_STRATEGY"),
+    AVFeature::new("CODED_FRAME"),
+    AVFeature::new("MOTION_EST"),
+    AVFeature::new("WITHOUT_PREFIX"),
+    AVFeature::new("CONVERGENCE_DURATION"),
+    AVFeature::new("PRIVATE_OPT"),
+    AVFeature::new("CODER_TYPE"),
+    AVFeature::new("RTP_CALLBACK"),
+    AVFeature::new("STAT_BITS"),
+    AVFeature::new("VBV_DELAY"),
+    AVFeature::new("SIDEDATA_ONLY_PKT"),
+    AVFeature::new("AVPICTURE"),
+];
+
+static AVFORMAT_FEATURES: &[AVFeature] = &[
+    AVFeature::new("LAVF_BITEXACT"),
+    AVFeature::new("LAVF_FRAC"),
+    AVFeature::new("URL_FEOF"),
+    AVFeature::new("PROBESIZE_32"),
+    AVFeature::new("LAVF_AVCTX"),
+    AVFeature::new("OLD_OPEN_CALLBACKS"),
+];
+
+static AVDEVICE_FEATURES: &[AVFeature] = &[];
+
+static AVFILTER_FEATURES: &[AVFeature] = &[
+    AVFeature::new("AVFILTERPAD_PUBLIC"),
+    AVFeature::new("FOO_COUNT"),
+    AVFeature::new("OLD_FILTER_OPTS"),
+    AVFeature::new("OLD_FILTER_OPTS_ERROR"),
+    AVFeature::new("AVFILTER_OPEN"),
+    AVFeature::new("OLD_FILTER_REGISTER"),
+    AVFeature::new("OLD_GRAPH_PARSE"),
+    AVFeature::new("NOCONST_GET_NAME"),
+];
+
+static AVRESAMPLE_FEATURES: &[AVFeature] = &[AVFeature::new("RESAMPLE_CLOSE_OPEN")];
+
+static SWSCALE_FEATURES: &[AVFeature] =
+    &[AVFeature::new("SWS_CPU_CAPS"), AVFeature::new("ARCH_BFIN")];
+
+static SWRESAMPLE_FEATURES: &[AVFeature] = &[];
+
+static POSTPROC_FEATURES: &[AVFeature] = &[];
 
 #[derive(Debug)]
 struct Callbacks;
@@ -420,48 +529,47 @@ fn add_pkg_config_path() {
 #[cfg(not(target_os = "macos"))]
 fn add_pkg_config_path() {}
 
-fn check_features(
-    include_paths: Vec<PathBuf>,
-    infos: &[(&'static str, Option<&'static str>, &'static str)],
-) {
+fn check_features(include_paths: &[PathBuf]) {
     let mut includes_code = String::new();
     let mut main_code = String::new();
 
-    for &(header, feature, var) in infos {
-        if let Some(feature) = feature {
-            if env::var(format!("CARGO_FEATURE_{}", feature.to_uppercase())).is_err() {
-                continue;
+    for lib in LIBRARIES {
+        if lib.is_feature && env::var(format!("CARGO_FEATURE_{}", lib.name.to_uppercase())).is_err() {
+            continue;
+        }
+
+        let header = format!("lib{}/{}.h", lib.name, lib.name);
+        for feature in lib.features {
+            let var = format!("FF_API_{}", feature.name);
+
+            let include = format!("#include <{}>", header);
+            if !includes_code.contains(&include) {
+                includes_code.push_str(&include);
+                includes_code.push('\n');
             }
-        }
-
-        let include = format!("#include <{}>", header);
-        if !includes_code.contains(&include) {
-            includes_code.push_str(&include);
-            includes_code.push('\n');
-        }
-        let _ = write!(
-            includes_code,
-            r#"
-            #ifndef {var}_is_defined
-            #ifndef {var}
-            #define {var} 0
-            #define {var}_is_defined 0
-            #else
-            #define {var}_is_defined 1
-            #endif
-            #endif
-        "#,
-            var = var
-        );
-
-        let _ = write!(
-            main_code,
-            r#"printf("[{var}]%d%d\n", {var}, {var}_is_defined);
+            let _ = write!(
+                includes_code,
+                r#"
+                #ifndef {var}_is_defined
+                #ifndef {var}
+                #define {var} 0
+                #define {var}_is_defined 0
+                #else
+                #define {var}_is_defined 1
+                #endif
+                #endif
             "#,
-            var = var
-        );
-    }
+                var = var
+            );
 
+            let _ = write!(
+                main_code,
+                r#"printf("[{var}]%d%d\n", {var}, {var}_is_defined);
+                "#,
+                var = var
+            );
+        }
+    }
     let version_check_info = [("avcodec", 56, 61, 0, 108)];
     for &(lib, begin_version_major, end_version_major, begin_version_minor, end_version_minor) in
         version_check_info.iter()
@@ -539,31 +647,32 @@ fn check_features(
 
     println!("stdout of {}={}", executable.display(), stdout);
 
-    for &(_, feature, var) in infos {
-        if let Some(feature) = feature {
-            if env::var(format!("CARGO_FEATURE_{}", feature.to_uppercase())).is_err() {
-                continue;
+    for lib in LIBRARIES {
+        if lib.is_feature && env::var(format!("CARGO_FEATURE_{}", lib.name.to_uppercase())).is_err() {
+            continue;
+        }
+
+        for feature in lib.features {
+            let var = format!("FF_API_{}", feature.name);
+            let var_str = format!("[{var}]");
+            let pos = var_str.len()
+                + stdout
+                    .find(&var_str)
+                    .unwrap_or_else(|| panic!("Variable '{}' not found in stdout output", var_str));
+            if &stdout[pos..pos + 1] == "1" {
+                println!(r#"cargo:rustc-cfg=feature="{}""#, var.to_lowercase());
+                println!(r#"cargo:{}=true"#, var.to_lowercase());
             }
-        }
 
-        let var_str = format!("[{var}]", var = var);
-        let pos = var_str.len()
-            + stdout
-                .find(&var_str)
-                .unwrap_or_else(|| panic!("Variable '{}' not found in stdout output", var_str));
-        if &stdout[pos..pos + 1] == "1" {
-            println!(r#"cargo:rustc-cfg=feature="{}""#, var.to_lowercase());
-            println!(r#"cargo:{}=true"#, var.to_lowercase());
-        }
-
-        // Also find out if defined or not (useful for cases where only the definition of a macro
-        // can be used as distinction)
-        if &stdout[pos + 1..pos + 2] == "1" {
-            println!(
-                r#"cargo:rustc-cfg=feature="{}_is_defined""#,
-                var.to_lowercase()
-            );
-            println!(r#"cargo:{}_is_defined=true"#, var.to_lowercase());
+            // Also find out if defined or not (useful for cases where only the definition of a macro
+            // can be used as distinction)
+            if &stdout[pos + 1..pos + 2] == "1" {
+                println!(
+                    r#"cargo:rustc-cfg=feature="{}_is_defined""#,
+                    var.to_lowercase()
+                );
+                println!(r#"cargo:{}_is_defined=true"#, var.to_lowercase());
+            }
         }
     }
 
@@ -787,307 +896,7 @@ fn main() {
         }
     }
 
-    check_features(
-        include_paths.clone(),
-        &[
-            ("libavutil/avutil.h", None, "FF_API_OLD_AVOPTIONS"),
-            ("libavutil/avutil.h", None, "FF_API_PIX_FMT"),
-            ("libavutil/avutil.h", None, "FF_API_CONTEXT_SIZE"),
-            ("libavutil/avutil.h", None, "FF_API_PIX_FMT_DESC"),
-            ("libavutil/avutil.h", None, "FF_API_AV_REVERSE"),
-            ("libavutil/avutil.h", None, "FF_API_AUDIOCONVERT"),
-            ("libavutil/avutil.h", None, "FF_API_CPU_FLAG_MMX2"),
-            ("libavutil/avutil.h", None, "FF_API_LLS_PRIVATE"),
-            ("libavutil/avutil.h", None, "FF_API_AVFRAME_LAVC"),
-            ("libavutil/avutil.h", None, "FF_API_VDPAU"),
-            (
-                "libavutil/avutil.h",
-                None,
-                "FF_API_GET_CHANNEL_LAYOUT_COMPAT",
-            ),
-            ("libavutil/avutil.h", None, "FF_API_XVMC"),
-            ("libavutil/avutil.h", None, "FF_API_OPT_TYPE_METADATA"),
-            ("libavutil/avutil.h", None, "FF_API_DLOG"),
-            ("libavutil/avutil.h", None, "FF_API_HMAC"),
-            ("libavutil/avutil.h", None, "FF_API_VAAPI"),
-            ("libavutil/avutil.h", None, "FF_API_PKT_PTS"),
-            ("libavutil/avutil.h", None, "FF_API_ERROR_FRAME"),
-            ("libavutil/avutil.h", None, "FF_API_FRAME_QP"),
-            (
-                "libavcodec/avcodec.h",
-                Some("avcodec"),
-                "FF_API_VIMA_DECODER",
-            ),
-            (
-                "libavcodec/avcodec.h",
-                Some("avcodec"),
-                "FF_API_REQUEST_CHANNELS",
-            ),
-            (
-                "libavcodec/avcodec.h",
-                Some("avcodec"),
-                "FF_API_OLD_DECODE_AUDIO",
-            ),
-            (
-                "libavcodec/avcodec.h",
-                Some("avcodec"),
-                "FF_API_OLD_ENCODE_AUDIO",
-            ),
-            (
-                "libavcodec/avcodec.h",
-                Some("avcodec"),
-                "FF_API_OLD_ENCODE_VIDEO",
-            ),
-            ("libavcodec/avcodec.h", Some("avcodec"), "FF_API_CODEC_ID"),
-            (
-                "libavcodec/avcodec.h",
-                Some("avcodec"),
-                "FF_API_AUDIO_CONVERT",
-            ),
-            (
-                "libavcodec/avcodec.h",
-                Some("avcodec"),
-                "FF_API_AVCODEC_RESAMPLE",
-            ),
-            (
-                "libavcodec/avcodec.h",
-                Some("avcodec"),
-                "FF_API_DEINTERLACE",
-            ),
-            (
-                "libavcodec/avcodec.h",
-                Some("avcodec"),
-                "FF_API_DESTRUCT_PACKET",
-            ),
-            ("libavcodec/avcodec.h", Some("avcodec"), "FF_API_GET_BUFFER"),
-            (
-                "libavcodec/avcodec.h",
-                Some("avcodec"),
-                "FF_API_MISSING_SAMPLE",
-            ),
-            ("libavcodec/avcodec.h", Some("avcodec"), "FF_API_LOWRES"),
-            ("libavcodec/avcodec.h", Some("avcodec"), "FF_API_CAP_VDPAU"),
-            ("libavcodec/avcodec.h", Some("avcodec"), "FF_API_BUFS_VDPAU"),
-            ("libavcodec/avcodec.h", Some("avcodec"), "FF_API_VOXWARE"),
-            (
-                "libavcodec/avcodec.h",
-                Some("avcodec"),
-                "FF_API_SET_DIMENSIONS",
-            ),
-            ("libavcodec/avcodec.h", Some("avcodec"), "FF_API_DEBUG_MV"),
-            ("libavcodec/avcodec.h", Some("avcodec"), "FF_API_AC_VLC"),
-            (
-                "libavcodec/avcodec.h",
-                Some("avcodec"),
-                "FF_API_OLD_MSMPEG4",
-            ),
-            (
-                "libavcodec/avcodec.h",
-                Some("avcodec"),
-                "FF_API_ASPECT_EXTENDED",
-            ),
-            (
-                "libavcodec/avcodec.h",
-                Some("avcodec"),
-                "FF_API_THREAD_OPAQUE",
-            ),
-            ("libavcodec/avcodec.h", Some("avcodec"), "FF_API_CODEC_PKT"),
-            ("libavcodec/avcodec.h", Some("avcodec"), "FF_API_ARCH_ALPHA"),
-            ("libavcodec/avcodec.h", Some("avcodec"), "FF_API_ERROR_RATE"),
-            (
-                "libavcodec/avcodec.h",
-                Some("avcodec"),
-                "FF_API_QSCALE_TYPE",
-            ),
-            ("libavcodec/avcodec.h", Some("avcodec"), "FF_API_MB_TYPE"),
-            (
-                "libavcodec/avcodec.h",
-                Some("avcodec"),
-                "FF_API_MAX_BFRAMES",
-            ),
-            (
-                "libavcodec/avcodec.h",
-                Some("avcodec"),
-                "FF_API_NEG_LINESIZES",
-            ),
-            ("libavcodec/avcodec.h", Some("avcodec"), "FF_API_EMU_EDGE"),
-            ("libavcodec/avcodec.h", Some("avcodec"), "FF_API_ARCH_SH4"),
-            ("libavcodec/avcodec.h", Some("avcodec"), "FF_API_ARCH_SPARC"),
-            (
-                "libavcodec/avcodec.h",
-                Some("avcodec"),
-                "FF_API_UNUSED_MEMBERS",
-            ),
-            (
-                "libavcodec/avcodec.h",
-                Some("avcodec"),
-                "FF_API_IDCT_XVIDMMX",
-            ),
-            (
-                "libavcodec/avcodec.h",
-                Some("avcodec"),
-                "FF_API_INPUT_PRESERVED",
-            ),
-            (
-                "libavcodec/avcodec.h",
-                Some("avcodec"),
-                "FF_API_NORMALIZE_AQP",
-            ),
-            ("libavcodec/avcodec.h", Some("avcodec"), "FF_API_GMC"),
-            ("libavcodec/avcodec.h", Some("avcodec"), "FF_API_MV0"),
-            ("libavcodec/avcodec.h", Some("avcodec"), "FF_API_CODEC_NAME"),
-            ("libavcodec/avcodec.h", Some("avcodec"), "FF_API_AFD"),
-            ("libavcodec/avcodec.h", Some("avcodec"), "FF_API_VISMV"),
-            (
-                "libavcodec/avcodec.h",
-                Some("avcodec"),
-                "FF_API_DV_FRAME_PROFILE",
-            ),
-            (
-                "libavcodec/avcodec.h",
-                Some("avcodec"),
-                "FF_API_AUDIOENC_DELAY",
-            ),
-            (
-                "libavcodec/avcodec.h",
-                Some("avcodec"),
-                "FF_API_VAAPI_CONTEXT",
-            ),
-            (
-                "libavcodec/avcodec.h",
-                Some("avcodec"),
-                "FF_API_AVCTX_TIMEBASE",
-            ),
-            ("libavcodec/avcodec.h", Some("avcodec"), "FF_API_MPV_OPT"),
-            (
-                "libavcodec/avcodec.h",
-                Some("avcodec"),
-                "FF_API_STREAM_CODEC_TAG",
-            ),
-            ("libavcodec/avcodec.h", Some("avcodec"), "FF_API_QUANT_BIAS"),
-            (
-                "libavcodec/avcodec.h",
-                Some("avcodec"),
-                "FF_API_RC_STRATEGY",
-            ),
-            (
-                "libavcodec/avcodec.h",
-                Some("avcodec"),
-                "FF_API_CODED_FRAME",
-            ),
-            ("libavcodec/avcodec.h", Some("avcodec"), "FF_API_MOTION_EST"),
-            (
-                "libavcodec/avcodec.h",
-                Some("avcodec"),
-                "FF_API_WITHOUT_PREFIX",
-            ),
-            (
-                "libavcodec/avcodec.h",
-                Some("avcodec"),
-                "FF_API_CONVERGENCE_DURATION",
-            ),
-            (
-                "libavcodec/avcodec.h",
-                Some("avcodec"),
-                "FF_API_PRIVATE_OPT",
-            ),
-            ("libavcodec/avcodec.h", Some("avcodec"), "FF_API_CODER_TYPE"),
-            (
-                "libavcodec/avcodec.h",
-                Some("avcodec"),
-                "FF_API_RTP_CALLBACK",
-            ),
-            ("libavcodec/avcodec.h", Some("avcodec"), "FF_API_STAT_BITS"),
-            ("libavcodec/avcodec.h", Some("avcodec"), "FF_API_VBV_DELAY"),
-            (
-                "libavcodec/avcodec.h",
-                Some("avcodec"),
-                "FF_API_SIDEDATA_ONLY_PKT",
-            ),
-            ("libavcodec/avcodec.h", Some("avcodec"), "FF_API_AVPICTURE"),
-            (
-                "libavformat/avformat.h",
-                Some("avformat"),
-                "FF_API_LAVF_BITEXACT",
-            ),
-            (
-                "libavformat/avformat.h",
-                Some("avformat"),
-                "FF_API_LAVF_FRAC",
-            ),
-            (
-                "libavformat/avformat.h",
-                Some("avformat"),
-                "FF_API_URL_FEOF",
-            ),
-            (
-                "libavformat/avformat.h",
-                Some("avformat"),
-                "FF_API_PROBESIZE_32",
-            ),
-            (
-                "libavformat/avformat.h",
-                Some("avformat"),
-                "FF_API_LAVF_AVCTX",
-            ),
-            (
-                "libavformat/avformat.h",
-                Some("avformat"),
-                "FF_API_OLD_OPEN_CALLBACKS",
-            ),
-            (
-                "libavfilter/avfilter.h",
-                Some("avfilter"),
-                "FF_API_AVFILTERPAD_PUBLIC",
-            ),
-            (
-                "libavfilter/avfilter.h",
-                Some("avfilter"),
-                "FF_API_FOO_COUNT",
-            ),
-            (
-                "libavfilter/avfilter.h",
-                Some("avfilter"),
-                "FF_API_OLD_FILTER_OPTS",
-            ),
-            (
-                "libavfilter/avfilter.h",
-                Some("avfilter"),
-                "FF_API_OLD_FILTER_OPTS_ERROR",
-            ),
-            (
-                "libavfilter/avfilter.h",
-                Some("avfilter"),
-                "FF_API_AVFILTER_OPEN",
-            ),
-            (
-                "libavfilter/avfilter.h",
-                Some("avfilter"),
-                "FF_API_OLD_FILTER_REGISTER",
-            ),
-            (
-                "libavfilter/avfilter.h",
-                Some("avfilter"),
-                "FF_API_OLD_GRAPH_PARSE",
-            ),
-            (
-                "libavfilter/avfilter.h",
-                Some("avfilter"),
-                "FF_API_NOCONST_GET_NAME",
-            ),
-            (
-                "libavresample/avresample.h",
-                Some("avresample"),
-                "FF_API_RESAMPLE_CLOSE_OPEN",
-            ),
-            (
-                "libswscale/swscale.h",
-                Some("swscale"),
-                "FF_API_SWS_CPU_CAPS",
-            ),
-            ("libswscale/swscale.h", Some("swscale"), "FF_API_ARCH_BFIN"),
-        ],
-    );
+    check_features(&include_paths);
 
     let clang_includes = include_paths
         .iter()
