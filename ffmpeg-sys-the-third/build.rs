@@ -1,6 +1,5 @@
 extern crate bindgen;
 extern crate cc;
-extern crate num_cpus;
 extern crate pkg_config;
 
 use std::env;
@@ -465,10 +464,15 @@ fn build() -> io::Result<()> {
         ));
     }
 
+    let num_jobs = if let Ok(cpus) = std::thread::available_parallelism() {
+        cpus.to_string()
+    } else {
+        "1".to_string()
+    };
+
     // run make
     if !Command::new("make")
-        .arg("-j")
-        .arg(num_cpus::get().to_string())
+        .arg(format!("-j{num_jobs}"))
         .current_dir(&source())
         .status()?
         .success()
