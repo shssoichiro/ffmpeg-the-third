@@ -74,6 +74,14 @@ static AVUTIL_FEATURES: &[AVFeature] = &[
     AVFeature::new("PKT_PTS"),
     AVFeature::new("ERROR_FRAME"),
     AVFeature::new("FRAME_QP"),
+    AVFeature::new("D2STR"),
+    AVFeature::new("DECLARE_ALIGNED"),
+    AVFeature::new("COLORSPACE_NAME"),
+    AVFeature::new("AV_MALLOCZ_ARRAY"),
+    AVFeature::new("FIFO_PEEK2"),
+    AVFeature::new("FIFO_OLD_API"),
+    AVFeature::new("OLD_CHANNEL_LAYOUT"),
+    AVFeature::new("AV_FOPEN_UTF8"),
 ];
 
 static AVCODEC_FEATURES: &[AVFeature] = &[
@@ -137,6 +145,17 @@ static AVCODEC_FEATURES: &[AVFeature] = &[
     AVFeature::new("VBV_DELAY"),
     AVFeature::new("SIDEDATA_ONLY_PKT"),
     AVFeature::new("AVPICTURE"),
+    AVFeature::new("OPENH264_SLICE_MODE"),
+    AVFeature::new("OPENH264_CABAC"),
+    AVFeature::new("UNUSED_CODEC_CAPS"),
+    AVFeature::new("THREAD_SAFE_CALLBACKS"),
+    AVFeature::new("GET_FRAME_CLASS"),
+    AVFeature::new("AUTO_THREADS"),
+    AVFeature::new("INIT_PACKET"),
+    AVFeature::new("FLAG_TRUNCATED"),
+    AVFeature::new("SUB_TEXT_FORMAT"),
+    AVFeature::new("IDCT_NONE"),
+    AVFeature::new("SVTAV1_OPTS"),
 ];
 
 static AVFORMAT_FEATURES: &[AVFeature] = &[
@@ -146,9 +165,14 @@ static AVFORMAT_FEATURES: &[AVFeature] = &[
     AVFeature::new("PROBESIZE_32"),
     AVFeature::new("LAVF_AVCTX"),
     AVFeature::new("OLD_OPEN_CALLBACKS"),
+    AVFeature::new("LAVF_PRIV_OPT"),
+    AVFeature::new("COMPUTE_PKT_FIELDS2"),
+    AVFeature::new("AVIOCONTEXT_WRITTEN"),
+    AVFeature::new("AVSTREAM_CLASS"),
+    AVFeature::new("R_FRAME_RATE"),
 ];
 
-static AVDEVICE_FEATURES: &[AVFeature] = &[];
+static AVDEVICE_FEATURES: &[AVFeature] = &[AVFeature::new("DEVICE_CAPABILITIES")];
 
 static AVFILTER_FEATURES: &[AVFeature] = &[
     AVFeature::new("AVFILTERPAD_PUBLIC"),
@@ -159,6 +183,9 @@ static AVFILTER_FEATURES: &[AVFeature] = &[
     AVFeature::new("OLD_FILTER_REGISTER"),
     AVFeature::new("OLD_GRAPH_PARSE"),
     AVFeature::new("NOCONST_GET_NAME"),
+    AVFeature::new("SWS_PARAM_OPTION"),
+    AVFeature::new("BUFFERSINK_ALLOC"),
+    AVFeature::new("PAD_COUNT"),
 ];
 
 static AVRESAMPLE_FEATURES: &[AVFeature] = &[AVFeature::new("RESAMPLE_CLOSE_OPEN")];
