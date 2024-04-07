@@ -70,11 +70,7 @@ pub unsafe fn av_make_error_string(
     errbuf_size: size_t,
     errnum: c_int,
 ) -> *mut c_char {
-    av_strerror(errnum, errbuf, errbuf_size);
+    crate::av_strerror(errnum, errbuf, errbuf_size);
 
     errbuf
-}
-
-extern "C" {
-    pub fn av_strerror(errnum: c_int, errbuf: *mut c_char, errbuf_size: size_t) -> c_int;
 }
