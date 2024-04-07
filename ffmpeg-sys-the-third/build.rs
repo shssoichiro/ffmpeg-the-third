@@ -229,6 +229,29 @@ impl ParseCallbacks for Callbacks {
     }
 }
 
+trait FFmpegConfigure {
+    fn switch(&mut self, feature: &str, option_name: &str);
+    fn enable(&mut self, feature: &str, option_name: &str);
+}
+
+impl FFmpegConfigure for Command {
+    fn switch(&mut self, feature: &str, option_name: &str) {
+        let arg = if cargo_feature_enabled(feature) {
+            format!("--enable-{option_name}")
+        } else {
+            format!("--disable-{option_name}")
+        };
+
+        self.arg(arg);
+    }
+
+    fn enable(&mut self, feature: &str, option_name: &str) {
+        if cargo_feature_enabled(feature) {
+            self.arg(format!("--enable-{option_name}"));
+        }
+    }
+}
+
 fn cargo_feature_enabled(feature: &str) -> bool {
     env::var(format!("CARGO_FEATURE_{}", feature.to_uppercase())).is_ok()
 }
@@ -280,15 +303,6 @@ fn fetch() -> io::Result<()> {
     } else {
         Err(io::Error::new(io::ErrorKind::Other, "fetch failed"))
     }
-}
-
-fn switch(configure: &mut Command, feature: &str, name: &str) {
-    let arg = if cargo_feature_enabled(feature) {
-        "--enable-"
-    } else {
-        "--disable-"
-    };
-    configure.arg(arg.to_string() + name);
 }
 
 fn build() -> io::Result<()> {
@@ -344,30 +358,14 @@ fn build() -> io::Result<()> {
     // do not build programs since we don't need them
     configure.arg("--disable-programs");
 
-    macro_rules! enable {
-        ($conf:expr, $feat:expr, $name:expr) => {
-            if cargo_feature_enabled($feat) {
-                $conf.arg(concat!("--enable-", $name));
-            }
-        };
-    }
-
-    // macro_rules! disable {
-    //     ($conf:expr, $feat:expr, $name:expr) => (
-    //         if !cargo_feature_enabled($feat) {
-    //             $conf.arg(concat!("--disable-", $name));
-    //         }
-    //     )
-    // }
-
     // the binary using ffmpeg-sys must comply with GPL
-    switch(&mut configure, "BUILD_LICENSE_GPL", "gpl");
+    configure.switch("BUILD_LICENSE_GPL", "gpl");
 
     // the binary using ffmpeg-sys must comply with (L)GPLv3
-    switch(&mut configure, "BUILD_LICENSE_VERSION3", "version3");
+    configure.switch("BUILD_LICENSE_VERSION3", "version3");
 
     // the binary using ffmpeg-sys cannot be redistributed
-    switch(&mut configure, "BUILD_LICENSE_NONFREE", "nonfree");
+    configure.switch("BUILD_LICENSE_NONFREE", "nonfree");
 
     let ffmpeg_major_version: u32 = ffmpeg_major_version();
 
@@ -377,73 +375,72 @@ fn build() -> io::Result<()> {
         .filter(|lib| lib.is_feature)
         .filter(|lib| !(lib.name == "avresample" && ffmpeg_major_version >= 5))
     {
-        switch(&mut configure, &lib.name.to_uppercase(), lib.name);
+        configure.switch(&lib.name.to_uppercase(), lib.name);
     }
 
     // configure external SSL libraries
-    enable!(configure, "BUILD_LIB_GNUTLS", "gnutls");
-    enable!(configure, "BUILD_LIB_OPENSSL", "openssl");
+    configure.enable("BUILD_LIB_GNUTLS", "gnutls");
+    configure.enable("BUILD_LIB_OPENSSL", "openssl");
 
     // configure external filters
-    enable!(configure, "BUILD_LIB_FONTCONFIG", "fontconfig");
-    enable!(configure, "BUILD_LIB_FREI0R", "frei0r");
-    enable!(configure, "BUILD_LIB_LADSPA", "ladspa");
-    enable!(configure, "BUILD_LIB_ASS", "libass");
-    enable!(configure, "BUILD_LIB_FREETYPE", "libfreetype");
-    enable!(configure, "BUILD_LIB_FRIBIDI", "libfribidi");
-    enable!(configure, "BUILD_LIB_OPENCV", "libopencv");
-    enable!(configure, "BUILD_LIB_VMAF", "libvmaf");
+    configure.enable("BUILD_LIB_FONTCONFIG", "fontconfig");
+    configure.enable("BUILD_LIB_FREI0R", "frei0r");
+    configure.enable("BUILD_LIB_LADSPA", "ladspa");
+    configure.enable("BUILD_LIB_ASS", "libass");
+    configure.enable("BUILD_LIB_FREETYPE", "libfreetype");
+    configure.enable("BUILD_LIB_FRIBIDI", "libfribidi");
+    configure.enable("BUILD_LIB_OPENCV", "libopencv");
+    configure.enable("BUILD_LIB_VMAF", "libvmaf");
 
     // configure external encoders/decoders
-    enable!(configure, "BUILD_LIB_AACPLUS", "libaacplus");
-    enable!(configure, "BUILD_LIB_CELT", "libcelt");
-    enable!(configure, "BUILD_LIB_DCADEC", "libdcadec");
-    enable!(configure, "BUILD_LIB_DAV1D", "libdav1d");
-    enable!(configure, "BUILD_LIB_FAAC", "libfaac");
-    enable!(configure, "BUILD_LIB_FDK_AAC", "libfdk-aac");
-    enable!(configure, "BUILD_LIB_GSM", "libgsm");
-    enable!(configure, "BUILD_LIB_ILBC", "libilbc");
-    enable!(configure, "BUILD_LIB_VAZAAR", "libvazaar");
-    enable!(configure, "BUILD_LIB_MP3LAME", "libmp3lame");
-    enable!(configure, "BUILD_LIB_OPENCORE_AMRNB", "libopencore-amrnb");
-    enable!(configure, "BUILD_LIB_OPENCORE_AMRWB", "libopencore-amrwb");
-    enable!(configure, "BUILD_LIB_OPENH264", "libopenh264");
-    enable!(configure, "BUILD_LIB_OPENH265", "libopenh265");
-    enable!(configure, "BUILD_LIB_OPENJPEG", "libopenjpeg");
-    enable!(configure, "BUILD_LIB_OPUS", "libopus");
-    enable!(configure, "BUILD_LIB_SCHROEDINGER", "libschroedinger");
-    enable!(configure, "BUILD_LIB_SHINE", "libshine");
-    enable!(configure, "BUILD_LIB_SNAPPY", "libsnappy");
-    enable!(configure, "BUILD_LIB_SPEEX", "libspeex");
-    enable!(
-        configure,
+    configure.enable("BUILD_LIB_AACPLUS", "libaacplus");
+    configure.enable("BUILD_LIB_CELT", "libcelt");
+    configure.enable("BUILD_LIB_DCADEC", "libdcadec");
+    configure.enable("BUILD_LIB_DAV1D", "libdav1d");
+    configure.enable("BUILD_LIB_FAAC", "libfaac");
+    configure.enable("BUILD_LIB_FDK_AAC", "libfdk-aac");
+    configure.enable("BUILD_LIB_GSM", "libgsm");
+    configure.enable("BUILD_LIB_ILBC", "libilbc");
+    configure.enable("BUILD_LIB_VAZAAR", "libvazaar");
+    configure.enable("BUILD_LIB_MP3LAME", "libmp3lame");
+    configure.enable("BUILD_LIB_OPENCORE_AMRNB", "libopencore-amrnb");
+    configure.enable("BUILD_LIB_OPENCORE_AMRWB", "libopencore-amrwb");
+    configure.enable("BUILD_LIB_OPENH264", "libopenh264");
+    configure.enable("BUILD_LIB_OPENH265", "libopenh265");
+    configure.enable("BUILD_LIB_OPENJPEG", "libopenjpeg");
+    configure.enable("BUILD_LIB_OPUS", "libopus");
+    configure.enable("BUILD_LIB_SCHROEDINGER", "libschroedinger");
+    configure.enable("BUILD_LIB_SHINE", "libshine");
+    configure.enable("BUILD_LIB_SNAPPY", "libsnappy");
+    configure.enable("BUILD_LIB_SPEEX", "libspeex");
+    configure.enable(
         "BUILD_LIB_STAGEFRIGHT_H264",
         "libstagefright-h264"
     );
-    enable!(configure, "BUILD_LIB_THEORA", "libtheora");
-    enable!(configure, "BUILD_LIB_TWOLAME", "libtwolame");
-    enable!(configure, "BUILD_LIB_UTVIDEO", "libutvideo");
-    enable!(configure, "BUILD_LIB_VO_AACENC", "libvo-aacenc");
-    enable!(configure, "BUILD_LIB_VO_AMRWBENC", "libvo-amrwbenc");
-    enable!(configure, "BUILD_LIB_VORBIS", "libvorbis");
-    enable!(configure, "BUILD_LIB_VPX", "libvpx");
-    enable!(configure, "BUILD_LIB_WAVPACK", "libwavpack");
-    enable!(configure, "BUILD_LIB_WEBP", "libwebp");
-    enable!(configure, "BUILD_LIB_X264", "libx264");
-    enable!(configure, "BUILD_LIB_X265", "libx265");
-    enable!(configure, "BUILD_LIB_AVS", "libavs");
-    enable!(configure, "BUILD_LIB_XVID", "libxvid");
+    configure.enable("BUILD_LIB_THEORA", "libtheora");
+    configure.enable("BUILD_LIB_TWOLAME", "libtwolame");
+    configure.enable("BUILD_LIB_UTVIDEO", "libutvideo");
+    configure.enable("BUILD_LIB_VO_AACENC", "libvo-aacenc");
+    configure.enable("BUILD_LIB_VO_AMRWBENC", "libvo-amrwbenc");
+    configure.enable("BUILD_LIB_VORBIS", "libvorbis");
+    configure.enable("BUILD_LIB_VPX", "libvpx");
+    configure.enable("BUILD_LIB_WAVPACK", "libwavpack");
+    configure.enable("BUILD_LIB_WEBP", "libwebp");
+    configure.enable("BUILD_LIB_X264", "libx264");
+    configure.enable("BUILD_LIB_X265", "libx265");
+    configure.enable("BUILD_LIB_AVS", "libavs");
+    configure.enable("BUILD_LIB_XVID", "libxvid");
 
     // other external libraries
-    enable!(configure, "BUILD_LIB_DRM", "libdrm");
-    enable!(configure, "BUILD_NVENC", "nvenc");
+    configure.enable("BUILD_LIB_DRM", "libdrm");
+    configure.enable("BUILD_NVENC", "nvenc");
 
     // configure external protocols
-    enable!(configure, "BUILD_LIB_SMBCLIENT", "libsmbclient");
-    enable!(configure, "BUILD_LIB_SSH", "libssh");
+    configure.enable("BUILD_LIB_SMBCLIENT", "libsmbclient");
+    configure.enable("BUILD_LIB_SSH", "libssh");
 
     // configure misc build options
-    enable!(configure, "BUILD_PIC", "pic");
+    configure.enable("BUILD_PIC", "pic");
 
     // run ./configure
     let output = configure
