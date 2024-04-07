@@ -29,14 +29,6 @@ impl Library {
             features,
         }
     }
-
-    fn feature_name(&self) -> Option<String> {
-        if self.is_feature {
-            Some("CARGO_FEATURE_".to_string() + &self.name.to_uppercase())
-        } else {
-            None
-        }
-    }
 }
 
 static LIBRARIES: &[Library] = &[
@@ -236,6 +228,33 @@ impl ParseCallbacks for Callbacks {
     }
 }
 
+trait FFmpegConfigure {
+    fn switch(&mut self, feature: &str, option_name: &str);
+    fn enable(&mut self, feature: &str, option_name: &str);
+}
+
+impl FFmpegConfigure for Command {
+    fn switch(&mut self, feature: &str, option_name: &str) {
+        let arg = if cargo_feature_enabled(feature) {
+            format!("--enable-{option_name}")
+        } else {
+            format!("--disable-{option_name}")
+        };
+
+        self.arg(arg);
+    }
+
+    fn enable(&mut self, feature: &str, option_name: &str) {
+        if cargo_feature_enabled(feature) {
+            self.arg(format!("--enable-{option_name}"));
+        }
+    }
+}
+
+fn cargo_feature_enabled(feature: &str) -> bool {
+    env::var(format!("CARGO_FEATURE_{}", feature.to_uppercase())).is_ok()
+}
+
 fn ffmpeg_version() -> String {
     env!("CARGO_PKG_VERSION")
         .split('+')
@@ -285,14 +304,60 @@ fn fetch() -> io::Result<()> {
     }
 }
 
-fn switch(configure: &mut Command, feature: &str, name: &str) {
-    let arg = if env::var("CARGO_FEATURE_".to_string() + feature).is_ok() {
-        "--enable-"
-    } else {
-        "--disable-"
-    };
-    configure.arg(arg.to_string() + name);
-}
+// left side: cargo feature name ("CARGO_FEATURE_BUILD_LIB_{}")
+// right side: FFmpeg configure name ("--enable-{}")
+static EXTERNAL_BUILD_LIBS: &[(&str, &str)] = &[
+    // SSL
+    ("GNUTLS", "gnutls"),
+    ("OPENSSL", "openssl"),
+    // Filters
+    ("FONTCONFIG", "fontconfig"),
+    ("FREI0R", "frei0r"),
+    ("LADSPA", "ladspa"),
+    ("ASS", "libass"),
+    ("FREETYPE", "libfreetype"),
+    ("FRIBIDI", "libfribidi"),
+    ("OPENCV", "libopencv"),
+    ("VMAF", "libvmaf"),
+    // Encoders/decoders
+    ("AACPLUS", "libaacplus"),
+    ("CELT", "libcelt"),
+    ("DCADEC", "libdcadec"),
+    ("DAV1D", "libdav1d"),
+    ("FAAC", "libfaac"),
+    ("FDK_AAC", "libfdk-aac"),
+    ("GSM", "libgsm"),
+    ("ILBC", "libilbc"),
+    ("VAZAAR", "libvazaar"),
+    ("MP3LAME", "libmp3lame"),
+    ("OPENCORE_AMRNB", "libopencore-amrnb"),
+    ("OPENCORE_AMRWB", "libopencore-amrwb"),
+    ("OPENH264", "libopenh264"),
+    ("OPENH265", "libopenh265"),
+    ("OPENJPEG", "libopenjpeg"),
+    ("OPUS", "libopus"),
+    ("SCHROEDINGER", "libschroedinger"),
+    ("SHINE", "libshine"),
+    ("SNAPPY", "libsnappy"),
+    ("SPEEX", "libspeex"),
+    ("STAGEFRIGHT_H264", "libstagefright-h264"),
+    ("THEORA", "libtheora"),
+    ("TWOLAME", "libtwolame"),
+    ("UTVIDEO", "libutvideo"),
+    ("VO_AACENC", "libvo-aacenc"),
+    ("VO_AMRWBENC", "libvo-amrwbenc"),
+    ("VORBIS", "libvorbis"),
+    ("VPX", "libvpx"),
+    ("WAVPACK", "libwavpack"),
+    ("WEBP", "libwebp"),
+    ("X264", "libx264"),
+    ("X265", "libx265"),
+    ("AVS", "libavs"),
+    ("XVID", "libxvid"),
+    // Protocols
+    ("SMBCLIENT", "libsmbclient"),
+    ("SSH", "libssh"),
+];
 
 fn build() -> io::Result<()> {
     let source_dir = source();
@@ -347,30 +412,14 @@ fn build() -> io::Result<()> {
     // do not build programs since we don't need them
     configure.arg("--disable-programs");
 
-    macro_rules! enable {
-        ($conf:expr, $feat:expr, $name:expr) => {
-            if env::var(concat!("CARGO_FEATURE_", $feat)).is_ok() {
-                $conf.arg(concat!("--enable-", $name));
-            }
-        };
-    }
-
-    // macro_rules! disable {
-    //     ($conf:expr, $feat:expr, $name:expr) => (
-    //         if env::var(concat!("CARGO_FEATURE_", $feat)).is_err() {
-    //             $conf.arg(concat!("--disable-", $name));
-    //         }
-    //     )
-    // }
-
     // the binary using ffmpeg-sys must comply with GPL
-    switch(&mut configure, "BUILD_LICENSE_GPL", "gpl");
+    configure.switch("BUILD_LICENSE_GPL", "gpl");
 
     // the binary using ffmpeg-sys must comply with (L)GPLv3
-    switch(&mut configure, "BUILD_LICENSE_VERSION3", "version3");
+    configure.switch("BUILD_LICENSE_VERSION3", "version3");
 
     // the binary using ffmpeg-sys cannot be redistributed
-    switch(&mut configure, "BUILD_LICENSE_NONFREE", "nonfree");
+    configure.switch("BUILD_LICENSE_NONFREE", "nonfree");
 
     let ffmpeg_major_version: u32 = ffmpeg_major_version();
 
@@ -380,73 +429,18 @@ fn build() -> io::Result<()> {
         .filter(|lib| lib.is_feature)
         .filter(|lib| !(lib.name == "avresample" && ffmpeg_major_version >= 5))
     {
-        switch(&mut configure, &lib.name.to_uppercase(), lib.name);
+        configure.switch(&lib.name.to_uppercase(), lib.name);
     }
 
-    // configure external SSL libraries
-    enable!(configure, "BUILD_LIB_GNUTLS", "gnutls");
-    enable!(configure, "BUILD_LIB_OPENSSL", "openssl");
+    // configure external libraries based on features
+    for (cargo_feat, option_name) in EXTERNAL_BUILD_LIBS {
+        configure.enable(&format!("BUILD_LIB_{cargo_feat}"), option_name);
+    }
 
-    // configure external filters
-    enable!(configure, "BUILD_LIB_FONTCONFIG", "fontconfig");
-    enable!(configure, "BUILD_LIB_FREI0R", "frei0r");
-    enable!(configure, "BUILD_LIB_LADSPA", "ladspa");
-    enable!(configure, "BUILD_LIB_ASS", "libass");
-    enable!(configure, "BUILD_LIB_FREETYPE", "libfreetype");
-    enable!(configure, "BUILD_LIB_FRIBIDI", "libfribidi");
-    enable!(configure, "BUILD_LIB_OPENCV", "libopencv");
-    enable!(configure, "BUILD_LIB_VMAF", "libvmaf");
-
-    // configure external encoders/decoders
-    enable!(configure, "BUILD_LIB_AACPLUS", "libaacplus");
-    enable!(configure, "BUILD_LIB_CELT", "libcelt");
-    enable!(configure, "BUILD_LIB_DCADEC", "libdcadec");
-    enable!(configure, "BUILD_LIB_DAV1D", "libdav1d");
-    enable!(configure, "BUILD_LIB_FAAC", "libfaac");
-    enable!(configure, "BUILD_LIB_FDK_AAC", "libfdk-aac");
-    enable!(configure, "BUILD_LIB_GSM", "libgsm");
-    enable!(configure, "BUILD_LIB_ILBC", "libilbc");
-    enable!(configure, "BUILD_LIB_VAZAAR", "libvazaar");
-    enable!(configure, "BUILD_LIB_MP3LAME", "libmp3lame");
-    enable!(configure, "BUILD_LIB_OPENCORE_AMRNB", "libopencore-amrnb");
-    enable!(configure, "BUILD_LIB_OPENCORE_AMRWB", "libopencore-amrwb");
-    enable!(configure, "BUILD_LIB_OPENH264", "libopenh264");
-    enable!(configure, "BUILD_LIB_OPENH265", "libopenh265");
-    enable!(configure, "BUILD_LIB_OPENJPEG", "libopenjpeg");
-    enable!(configure, "BUILD_LIB_OPUS", "libopus");
-    enable!(configure, "BUILD_LIB_SCHROEDINGER", "libschroedinger");
-    enable!(configure, "BUILD_LIB_SHINE", "libshine");
-    enable!(configure, "BUILD_LIB_SNAPPY", "libsnappy");
-    enable!(configure, "BUILD_LIB_SPEEX", "libspeex");
-    enable!(
-        configure,
-        "BUILD_LIB_STAGEFRIGHT_H264",
-        "libstagefright-h264"
-    );
-    enable!(configure, "BUILD_LIB_THEORA", "libtheora");
-    enable!(configure, "BUILD_LIB_TWOLAME", "libtwolame");
-    enable!(configure, "BUILD_LIB_UTVIDEO", "libutvideo");
-    enable!(configure, "BUILD_LIB_VO_AACENC", "libvo-aacenc");
-    enable!(configure, "BUILD_LIB_VO_AMRWBENC", "libvo-amrwbenc");
-    enable!(configure, "BUILD_LIB_VORBIS", "libvorbis");
-    enable!(configure, "BUILD_LIB_VPX", "libvpx");
-    enable!(configure, "BUILD_LIB_WAVPACK", "libwavpack");
-    enable!(configure, "BUILD_LIB_WEBP", "libwebp");
-    enable!(configure, "BUILD_LIB_X264", "libx264");
-    enable!(configure, "BUILD_LIB_X265", "libx265");
-    enable!(configure, "BUILD_LIB_AVS", "libavs");
-    enable!(configure, "BUILD_LIB_XVID", "libxvid");
-
-    // other external libraries
-    enable!(configure, "BUILD_LIB_DRM", "libdrm");
-    enable!(configure, "BUILD_NVENC", "nvenc");
-
-    // configure external protocols
-    enable!(configure, "BUILD_LIB_SMBCLIENT", "libsmbclient");
-    enable!(configure, "BUILD_LIB_SSH", "libssh");
-
+    configure.enable("BUILD_DRM", "libdrm");
+    configure.enable("BUILD_NVENC", "nvenc");
     // configure misc build options
-    enable!(configure, "BUILD_PIC", "pic");
+    configure.enable("BUILD_PIC", "pic");
 
     // run ./configure
     let output = configure
@@ -538,7 +532,7 @@ fn check_features(include_paths: &[PathBuf]) {
     let mut main_code = String::new();
 
     for lib in LIBRARIES {
-        if lib.is_feature && env::var(format!("CARGO_FEATURE_{}", lib.name.to_uppercase())).is_err() {
+        if lib.is_feature && !cargo_feature_enabled(lib.name) {
             continue;
         }
 
@@ -652,7 +646,7 @@ fn check_features(include_paths: &[PathBuf]) {
     println!("stdout of {}={}", executable.display(), stdout);
 
     for lib in LIBRARIES {
-        if lib.is_feature && env::var(format!("CARGO_FEATURE_{}", lib.name.to_uppercase())).is_err() {
+        if lib.is_feature && !cargo_feature_enabled(lib.name) {
             continue;
         }
 
@@ -764,21 +758,20 @@ fn maybe_search_include(include_paths: &[PathBuf], header: &str) -> Option<Strin
 fn link_to_libraries(statik: bool) {
     let ffmpeg_ty = if statik { "static" } else { "dylib" };
     for lib in LIBRARIES {
-        let feat_is_enabled = lib.feature_name().and_then(|f| env::var(f).ok()).is_some();
-        if !lib.is_feature || feat_is_enabled {
+        if !lib.is_feature || cargo_feature_enabled(lib.name) {
             println!("cargo:rustc-link-lib={}={}", ffmpeg_ty, lib.name);
         }
     }
-    if env::var("CARGO_FEATURE_BUILD_ZLIB").is_ok() && cfg!(target_os = "linux") {
+    if cargo_feature_enabled("build_zlib") && cfg!(target_os = "linux") {
         println!("cargo:rustc-link-lib=z");
     }
 }
 
 fn main() {
-    let statik = env::var("CARGO_FEATURE_STATIC").is_ok();
+    let statik = cargo_feature_enabled("static");
     let ffmpeg_major_version: u32 = ffmpeg_major_version();
 
-    let include_paths: Vec<PathBuf> = if env::var("CARGO_FEATURE_BUILD").is_ok() {
+    let include_paths: Vec<PathBuf> = if cargo_feature_enabled("build") {
         println!(
             "cargo:rustc-link-search=native={}",
             search().join("lib").to_string_lossy()
@@ -861,7 +854,7 @@ fn main() {
         }
 
         for (lib_name, env_variable_name) in libs.iter() {
-            if env::var(format!("CARGO_FEATURE_{}", env_variable_name)).is_ok() {
+            if cargo_feature_enabled(env_variable_name) {
                 pkg_config::Config::new()
                     .statik(statik)
                     .probe(lib_name)
@@ -1005,7 +998,7 @@ fn main() {
         .size_t_is_usize(true)
         .parse_callbacks(Box::new(Callbacks));
 
-    if env::var("CARGO_FEATURE_NON_EXHAUSTIVE_ENUMS").is_ok() {
+    if cargo_feature_enabled("non_exhaustive_enums") {
         builder = builder.rustified_non_exhaustive_enum(".*");
     } else {
         builder = builder.rustified_enum(".*");
@@ -1013,7 +1006,7 @@ fn main() {
 
     // The input headers we would like to generate
     // bindings for.
-    if env::var("CARGO_FEATURE_AVCODEC").is_ok() {
+    if cargo_feature_enabled("avcodec") {
         builder = builder
             .header(search_include(&include_paths, "libavcodec/avcodec.h"))
             .header(search_include(&include_paths, "libavcodec/dv_profile.h"))
@@ -1025,24 +1018,24 @@ fn main() {
         }
     }
 
-    if env::var("CARGO_FEATURE_AVDEVICE").is_ok() {
+    if cargo_feature_enabled("avdevice") {
         builder = builder.header(search_include(&include_paths, "libavdevice/avdevice.h"));
     }
 
-    if env::var("CARGO_FEATURE_AVFILTER").is_ok() {
+    if cargo_feature_enabled("avfilter") {
         builder = builder
             .header(search_include(&include_paths, "libavfilter/buffersink.h"))
             .header(search_include(&include_paths, "libavfilter/buffersrc.h"))
             .header(search_include(&include_paths, "libavfilter/avfilter.h"));
     }
 
-    if env::var("CARGO_FEATURE_AVFORMAT").is_ok() {
+    if cargo_feature_enabled("avformat") {
         builder = builder
             .header(search_include(&include_paths, "libavformat/avformat.h"))
             .header(search_include(&include_paths, "libavformat/avio.h"));
     }
 
-    if env::var("CARGO_FEATURE_AVRESAMPLE").is_ok() {
+    if cargo_feature_enabled("avresample") {
         builder = builder.header(search_include(&include_paths, "libavresample/avresample.h"));
     }
 
@@ -1103,15 +1096,15 @@ fn main() {
         .header(search_include(&include_paths, "libavutil/avutil.h"))
         .header(search_include(&include_paths, "libavutil/xtea.h"));
 
-    if env::var("CARGO_FEATURE_POSTPROC").is_ok() {
+    if cargo_feature_enabled("postproc") {
         builder = builder.header(search_include(&include_paths, "libpostproc/postprocess.h"));
     }
 
-    if env::var("CARGO_FEATURE_SWRESAMPLE").is_ok() {
+    if cargo_feature_enabled("swresample") {
         builder = builder.header(search_include(&include_paths, "libswresample/swresample.h"));
     }
 
-    if env::var("CARGO_FEATURE_SWSCALE").is_ok() {
+    if cargo_feature_enabled("swscale") {
         builder = builder.header(search_include(&include_paths, "libswscale/swscale.h"));
     }
 
