@@ -305,6 +305,61 @@ fn fetch() -> io::Result<()> {
     }
 }
 
+// left side: cargo feature name ("CARGO_FEATURE_BUILD_LIB_{}")
+// right side: FFmpeg configure name ("--enable-{}")
+static EXTERNAL_BUILD_LIBS: &[(&str, &str)] = &[
+    // SSL
+    ("GNUTLS", "gnutls"),
+    ("OPENSSL", "openssl"),
+    // Filters
+    ("FONTCONFIG", "fontconfig"),
+    ("FREI0R", "frei0r"),
+    ("LADSPA", "ladspa"),
+    ("ASS", "libass"),
+    ("FREETYPE", "libfreetype"),
+    ("FRIBIDI", "libfribidi"),
+    ("OPENCV", "libopencv"),
+    ("VMAF", "libvmaf"),
+    // Encoders/decoders
+    ("AACPLUS", "libaacplus"),
+    ("CELT", "libcelt"),
+    ("DCADEC", "libdcadec"),
+    ("DAV1D", "libdav1d"),
+    ("FAAC", "libfaac"),
+    ("FDK_AAC", "libfdk-aac"),
+    ("GSM", "libgsm"),
+    ("ILBC", "libilbc"),
+    ("VAZAAR", "libvazaar"),
+    ("MP3LAME", "libmp3lame"),
+    ("OPENCORE_AMRNB", "libopencore-amrnb"),
+    ("OPENCORE_AMRWB", "libopencore-amrwb"),
+    ("OPENH264", "libopenh264"),
+    ("OPENH265", "libopenh265"),
+    ("OPENJPEG", "libopenjpeg"),
+    ("OPUS", "libopus"),
+    ("SCHROEDINGER", "libschroedinger"),
+    ("SHINE", "libshine"),
+    ("SNAPPY", "libsnappy"),
+    ("SPEEX", "libspeex"),
+    ("STAGEFRIGHT_H264", "libstagefright-h264"),
+    ("THEORA", "libtheora"),
+    ("TWOLAME", "libtwolame"),
+    ("UTVIDEO", "libutvideo"),
+    ("VO_AACENC", "libvo-aacenc"),
+    ("VO_AMRWBENC", "libvo-amrwbenc"),
+    ("VORBIS", "libvorbis"),
+    ("VPX", "libvpx"),
+    ("WAVPACK", "libwavpack"),
+    ("WEBP", "libwebp"),
+    ("X264", "libx264"),
+    ("X265", "libx265"),
+    ("AVS", "libavs"),
+    ("XVID", "libxvid"),
+    // Protocols
+    ("SMBCLIENT", "libsmbclient"),
+    ("SSH", "libssh"),
+];
+
 fn build() -> io::Result<()> {
     let source_dir = source();
 
@@ -378,67 +433,13 @@ fn build() -> io::Result<()> {
         configure.switch(&lib.name.to_uppercase(), lib.name);
     }
 
-    // configure external SSL libraries
-    configure.enable("BUILD_LIB_GNUTLS", "gnutls");
-    configure.enable("BUILD_LIB_OPENSSL", "openssl");
+    // configure external libraries based on features
+    for (cargo_feat, option_name) in EXTERNAL_BUILD_LIBS {
+        configure.enable(&format!("BUILD_LIB_{cargo_feat}"), option_name);
+    }
 
-    // configure external filters
-    configure.enable("BUILD_LIB_FONTCONFIG", "fontconfig");
-    configure.enable("BUILD_LIB_FREI0R", "frei0r");
-    configure.enable("BUILD_LIB_LADSPA", "ladspa");
-    configure.enable("BUILD_LIB_ASS", "libass");
-    configure.enable("BUILD_LIB_FREETYPE", "libfreetype");
-    configure.enable("BUILD_LIB_FRIBIDI", "libfribidi");
-    configure.enable("BUILD_LIB_OPENCV", "libopencv");
-    configure.enable("BUILD_LIB_VMAF", "libvmaf");
-
-    // configure external encoders/decoders
-    configure.enable("BUILD_LIB_AACPLUS", "libaacplus");
-    configure.enable("BUILD_LIB_CELT", "libcelt");
-    configure.enable("BUILD_LIB_DCADEC", "libdcadec");
-    configure.enable("BUILD_LIB_DAV1D", "libdav1d");
-    configure.enable("BUILD_LIB_FAAC", "libfaac");
-    configure.enable("BUILD_LIB_FDK_AAC", "libfdk-aac");
-    configure.enable("BUILD_LIB_GSM", "libgsm");
-    configure.enable("BUILD_LIB_ILBC", "libilbc");
-    configure.enable("BUILD_LIB_VAZAAR", "libvazaar");
-    configure.enable("BUILD_LIB_MP3LAME", "libmp3lame");
-    configure.enable("BUILD_LIB_OPENCORE_AMRNB", "libopencore-amrnb");
-    configure.enable("BUILD_LIB_OPENCORE_AMRWB", "libopencore-amrwb");
-    configure.enable("BUILD_LIB_OPENH264", "libopenh264");
-    configure.enable("BUILD_LIB_OPENH265", "libopenh265");
-    configure.enable("BUILD_LIB_OPENJPEG", "libopenjpeg");
-    configure.enable("BUILD_LIB_OPUS", "libopus");
-    configure.enable("BUILD_LIB_SCHROEDINGER", "libschroedinger");
-    configure.enable("BUILD_LIB_SHINE", "libshine");
-    configure.enable("BUILD_LIB_SNAPPY", "libsnappy");
-    configure.enable("BUILD_LIB_SPEEX", "libspeex");
-    configure.enable(
-        "BUILD_LIB_STAGEFRIGHT_H264",
-        "libstagefright-h264"
-    );
-    configure.enable("BUILD_LIB_THEORA", "libtheora");
-    configure.enable("BUILD_LIB_TWOLAME", "libtwolame");
-    configure.enable("BUILD_LIB_UTVIDEO", "libutvideo");
-    configure.enable("BUILD_LIB_VO_AACENC", "libvo-aacenc");
-    configure.enable("BUILD_LIB_VO_AMRWBENC", "libvo-amrwbenc");
-    configure.enable("BUILD_LIB_VORBIS", "libvorbis");
-    configure.enable("BUILD_LIB_VPX", "libvpx");
-    configure.enable("BUILD_LIB_WAVPACK", "libwavpack");
-    configure.enable("BUILD_LIB_WEBP", "libwebp");
-    configure.enable("BUILD_LIB_X264", "libx264");
-    configure.enable("BUILD_LIB_X265", "libx265");
-    configure.enable("BUILD_LIB_AVS", "libavs");
-    configure.enable("BUILD_LIB_XVID", "libxvid");
-
-    // other external libraries
     configure.enable("BUILD_LIB_DRM", "libdrm");
     configure.enable("BUILD_NVENC", "nvenc");
-
-    // configure external protocols
-    configure.enable("BUILD_LIB_SMBCLIENT", "libsmbclient");
-    configure.enable("BUILD_LIB_SSH", "libssh");
-
     // configure misc build options
     configure.enable("BUILD_PIC", "pic");
 
