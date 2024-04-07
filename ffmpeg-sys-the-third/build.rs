@@ -1050,9 +1050,6 @@ fn main() {
         .header(search_include(&include_paths, "libavutil/camellia.h"))
         .header(search_include(&include_paths, "libavutil/cast5.h"))
         .header(search_include(&include_paths, "libavutil/channel_layout.h"))
-        // Here until https://github.com/rust-lang/rust-bindgen/issues/2192 /
-        // https://github.com/rust-lang/rust-bindgen/issues/258 is fixed.
-        .header("channel_layout_fixed.h")
         .header(search_include(&include_paths, "libavutil/cpu.h"))
         .header(search_include(&include_paths, "libavutil/crc.h"))
         .header(search_include(&include_paths, "libavutil/dict.h"))
