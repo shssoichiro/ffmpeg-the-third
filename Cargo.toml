@@ -15,6 +15,9 @@ readme = "README.md"
 keywords = ["ffmpeg", "multimedia", "video", "audio"]
 categories = ["multimedia"]
 
+# When changing MSRV: Also update build.yml and README.md
+rust-version = "1.61.0"
+
 [features]
 default = [
     "codec",
