@@ -960,6 +960,11 @@ fn main() {
     let mut builder = bindgen::Builder::default()
         .clang_args(clang_includes)
         .ctypes_prefix("libc")
+        // Not trivially copyable
+        .no_copy("AVChannelLayout")
+        // We need/want to implement Debug by hand for some types
+        .no_debug("AVChannelLayout")
+        .no_debug("AVChannelCustom")
         // https://github.com/rust-lang/rust-bindgen/issues/550
         .blocklist_type("max_align_t")
         .blocklist_function("_.*")

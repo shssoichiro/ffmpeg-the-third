@@ -1,6 +1,103 @@
 use libc::c_int;
 
-use crate::{AVChannel::*, AVChannelLayout, AVChannelOrder};
+use crate::AVChannel::*;
+use crate::*;
+use crate::{AVChannelLayout, AVChannelOrder};
+
+use std::fmt;
+use std::mem::{align_of, size_of};
+use std::ptr::null_mut;
+
+impl AVChannelLayout {
+    #[inline]
+    pub const fn empty() -> Self {
+        Self {
+            order: AVChannelOrder::AV_CHANNEL_ORDER_UNSPEC,
+            nb_channels: 0,
+            u: AVChannelLayout__bindgen_ty_1 { mask: 0 },
+            opaque: null_mut(),
+        }
+    }
+}
+
+impl Clone for AVChannelLayout {
+    fn clone(&self) -> Self {
+        let mut cloned = Self::empty();
+        cloned.clone_from(self);
+
+        cloned
+    }
+
+    fn clone_from(&mut self, source: &Self) {
+        #[cold]
+        fn clone_failed(channels: c_int) -> ! {
+            use std::alloc::{handle_alloc_error, Layout};
+
+            let alloc_size = channels as usize * size_of::<AVChannelCustom>();
+            let layout =
+                Layout::from_size_align(alloc_size, align_of::<AVChannelCustom>()).unwrap();
+            handle_alloc_error(layout)
+        }
+
+        let ret = unsafe { av_channel_layout_copy(self as _, source as _) };
+
+        if ret < 0 {
+            clone_failed(self.nb_channels);
+        }
+    }
+}
+
+impl Drop for AVChannelLayout {
+    fn drop(&mut self) {
+        unsafe { av_channel_layout_uninit(self as _) }
+    }
+}
+
+impl PartialEq for AVChannelLayout {
+    fn eq(&self, other: &Self) -> bool {
+        unsafe { av_channel_layout_compare(self as _, other as _) == 0 }
+    }
+}
+
+impl fmt::Debug for AVChannelLayout {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let mut dbg = f.debug_struct("AVChannelLayout");
+        dbg.field("order", &self.order)
+            .field("nb_channels", &self.nb_channels);
+
+        unsafe {
+            match self.order {
+                AVChannelOrder::AV_CHANNEL_ORDER_UNSPEC => {} // no other valid fields
+                AVChannelOrder::AV_CHANNEL_ORDER_NATIVE
+                | AVChannelOrder::AV_CHANNEL_ORDER_AMBISONIC => {
+                    dbg.field("mask", &format_args!("0x{:X}", self.u.mask));
+                }
+                AVChannelOrder::AV_CHANNEL_ORDER_CUSTOM => {
+                    dbg.field(
+                        "map",
+                        &std::slice::from_raw_parts(self.u.map, self.nb_channels as usize),
+                    );
+                } // Starting with FFmpeg 7.0:
+                  // Not part of public API, but we have to exhaustively match
+                  // AVChannelOrder::FF_CHANNEL_ORDER_NB => {}
+            }
+        }
+
+        dbg.field("opaque", &self.opaque).finish()
+    }
+}
+
+impl fmt::Debug for AVChannelCustom {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        unsafe {
+            f.debug_struct("AVChannelCustom")
+                .field("id", &self.id)
+                .field("name", &std::ffi::CStr::from_ptr(self.name.as_ptr()))
+                .field("opaque", &self.opaque)
+                .finish()
+        }
+    }
+}
 
 // Here until https://github.com/rust-lang/rust-bindgen/issues/2192 /
 // https://github.com/rust-lang/rust-bindgen/issues/258 is fixed.
