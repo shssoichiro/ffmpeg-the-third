@@ -294,3 +294,114 @@ pub const AV_CHANNEL_LAYOUT_22POINT2: AVChannelLayout =
 
 pub const AV_CHANNEL_LAYOUT_7POINT1_TOP_BACK: AVChannelLayout =
     AV_CHANNEL_LAYOUT_5POINT1POINT2_BACK;
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    // TODO: Missing: Ambisonic layout
+
+    const EMPTY: AVChannelLayout = AVChannelLayout::empty();
+    const UNSPEC: AVChannelLayout = {
+        let mut layout = AVChannelLayout::empty();
+        layout.nb_channels = 5;
+        layout
+    };
+
+    const NATIVE: AVChannelLayout = {
+        let mut layout = AVChannelLayout::empty();
+        layout.order = AVChannelOrder::AV_CHANNEL_ORDER_NATIVE;
+        layout.nb_channels = 6;
+        layout.u.mask = AV_CH_LAYOUT_5POINT1;
+        layout
+    };
+
+    // TODO: Replace with cstr literals when MSRV is 1.77
+    const fn c_string<const N: usize, const K: usize>(byte_str: &[u8; N]) -> [i8; K] {
+        // Need at least one NUL byte at the end
+        assert!(N < K, "input string is too long (max 15 char)");
+
+        let mut result = [0i8; K];
+        let mut i = 0;
+
+        while i < N {
+            result[i] = byte_str[i] as i8;
+            i += 1;
+        }
+
+        result
+    }
+
+    fn custom_ch<const N: usize>(id: AVChannel, name: &[u8; N]) -> AVChannelCustom {
+        AVChannelCustom {
+            id,
+            name: c_string(name),
+            opaque: null_mut(),
+        }
+    }
+
+    fn custom() -> AVChannelLayout {
+        let mut my_data = vec![0u8; 200];
+
+        let channels = [
+            custom_ch(AVChannel::AV_CHAN_FRONT_LEFT, b"front left"),
+            custom_ch(AVChannel::AV_CHAN_TOP_FRONT_RIGHT, b"top front right"),
+            custom_ch(AVChannel::AV_CHAN_FRONT_RIGHT, b"front right"),
+            custom_ch(AVChannel::AV_CHAN_BOTTOM_FRONT_RIGHT, b"btm frt right"),
+            custom_ch(AVChannel::AV_CHAN_TOP_SIDE_LEFT, b"top side left"),
+            AVChannelCustom {
+                id: AVChannel::AV_CHAN_LOW_FREQUENCY,
+                name: c_string(b"subwoofer"),
+                opaque: my_data.as_mut_ptr() as _,
+            },
+        ];
+
+        let mut layout = AVChannelLayout::empty();
+        layout.order = AVChannelOrder::AV_CHANNEL_ORDER_CUSTOM;
+        layout.nb_channels = channels.len() as c_int;
+        unsafe {
+            layout.u.map = av_calloc(channels.len(), size_of::<AVChannelCustom>()) as _;
+            assert!(!layout.u.map.is_null());
+        }
+
+        for (i, ch) in channels.iter().enumerate() {
+            unsafe {
+                std::ptr::write(layout.u.map.add(i), *ch);
+            }
+        }
+
+        layout
+    }
+
+    #[test]
+    fn check() {
+        let tests = [
+            (EMPTY, false),
+            (UNSPEC, true),
+            (NATIVE, true),
+            (custom(), true),
+        ];
+
+        for (i, (layout, valid)) in tests.iter().enumerate() {
+            unsafe {
+                println!("{i}");
+                assert!((av_channel_layout_check(layout as _) != 0) == *valid);
+            }
+        }
+    }
+
+    #[test]
+    fn debug() {
+        for layout in [EMPTY, UNSPEC, NATIVE, custom()] {
+            println!("{layout:?}");
+        }
+    }
+
+    #[test]
+    fn clone_eq() {
+        for layout in [EMPTY, UNSPEC, NATIVE, custom()] {
+            let cloned = layout.clone();
+            assert_eq!(layout, cloned);
+        }
+    }
+}
