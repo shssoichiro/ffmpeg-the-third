@@ -1,3 +1,7 @@
+## Unreleased
+
+- Replace macros `MKTAG`, `MKBETAG` and `FFERRTAG` with const functions
+
 ## Version 1.2.2
 
 - Do a better job of fixing ffmpeg 6.0 support :)
