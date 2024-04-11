@@ -2,7 +2,7 @@ use crate::ffi::*;
 use libc::c_ulonglong;
 
 bitflags! {
-    pub struct ChannelLayout: c_ulonglong {
+    pub struct ChannelLayoutMask: c_ulonglong {
         const FRONT_LEFT            = AV_CH_FRONT_LEFT;
         const FRONT_RIGHT           = AV_CH_FRONT_RIGHT;
         const FRONT_CENTER          = AV_CH_FRONT_CENTER;
@@ -75,15 +75,17 @@ bitflags! {
     }
 }
 
-impl ChannelLayout {
+impl ChannelLayoutMask {
     #[inline]
     pub fn channels(&self) -> i32 {
         unsafe { av_get_channel_layout_nb_channels(self.bits()) }
     }
 
-    pub fn default(number: i32) -> ChannelLayout {
+    pub fn default(number: i32) -> ChannelLayoutMask {
         unsafe {
-            ChannelLayout::from_bits_truncate(av_get_default_channel_layout(number) as c_ulonglong)
+            ChannelLayoutMask::from_bits_truncate(
+                av_get_default_channel_layout(number) as c_ulonglong
+            )
         }
     }
 }

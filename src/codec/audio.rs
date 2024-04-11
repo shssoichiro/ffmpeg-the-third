@@ -2,7 +2,7 @@ use std::ops::Deref;
 
 use super::codec::Codec;
 use crate::ffi::*;
-use crate::{format, ChannelLayout};
+use crate::{format, ChannelLayoutMask};
 
 #[derive(PartialEq, Eq, Copy, Clone)]
 pub struct Audio {
@@ -36,12 +36,12 @@ impl Audio {
         }
     }
 
-    pub fn channel_layouts(&self) -> Option<ChannelLayoutIter> {
+    pub fn channel_layouts(&self) -> Option<ChannelLayoutMaskIter> {
         unsafe {
             if (*self.codec.as_ptr()).channel_layouts.is_null() {
                 None
             } else {
-                Some(ChannelLayoutIter::new(
+                Some(ChannelLayoutMaskIter::new(
                     (*self.codec.as_ptr()).channel_layouts,
                 ))
             }
@@ -111,17 +111,17 @@ impl Iterator for FormatIter {
     }
 }
 
-pub struct ChannelLayoutIter {
+pub struct ChannelLayoutMaskIter {
     ptr: *const u64,
 }
 
-impl ChannelLayoutIter {
+impl ChannelLayoutMaskIter {
     pub fn new(ptr: *const u64) -> Self {
-        ChannelLayoutIter { ptr }
+        ChannelLayoutMaskIter { ptr }
     }
 
-    pub fn best(self, max: i32) -> ChannelLayout {
-        self.fold(ChannelLayout::MONO, |acc, cur| {
+    pub fn best(self, max: i32) -> ChannelLayoutMask {
+        self.fold(ChannelLayoutMask::MONO, |acc, cur| {
             if cur.channels() > acc.channels() && cur.channels() <= max {
                 cur
             } else {
@@ -131,8 +131,8 @@ impl ChannelLayoutIter {
     }
 }
 
-impl Iterator for ChannelLayoutIter {
-    type Item = ChannelLayout;
+impl Iterator for ChannelLayoutMaskIter {
+    type Item = ChannelLayoutMask;
 
     fn next(&mut self) -> Option<<Self as Iterator>::Item> {
         unsafe {
@@ -140,7 +140,7 @@ impl Iterator for ChannelLayoutIter {
                 return None;
             }
 
-            let layout = ChannelLayout::from_bits_truncate(*self.ptr);
+            let layout = ChannelLayoutMask::from_bits_truncate(*self.ptr);
             self.ptr = self.ptr.offset(1);
 
             Some(layout)

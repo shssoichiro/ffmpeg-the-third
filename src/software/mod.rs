@@ -38,8 +38,8 @@ pub mod resampling;
 #[cfg(feature = "software-resampling")]
 #[inline]
 pub fn resampler(
-    (in_format, in_layout, in_rate): (crate::format::Sample, crate::ChannelLayout, u32),
-    (out_format, out_layout, out_rate): (crate::format::Sample, crate::ChannelLayout, u32),
+    (in_format, in_layout, in_rate): (crate::format::Sample, crate::ChannelLayoutMask, u32),
+    (out_format, out_layout, out_rate): (crate::format::Sample, crate::ChannelLayoutMask, u32),
 ) -> Result<resampling::Context, crate::Error> {
     resampling::Context::get(
         in_format, in_layout, in_rate, out_format, out_layout, out_rate,

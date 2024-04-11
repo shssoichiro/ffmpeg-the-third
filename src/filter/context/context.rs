@@ -2,7 +2,7 @@ use std::marker::PhantomData;
 
 use super::{Sink, Source};
 use crate::ffi::*;
-use crate::{format, option, ChannelLayout};
+use crate::{format, option, ChannelLayoutMask};
 use libc::c_void;
 
 pub struct Context<'a> {
@@ -49,7 +49,7 @@ impl<'a> Context<'a> {
         let _ = option::Settable::set(self, "sample_rates", &i64::from(value));
     }
 
-    pub fn set_channel_layout(&mut self, value: ChannelLayout) {
+    pub fn set_channel_layout(&mut self, value: ChannelLayoutMask) {
         let _ = option::Settable::set(self, "channel_layouts", &value.bits());
     }
 }

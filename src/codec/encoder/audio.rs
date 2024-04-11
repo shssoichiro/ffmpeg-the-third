@@ -10,7 +10,7 @@ use crate::codec::{traits, Context};
 use crate::util::format;
 #[cfg(not(feature = "ffmpeg_5_0"))]
 use crate::{frame, packet};
-use crate::{ChannelLayout, Dictionary, Error};
+use crate::{ChannelLayoutMask, Dictionary, Error};
 
 pub struct Audio(pub Super);
 
@@ -93,14 +93,14 @@ impl Audio {
         unsafe { format::Sample::from((*self.as_ptr()).sample_fmt) }
     }
 
-    pub fn set_channel_layout(&mut self, value: ChannelLayout) {
+    pub fn set_channel_layout(&mut self, value: ChannelLayoutMask) {
         unsafe {
             (*self.as_mut_ptr()).channel_layout = value.bits();
         }
     }
 
-    pub fn channel_layout(&self) -> ChannelLayout {
-        unsafe { ChannelLayout::from_bits_truncate((*self.as_ptr()).channel_layout) }
+    pub fn channel_layout(&self) -> ChannelLayoutMask {
+        unsafe { ChannelLayoutMask::from_bits_truncate((*self.as_ptr()).channel_layout) }
     }
 
     pub fn set_channels(&mut self, value: i32) {

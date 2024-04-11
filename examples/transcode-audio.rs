@@ -91,7 +91,7 @@ fn transcoder<P: AsRef<Path>>(
     let channel_layout = codec
         .channel_layouts()
         .map(|cls| cls.best(decoder.channel_layout().channels()))
-        .unwrap_or(ffmpeg::channel_layout::ChannelLayout::STEREO);
+        .unwrap_or(ffmpeg::channel_layout::ChannelLayoutMask::STEREO);
 
     if global {
         encoder.set_flags(ffmpeg::codec::flag::Flags::GLOBAL_HEADER);
