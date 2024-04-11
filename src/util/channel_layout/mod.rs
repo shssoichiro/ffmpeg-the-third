@@ -10,3 +10,8 @@ pub use channel_custom::*;
 mod channel;
 #[cfg(feature = "ffmpeg_5_1")]
 pub use channel::*;
+
+#[cfg(feature = "ffmpeg_5_1")]
+mod order;
+#[cfg(feature = "ffmpeg_5_1")]
+pub use order::*;
