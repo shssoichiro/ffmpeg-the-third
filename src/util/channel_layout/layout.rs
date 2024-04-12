@@ -8,6 +8,7 @@ use libc::{c_int, c_uint};
 
 use super::Channel;
 use super::ChannelCustom;
+use super::ChannelLayoutIter;
 use super::ChannelLayoutMask;
 use super::ChannelOrder;
 
@@ -64,6 +65,11 @@ impl<'a> ChannelLayout<'a> {
         }
 
         Self(Cow::Owned(layout))
+    }
+
+    /// Get an iterator over all standard channel layouts.
+    pub fn standard_layouts() -> ChannelLayoutIter {
+        ChannelLayoutIter::new()
     }
 
     /// Initialize a native channel layout from a bitmask indicating which

@@ -20,7 +20,9 @@ pub use crate::sys as ffi;
 pub mod util;
 pub use crate::util::channel_layout::{self, ChannelLayoutMask};
 #[cfg(feature = "ffmpeg_5_1")]
-pub use crate::util::channel_layout::{Channel, ChannelCustom, ChannelLayout, ChannelOrder};
+pub use crate::util::channel_layout::{
+    Channel, ChannelCustom, ChannelLayout, ChannelLayoutIter, ChannelOrder,
+};
 pub use crate::util::chroma;
 pub use crate::util::color;
 pub use crate::util::dictionary;

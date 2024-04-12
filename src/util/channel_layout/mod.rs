@@ -12,6 +12,11 @@ mod channel;
 pub use channel::*;
 
 #[cfg(feature = "ffmpeg_5_1")]
+mod iter;
+#[cfg(feature = "ffmpeg_5_1")]
+pub use iter::*;
+
+#[cfg(feature = "ffmpeg_5_1")]
 mod layout;
 #[cfg(feature = "ffmpeg_5_1")]
 pub use layout::*;
