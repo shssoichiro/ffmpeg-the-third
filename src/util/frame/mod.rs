@@ -59,6 +59,16 @@ impl Frame {
     }
 
     #[inline(always)]
+    pub unsafe fn as_ref(&self) -> Option<&AVFrame> {
+        self.ptr.as_ref()
+    }
+
+    #[inline(always)]
+    pub unsafe fn as_mut(&mut self) -> Option<&mut AVFrame> {
+        self.ptr.as_mut()
+    }
+
+    #[inline(always)]
     pub unsafe fn is_empty(&self) -> bool {
         (*self.as_ptr()).data[0].is_null()
     }

@@ -12,6 +12,9 @@ use crate::util::format;
 use crate::{frame, packet};
 use crate::{ChannelLayoutMask, Dictionary, Error};
 
+#[cfg(feature = "ffmpeg_5_1")]
+use crate::ChannelLayout;
+
 pub struct Audio(pub Super);
 
 impl Audio {
@@ -111,6 +114,18 @@ impl Audio {
 
     pub fn channels(&self) -> u16 {
         unsafe { (*self.as_ptr()).channels as u16 }
+    }
+
+    #[cfg(feature = "ffmpeg_5_1")]
+    pub fn ch_layout(&self) -> ChannelLayout {
+        unsafe { ChannelLayout::from(&self.as_ptr().as_ref().unwrap().ch_layout) }
+    }
+
+    #[cfg(feature = "ffmpeg_5_1")]
+    pub fn set_ch_layout(&mut self, value: ChannelLayout) {
+        unsafe {
+            self.as_mut_ptr().as_mut().unwrap().ch_layout = value.into_owned();
+        }
     }
 }
 
