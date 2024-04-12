@@ -47,6 +47,11 @@ impl Audio {
             }
         }
     }
+
+    #[cfg(feature = "ffmpeg_5_1")]
+    pub fn ch_layouts(&self) -> Option<ChannelLayoutIter> {
+        unsafe { ChannelLayoutIter::from_raw((*self.codec.as_ptr()).ch_layouts) }
+    }
 }
 
 impl Deref for Audio {
@@ -145,5 +150,47 @@ impl Iterator for ChannelLayoutMaskIter {
 
             Some(layout)
         }
+    }
+}
+
+#[cfg(feature = "ffmpeg_5_1")]
+pub use ch_layout::ChannelLayoutIter;
+
+#[cfg(feature = "ffmpeg_5_1")]
+mod ch_layout {
+    use super::*;
+    use crate::ChannelLayout;
+
+    pub struct ChannelLayoutIter<'a> {
+        next: &'a AVChannelLayout,
+    }
+
+    impl<'a> ChannelLayoutIter<'a> {
+        pub unsafe fn from_raw(ptr: *const AVChannelLayout) -> Option<Self> {
+            ptr.as_ref().map(|next| Self { next })
+        }
+    }
+
+    impl<'a> Iterator for ChannelLayoutIter<'a> {
+        type Item = ChannelLayout<'a>;
+
+        fn next(&mut self) -> Option<Self::Item> {
+            unsafe {
+                let curr = self.next;
+                if *curr == zeroed_layout() {
+                    return None;
+                }
+
+                // SAFETY: We trust that there is always an initialized layout up until
+                // the zeroed-out AVChannelLayout, which signals the end of iteration.
+                self.next = (curr as *const AVChannelLayout).add(1).as_ref().unwrap();
+                Some(ChannelLayout::from(curr))
+            }
+        }
+    }
+
+    // TODO: Remove this with a const variable when zeroed() is const (1.75.0)
+    unsafe fn zeroed_layout() -> AVChannelLayout {
+        std::mem::zeroed()
     }
 }
