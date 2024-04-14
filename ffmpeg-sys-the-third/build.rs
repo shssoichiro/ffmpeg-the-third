@@ -318,8 +318,8 @@ fn ffmpeg_version() -> String {
         .replace("ffmpeg-", "")
 }
 
-fn ffmpeg_major_version() -> u32 {
-    ffmpeg_version().split('.').next().unwrap().parse().unwrap()
+fn get_major_version(version_string: &str) -> u32 {
+    version_string.split('.').next().unwrap().parse().unwrap()
 }
 
 fn output() -> PathBuf {
@@ -468,7 +468,7 @@ fn build(out_dir: &Path, ffmpeg_version: &str) -> io::Result<PathBuf> {
     // the binary using ffmpeg-sys cannot be redistributed
     configure.switch("BUILD_LICENSE_NONFREE", "nonfree");
 
-    let ffmpeg_major_version: u32 = ffmpeg_major_version();
+    let ffmpeg_major_version: u32 = get_major_version(ffmpeg_version);
 
     // configure building libraries based on features
     for lib in LIBRARIES
@@ -839,7 +839,7 @@ fn main() {
     let out_dir = output();
     let statik = cargo_feature_enabled("static");
     let ffmpeg_version = ffmpeg_version();
-    let ffmpeg_major_version: u32 = ffmpeg_major_version();
+    let ffmpeg_major_version: u32 = get_major_version(&ffmpeg_version);
 
     let include_paths: Vec<PathBuf> = if cargo_feature_enabled("build") {
         let install_dir = build(&out_dir, &ffmpeg_version).unwrap();
