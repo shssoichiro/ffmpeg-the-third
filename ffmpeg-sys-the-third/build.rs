@@ -415,6 +415,12 @@ static EXTERNAL_BUILD_LIBS: &[(&str, &str)] = &[
 ];
 
 fn build() -> io::Result<()> {
+    if search().join("lib").join("libavutil.a").exists() {
+        return Ok(());
+    }
+
+    fetch()?;
+
     let source_dir = source();
 
     // Command's path is not relative to command's current_dir
@@ -827,16 +833,12 @@ fn main() {
     let ffmpeg_major_version: u32 = ffmpeg_major_version();
 
     let include_paths: Vec<PathBuf> = if cargo_feature_enabled("build") {
+        build().unwrap();
         println!(
             "cargo:rustc-link-search=native={}",
             search().join("lib").to_string_lossy()
         );
         link_to_libraries(statik);
-        if fs::metadata(search().join("lib").join("libavutil.a")).is_err() {
-            fs::create_dir_all(output()).expect("failed to create build directory");
-            fetch().unwrap();
-            build().unwrap();
-        }
 
         // Check additional required libraries.
         {
