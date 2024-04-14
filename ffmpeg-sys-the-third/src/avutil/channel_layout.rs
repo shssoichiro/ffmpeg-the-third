@@ -1,6 +1,103 @@
 use libc::c_int;
 
-use crate::{AVChannel::*, AVChannelLayout, AVChannelOrder};
+use crate::AVChannel::*;
+use crate::*;
+use crate::{AVChannelLayout, AVChannelOrder};
+
+use std::fmt;
+use std::mem::{align_of, size_of};
+use std::ptr::null_mut;
+
+impl AVChannelLayout {
+    #[inline]
+    pub const fn empty() -> Self {
+        Self {
+            order: AVChannelOrder::AV_CHANNEL_ORDER_UNSPEC,
+            nb_channels: 0,
+            u: AVChannelLayout__bindgen_ty_1 { mask: 0 },
+            opaque: null_mut(),
+        }
+    }
+}
+
+impl Clone for AVChannelLayout {
+    fn clone(&self) -> Self {
+        let mut cloned = Self::empty();
+        cloned.clone_from(self);
+
+        cloned
+    }
+
+    fn clone_from(&mut self, source: &Self) {
+        #[cold]
+        fn clone_failed(channels: c_int) -> ! {
+            use std::alloc::{handle_alloc_error, Layout};
+
+            let alloc_size = channels as usize * size_of::<AVChannelCustom>();
+            let layout =
+                Layout::from_size_align(alloc_size, align_of::<AVChannelCustom>()).unwrap();
+            handle_alloc_error(layout)
+        }
+
+        let ret = unsafe { av_channel_layout_copy(self as _, source as _) };
+
+        if ret < 0 {
+            clone_failed(self.nb_channels);
+        }
+    }
+}
+
+impl Drop for AVChannelLayout {
+    fn drop(&mut self) {
+        unsafe { av_channel_layout_uninit(self as _) }
+    }
+}
+
+impl PartialEq for AVChannelLayout {
+    fn eq(&self, other: &Self) -> bool {
+        unsafe { av_channel_layout_compare(self as _, other as _) == 0 }
+    }
+}
+
+impl fmt::Debug for AVChannelLayout {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let mut dbg = f.debug_struct("AVChannelLayout");
+        dbg.field("order", &self.order)
+            .field("nb_channels", &self.nb_channels);
+
+        unsafe {
+            match self.order {
+                AVChannelOrder::AV_CHANNEL_ORDER_UNSPEC => {} // no other valid fields
+                AVChannelOrder::AV_CHANNEL_ORDER_NATIVE
+                | AVChannelOrder::AV_CHANNEL_ORDER_AMBISONIC => {
+                    dbg.field("mask", &format_args!("0x{:X}", self.u.mask));
+                }
+                AVChannelOrder::AV_CHANNEL_ORDER_CUSTOM => {
+                    dbg.field(
+                        "map",
+                        &std::slice::from_raw_parts(self.u.map, self.nb_channels as usize),
+                    );
+                } // Starting with FFmpeg 7.0:
+                  // Not part of public API, but we have to exhaustively match
+                  // AVChannelOrder::FF_CHANNEL_ORDER_NB => {}
+            }
+        }
+
+        dbg.field("opaque", &self.opaque).finish()
+    }
+}
+
+impl fmt::Debug for AVChannelCustom {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        unsafe {
+            f.debug_struct("AVChannelCustom")
+                .field("id", &self.id)
+                .field("name", &std::ffi::CStr::from_ptr(self.name.as_ptr()))
+                .field("opaque", &self.opaque)
+                .finish()
+        }
+    }
+}
 
 // Here until https://github.com/rust-lang/rust-bindgen/issues/2192 /
 // https://github.com/rust-lang/rust-bindgen/issues/258 is fixed.
@@ -197,3 +294,114 @@ pub const AV_CHANNEL_LAYOUT_22POINT2: AVChannelLayout =
 
 pub const AV_CHANNEL_LAYOUT_7POINT1_TOP_BACK: AVChannelLayout =
     AV_CHANNEL_LAYOUT_5POINT1POINT2_BACK;
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    // TODO: Missing: Ambisonic layout
+
+    const EMPTY: AVChannelLayout = AVChannelLayout::empty();
+    const UNSPEC: AVChannelLayout = {
+        let mut layout = AVChannelLayout::empty();
+        layout.nb_channels = 5;
+        layout
+    };
+
+    const NATIVE: AVChannelLayout = {
+        let mut layout = AVChannelLayout::empty();
+        layout.order = AVChannelOrder::AV_CHANNEL_ORDER_NATIVE;
+        layout.nb_channels = 6;
+        layout.u.mask = AV_CH_LAYOUT_5POINT1;
+        layout
+    };
+
+    // TODO: Replace with cstr literals when MSRV is 1.77
+    const fn c_string<const N: usize, const K: usize>(byte_str: &[u8; N]) -> [i8; K] {
+        // Need at least one NUL byte at the end
+        assert!(N < K, "input string is too long (max 15 char)");
+
+        let mut result = [0i8; K];
+        let mut i = 0;
+
+        while i < N {
+            result[i] = byte_str[i] as i8;
+            i += 1;
+        }
+
+        result
+    }
+
+    fn custom_ch<const N: usize>(id: AVChannel, name: &[u8; N]) -> AVChannelCustom {
+        AVChannelCustom {
+            id,
+            name: c_string(name),
+            opaque: null_mut(),
+        }
+    }
+
+    fn custom() -> AVChannelLayout {
+        let mut my_data = vec![0u8; 200];
+
+        let channels = [
+            custom_ch(AVChannel::AV_CHAN_FRONT_LEFT, b"front left"),
+            custom_ch(AVChannel::AV_CHAN_TOP_FRONT_RIGHT, b"top front right"),
+            custom_ch(AVChannel::AV_CHAN_FRONT_RIGHT, b"front right"),
+            custom_ch(AVChannel::AV_CHAN_BOTTOM_FRONT_RIGHT, b"btm frt right"),
+            custom_ch(AVChannel::AV_CHAN_TOP_SIDE_LEFT, b"top side left"),
+            AVChannelCustom {
+                id: AVChannel::AV_CHAN_LOW_FREQUENCY,
+                name: c_string(b"subwoofer"),
+                opaque: my_data.as_mut_ptr() as _,
+            },
+        ];
+
+        let mut layout = AVChannelLayout::empty();
+        layout.order = AVChannelOrder::AV_CHANNEL_ORDER_CUSTOM;
+        layout.nb_channels = channels.len() as c_int;
+        unsafe {
+            layout.u.map = av_calloc(channels.len(), size_of::<AVChannelCustom>()) as _;
+            assert!(!layout.u.map.is_null());
+        }
+
+        for (i, ch) in channels.iter().enumerate() {
+            unsafe {
+                std::ptr::write(layout.u.map.add(i), *ch);
+            }
+        }
+
+        layout
+    }
+
+    #[test]
+    fn check() {
+        let tests = [
+            (EMPTY, false),
+            (UNSPEC, true),
+            (NATIVE, true),
+            (custom(), true),
+        ];
+
+        for (i, (layout, valid)) in tests.iter().enumerate() {
+            unsafe {
+                println!("{i}");
+                assert!((av_channel_layout_check(layout as _) != 0) == *valid);
+            }
+        }
+    }
+
+    #[test]
+    fn debug() {
+        for layout in [EMPTY, UNSPEC, NATIVE, custom()] {
+            println!("{layout:?}");
+        }
+    }
+
+    #[test]
+    fn clone_eq() {
+        for layout in [EMPTY, UNSPEC, NATIVE, custom()] {
+            let cloned = layout.clone();
+            assert_eq!(layout, cloned);
+        }
+    }
+}

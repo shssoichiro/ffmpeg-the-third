@@ -960,6 +960,11 @@ fn main() {
     let mut builder = bindgen::Builder::default()
         .clang_args(clang_includes)
         .ctypes_prefix("libc")
+        // Not trivially copyable
+        .no_copy("AVChannelLayout")
+        // We need/want to implement Debug by hand for some types
+        .no_debug("AVChannelLayout")
+        .no_debug("AVChannelCustom")
         .allowlist_file(r#".*[/\\]libavutil[/\\].*"#)
         .allowlist_file(r#".*[/\\]libavcodec[/\\].*"#)
         .allowlist_file(r#".*[/\\]libavformat[/\\].*"#)
