@@ -413,7 +413,8 @@ static EXTERNAL_BUILD_LIBS: &[(&str, &str)] = &[
 
 fn build(ffmpeg_version: &str) -> io::Result<()> {
     let source_dir = source();
-    if search().join("lib").join("libavutil.a").exists() {
+    let install_dir = search();
+    if install_dir.join("lib").join("libavutil.a").exists() {
         rustc_link_extralibs(&source_dir);
         return Ok(());
     }
@@ -426,7 +427,7 @@ fn build(ffmpeg_version: &str) -> io::Result<()> {
     let mut configure = Command::new(&configure_path);
     configure.current_dir(&source_dir);
 
-    configure.arg(format!("--prefix={}", search().to_string_lossy()));
+    configure.arg(format!("--prefix={}", install_dir.to_string_lossy()));
 
     if env::var("TARGET").unwrap() != env::var("HOST").unwrap() {
         // Rust targets are subtly different than naming scheme for compiler prefixes.
