@@ -17,15 +17,15 @@ use bindgen::callbacks::{
 #[derive(Debug)]
 struct Library {
     name: &'static str,
-    is_feature: bool,
+    optional: bool,
     features: &'static [AVFeature],
 }
 
 impl Library {
-    const fn new(name: &'static str, is_feature: bool, features: &'static [AVFeature]) -> Self {
+    const fn new(name: &'static str, optional: bool, features: &'static [AVFeature]) -> Self {
         Self {
             name,
-            is_feature,
+            optional,
             features,
         }
     }
@@ -481,7 +481,7 @@ fn build() -> io::Result<()> {
     // configure building libraries based on features
     for lib in LIBRARIES
         .iter()
-        .filter(|lib| lib.is_feature)
+        .filter(|lib| lib.optional)
         .filter(|lib| !(lib.name == "avresample" && ffmpeg_major_version >= 5))
     {
         configure.switch(&lib.name.to_uppercase(), lib.name);
@@ -587,7 +587,7 @@ fn check_features(include_paths: &[PathBuf]) {
     let mut main_code = String::new();
 
     for lib in LIBRARIES {
-        if lib.is_feature && !cargo_feature_enabled(lib.name) {
+        if lib.optional && !cargo_feature_enabled(lib.name) {
             continue;
         }
 
@@ -701,7 +701,7 @@ fn check_features(include_paths: &[PathBuf]) {
     println!("stdout of {}={}", executable.display(), stdout);
 
     for lib in LIBRARIES {
-        if lib.is_feature && !cargo_feature_enabled(lib.name) {
+        if lib.optional && !cargo_feature_enabled(lib.name) {
             continue;
         }
 
@@ -813,7 +813,7 @@ fn maybe_search_include(include_paths: &[PathBuf], header: &str) -> Option<Strin
 fn link_to_libraries(statik: bool) {
     let ffmpeg_ty = if statik { "static" } else { "dylib" };
     for lib in LIBRARIES {
-        if !lib.is_feature || cargo_feature_enabled(lib.name) {
+        if !lib.optional || cargo_feature_enabled(lib.name) {
             println!("cargo:rustc-link-lib={}={}", ffmpeg_ty, lib.name);
         }
     }
