@@ -22,25 +22,33 @@ struct Library {
 }
 
 impl Library {
-    const fn new(name: &'static str, optional: bool, features: &'static [AVFeature]) -> Self {
+    const fn required(name: &'static str, features: &'static [AVFeature]) -> Self {
         Self {
             name,
-            optional,
+            optional: false,
+            features,
+        }
+    }
+
+    const fn optional(name: &'static str, features: &'static [AVFeature]) -> Self {
+        Self {
+            name,
+            optional: true,
             features,
         }
     }
 }
 
 static LIBRARIES: &[Library] = &[
-    Library::new("avutil", false, AVUTIL_FEATURES),
-    Library::new("avcodec", true, AVCODEC_FEATURES),
-    Library::new("avformat", true, AVFORMAT_FEATURES),
-    Library::new("avdevice", true, AVDEVICE_FEATURES),
-    Library::new("avfilter", true, AVFILTER_FEATURES),
-    Library::new("avresample", true, AVRESAMPLE_FEATURES),
-    Library::new("swscale", true, SWSCALE_FEATURES),
-    Library::new("swresample", true, SWRESAMPLE_FEATURES),
-    Library::new("postproc", true, POSTPROC_FEATURES),
+    Library::required("avutil", AVUTIL_FEATURES),
+    Library::optional("avcodec", AVCODEC_FEATURES),
+    Library::optional("avformat", AVFORMAT_FEATURES),
+    Library::optional("avdevice", AVDEVICE_FEATURES),
+    Library::optional("avfilter", AVFILTER_FEATURES),
+    Library::optional("avresample", AVRESAMPLE_FEATURES),
+    Library::optional("swscale", SWSCALE_FEATURES),
+    Library::optional("swresample", SWRESAMPLE_FEATURES),
+    Library::optional("postproc", POSTPROC_FEATURES),
 ];
 
 #[derive(Debug)]
