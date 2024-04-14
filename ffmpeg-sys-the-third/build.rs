@@ -48,6 +48,10 @@ impl Library {
             headers,
         }
     }
+
+    fn enabled(&self) -> bool {
+        !self.optional || cargo_feature_enabled(self.name)
+    }
 }
 
 static LIBRARIES: &[Library] = &[
@@ -688,11 +692,7 @@ fn check_features(include_paths: &[PathBuf]) {
     let mut includes_code = String::new();
     let mut main_code = String::new();
 
-    for lib in LIBRARIES {
-        if lib.optional && !cargo_feature_enabled(lib.name) {
-            continue;
-        }
-
+    for lib in LIBRARIES.iter().filter(|lib| lib.enabled()) {
         let header = format!("lib{}/{}.h", lib.name, lib.name);
         for feature in lib.features {
             let var = format!("FF_API_{}", feature.name);
@@ -802,11 +802,7 @@ fn check_features(include_paths: &[PathBuf]) {
 
     println!("stdout of {}={}", executable.display(), stdout);
 
-    for lib in LIBRARIES {
-        if lib.optional && !cargo_feature_enabled(lib.name) {
-            continue;
-        }
-
+    for lib in LIBRARIES.iter().filter(|lib| lib.enabled()) {
         for feature in lib.features {
             let var = format!("FF_API_{}", feature.name);
             let var_str = format!("[{var}]");
@@ -914,10 +910,8 @@ fn maybe_search_include(include_paths: &[PathBuf], header: &str) -> Option<Strin
 
 fn link_to_libraries(statik: bool) {
     let ffmpeg_ty = if statik { "static" } else { "dylib" };
-    for lib in LIBRARIES {
-        if !lib.optional || cargo_feature_enabled(lib.name) {
-            println!("cargo:rustc-link-lib={}={}", ffmpeg_ty, lib.name);
-        }
+    for lib in LIBRARIES.iter().filter(|lib| lib.enabled()) {
+        println!("cargo:rustc-link-lib={}={}", ffmpeg_ty, lib.name);
     }
     if cargo_feature_enabled("build_zlib") && cfg!(target_os = "linux") {
         println!("cargo:rustc-link-lib=z");
@@ -1090,14 +1084,12 @@ fn main() {
 
     // The input headers we would like to generate
     // bindings for.
-    for lib in LIBRARIES {
-        if !lib.optional || cargo_feature_enabled(lib.name) {
-            for header in lib.headers {
-                builder = builder.header(search_include(
-                    &include_paths,
-                    &format!("lib{}/{}", lib.name, header.name),
-                ));
-            }
+    for lib in LIBRARIES.iter().filter(|lib| lib.enabled()) {
+        for header in lib.headers {
+            builder = builder.header(search_include(
+                &include_paths,
+                &format!("lib{}/{}", lib.name, header.name),
+            ));
         }
     }
 
