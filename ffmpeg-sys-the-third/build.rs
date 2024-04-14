@@ -6,7 +6,7 @@ use std::env;
 use std::fmt::Write as FmtWrite;
 use std::fs::{self, File};
 use std::io::{self, BufRead, BufReader, Write};
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::process::Command;
 use std::str;
 
@@ -338,18 +338,15 @@ fn search() -> PathBuf {
     absolute
 }
 
-fn fetch(ffmpeg_version: &str) -> io::Result<()> {
-    let output_base_path = output();
-    let clone_dest_dir = format!("ffmpeg-{ffmpeg_version}");
-    let _ = std::fs::remove_dir_all(output_base_path.join(&clone_dest_dir));
+fn fetch(source_dir: &Path, ffmpeg_version: &str) -> io::Result<()> {
+    let _ = std::fs::remove_dir_all(source_dir);
     let status = Command::new("git")
-        .current_dir(&output_base_path)
         .arg("clone")
         .arg("--depth=1")
         .arg("-b")
         .arg(format!("n{ffmpeg_version}"))
         .arg("https://github.com/FFmpeg/FFmpeg")
-        .arg(&clone_dest_dir)
+        .arg(source_dir)
         .status()?;
 
     if status.success() {
@@ -419,9 +416,8 @@ fn build(ffmpeg_version: &str) -> io::Result<()> {
         return Ok(());
     }
 
-    fetch(ffmpeg_version)?;
-
     let source_dir = source();
+    fetch(&source_dir, ffmpeg_version)?;
 
     // Command's path is not relative to command's current_dir
     let configure_path = source_dir.join("configure");
@@ -528,7 +524,7 @@ fn build(ffmpeg_version: &str) -> io::Result<()> {
     // run make
     if !Command::new("make")
         .arg(format!("-j{num_jobs}"))
-        .current_dir(&source())
+        .current_dir(&source_dir)
         .status()?
         .success()
     {
@@ -537,7 +533,7 @@ fn build(ffmpeg_version: &str) -> io::Result<()> {
 
     // run make install
     if !Command::new("make")
-        .current_dir(&source())
+        .current_dir(&source_dir)
         .arg("install")
         .status()?
         .success()
