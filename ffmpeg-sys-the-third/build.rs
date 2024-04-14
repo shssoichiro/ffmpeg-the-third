@@ -326,10 +326,6 @@ fn output() -> PathBuf {
     PathBuf::from(env::var("OUT_DIR").unwrap())
 }
 
-fn source() -> PathBuf {
-    output().join(format!("ffmpeg-{}", ffmpeg_version()))
-}
-
 fn search() -> PathBuf {
     let mut absolute = env::current_dir().unwrap();
     absolute.push(&output());
@@ -411,9 +407,9 @@ static EXTERNAL_BUILD_LIBS: &[(&str, &str)] = &[
     ("SSH", "libssh"),
 ];
 
-fn build(ffmpeg_version: &str) -> io::Result<()> {
-    let source_dir = source();
-    let install_dir = search();
+fn build(out_dir: &Path, ffmpeg_version: &str) -> io::Result<()> {
+    let source_dir = out_dir.join(format!("ffmpeg-{ffmpeg_version}"));
+    let install_dir = out_dir.join("dist");
     if install_dir.join("lib").join("libavutil.a").exists() {
         rustc_link_extralibs(&source_dir);
         return Ok(());
@@ -848,12 +844,13 @@ fn link_to_libraries(statik: bool) {
 }
 
 fn main() {
+    let out_dir = output();
     let statik = cargo_feature_enabled("static");
     let ffmpeg_version = ffmpeg_version();
     let ffmpeg_major_version: u32 = ffmpeg_major_version();
 
     let include_paths: Vec<PathBuf> = if cargo_feature_enabled("build") {
-        build(&ffmpeg_version).unwrap();
+        build(&out_dir, &ffmpeg_version).unwrap();
         println!(
             "cargo:rustc-link-search=native={}",
             search().join("lib").to_string_lossy()
@@ -1102,6 +1099,6 @@ fn main() {
 
     // Write the bindings to the $OUT_DIR/bindings.rs file.
     bindings
-        .write_to_file(output().join("bindings.rs"))
+        .write_to_file(out_dir.join("bindings.rs"))
         .expect("Couldn't write bindings!");
 }
