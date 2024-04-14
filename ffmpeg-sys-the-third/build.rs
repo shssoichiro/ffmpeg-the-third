@@ -19,36 +19,47 @@ struct Library {
     name: &'static str,
     optional: bool,
     features: &'static [AVFeature],
+    headers: &'static [AVHeader],
 }
 
 impl Library {
-    const fn required(name: &'static str, features: &'static [AVFeature]) -> Self {
+    const fn required(
+        name: &'static str,
+        features: &'static [AVFeature],
+        headers: &'static [AVHeader],
+    ) -> Self {
         Self {
             name,
             optional: false,
             features,
+            headers,
         }
     }
 
-    const fn optional(name: &'static str, features: &'static [AVFeature]) -> Self {
+    const fn optional(
+        name: &'static str,
+        features: &'static [AVFeature],
+        headers: &'static [AVHeader],
+    ) -> Self {
         Self {
             name,
             optional: true,
             features,
+            headers,
         }
     }
 }
 
 static LIBRARIES: &[Library] = &[
-    Library::required("avutil", AVUTIL_FEATURES),
-    Library::optional("avcodec", AVCODEC_FEATURES),
-    Library::optional("avformat", AVFORMAT_FEATURES),
-    Library::optional("avdevice", AVDEVICE_FEATURES),
-    Library::optional("avfilter", AVFILTER_FEATURES),
-    Library::optional("avresample", AVRESAMPLE_FEATURES),
-    Library::optional("swscale", SWSCALE_FEATURES),
-    Library::optional("swresample", SWRESAMPLE_FEATURES),
-    Library::optional("postproc", POSTPROC_FEATURES),
+    Library::required("avutil", AVUTIL_FEATURES, AVUTIL_HEADERS),
+    Library::optional("avcodec", AVCODEC_FEATURES, AVCODEC_HEADERS),
+    Library::optional("avformat", AVFORMAT_FEATURES, AVFORMAT_HEADERS),
+    Library::optional("avdevice", AVDEVICE_FEATURES, AVDEVICE_HEADERS),
+    Library::optional("avfilter", AVFILTER_FEATURES, AVFILTER_HEADERS),
+    Library::optional("avresample", AVRESAMPLE_FEATURES, AVRESAMPLE_HEADERS),
+    Library::optional("swscale", SWSCALE_FEATURES, SWSCALE_HEADERS),
+    Library::optional("swresample", SWRESAMPLE_FEATURES, SWRESAMPLE_HEADERS),
+    Library::optional("postproc", POSTPROC_FEATURES, POSTPROC_HEADERS),
 ];
 
 #[derive(Debug)]
@@ -232,6 +243,89 @@ static SWSCALE_FEATURES: &[AVFeature] =
 static SWRESAMPLE_FEATURES: &[AVFeature] = &[];
 
 static POSTPROC_FEATURES: &[AVFeature] = &[];
+
+#[derive(Debug)]
+struct AVHeader {
+    name: &'static str,
+}
+
+impl AVHeader {
+    const fn new(name: &'static str) -> Self {
+        Self { name }
+    }
+}
+
+static AVUTIL_HEADERS: &[AVHeader] = &[
+    AVHeader::new("adler32.h"),
+    AVHeader::new("aes.h"),
+    AVHeader::new("audio_fifo.h"),
+    AVHeader::new("base64.h"),
+    AVHeader::new("blowfish.h"),
+    AVHeader::new("bprint.h"),
+    AVHeader::new("buffer.h"),
+    AVHeader::new("camellia.h"),
+    AVHeader::new("cast5.h"),
+    AVHeader::new("channel_layout.h"),
+    AVHeader::new("cpu.h"),
+    AVHeader::new("crc.h"),
+    AVHeader::new("dict.h"),
+    AVHeader::new("display.h"),
+    AVHeader::new("downmix_info.h"),
+    AVHeader::new("error.h"),
+    AVHeader::new("eval.h"),
+    AVHeader::new("fifo.h"),
+    AVHeader::new("file.h"),
+    AVHeader::new("frame.h"),
+    AVHeader::new("hash.h"),
+    AVHeader::new("hmac.h"),
+    AVHeader::new("hwcontext.h"),
+    AVHeader::new("imgutils.h"),
+    AVHeader::new("lfg.h"),
+    AVHeader::new("log.h"),
+    AVHeader::new("lzo.h"),
+    AVHeader::new("macros.h"),
+    AVHeader::new("mathematics.h"),
+    AVHeader::new("md5.h"),
+    AVHeader::new("mem.h"),
+    AVHeader::new("motion_vector.h"),
+    AVHeader::new("murmur3.h"),
+    AVHeader::new("opt.h"),
+    AVHeader::new("parseutils.h"),
+    AVHeader::new("pixdesc.h"),
+    AVHeader::new("pixfmt.h"),
+    AVHeader::new("random_seed.h"),
+    AVHeader::new("rational.h"),
+    AVHeader::new("replaygain.h"),
+    AVHeader::new("ripemd.h"),
+    AVHeader::new("samplefmt.h"),
+    AVHeader::new("sha.h"),
+    AVHeader::new("sha512.h"),
+    AVHeader::new("stereo3d.h"),
+    AVHeader::new("avstring.h"),
+    AVHeader::new("threadmessage.h"),
+    AVHeader::new("time.h"),
+    AVHeader::new("timecode.h"),
+    AVHeader::new("twofish.h"),
+    AVHeader::new("avutil.h"),
+    AVHeader::new("xtea.h"),
+];
+static AVCODEC_HEADERS: &[AVHeader] = &[
+    AVHeader::new("avcodec.h"),
+    AVHeader::new("dv_profile.h"),
+    AVHeader::new("avfft.h"),
+    AVHeader::new("vorbis_parser.h"),
+];
+static AVFORMAT_HEADERS: &[AVHeader] = &[AVHeader::new("avformat.h"), AVHeader::new("avio.h")];
+static AVDEVICE_HEADERS: &[AVHeader] = &[AVHeader::new("avdevice.h")];
+static AVFILTER_HEADERS: &[AVHeader] = &[
+    AVHeader::new("buffersink.h"),
+    AVHeader::new("buffersrc.h"),
+    AVHeader::new("avfilter.h"),
+];
+static AVRESAMPLE_HEADERS: &[AVHeader] = &[AVHeader::new("avresample.h")];
+static SWSCALE_HEADERS: &[AVHeader] = &[AVHeader::new("swscale.h")];
+static SWRESAMPLE_HEADERS: &[AVHeader] = &[AVHeader::new("swresample.h")];
+static POSTPROC_HEADERS: &[AVHeader] = &[AVHeader::new("postprocess.h")];
 
 #[derive(Debug)]
 struct Callbacks;
@@ -996,103 +1090,19 @@ fn main() {
 
     // The input headers we would like to generate
     // bindings for.
-    if cargo_feature_enabled("avcodec") {
-        builder = builder
-            .header(search_include(&include_paths, "libavcodec/avcodec.h"))
-            .header(search_include(&include_paths, "libavcodec/dv_profile.h"))
-            .header(search_include(&include_paths, "libavcodec/avfft.h"))
-            .header(search_include(&include_paths, "libavcodec/vorbis_parser.h"));
-
-        if ffmpeg_major_version < 5 {
-            builder = builder.header(search_include(&include_paths, "libavcodec/vaapi.h"))
+    for lib in LIBRARIES {
+        if !lib.optional || cargo_feature_enabled(lib.name) {
+            for header in lib.headers {
+                builder = builder.header(search_include(
+                    &include_paths,
+                    &format!("lib{}/{}", lib.name, header.name),
+                ));
+            }
         }
     }
 
-    if cargo_feature_enabled("avdevice") {
-        builder = builder.header(search_include(&include_paths, "libavdevice/avdevice.h"));
-    }
-
-    if cargo_feature_enabled("avfilter") {
-        builder = builder
-            .header(search_include(&include_paths, "libavfilter/buffersink.h"))
-            .header(search_include(&include_paths, "libavfilter/buffersrc.h"))
-            .header(search_include(&include_paths, "libavfilter/avfilter.h"));
-    }
-
-    if cargo_feature_enabled("avformat") {
-        builder = builder
-            .header(search_include(&include_paths, "libavformat/avformat.h"))
-            .header(search_include(&include_paths, "libavformat/avio.h"));
-    }
-
-    if cargo_feature_enabled("avresample") {
-        builder = builder.header(search_include(&include_paths, "libavresample/avresample.h"));
-    }
-
-    builder = builder
-        .header(search_include(&include_paths, "libavutil/adler32.h"))
-        .header(search_include(&include_paths, "libavutil/aes.h"))
-        .header(search_include(&include_paths, "libavutil/audio_fifo.h"))
-        .header(search_include(&include_paths, "libavutil/base64.h"))
-        .header(search_include(&include_paths, "libavutil/blowfish.h"))
-        .header(search_include(&include_paths, "libavutil/bprint.h"))
-        .header(search_include(&include_paths, "libavutil/buffer.h"))
-        .header(search_include(&include_paths, "libavutil/camellia.h"))
-        .header(search_include(&include_paths, "libavutil/cast5.h"))
-        .header(search_include(&include_paths, "libavutil/channel_layout.h"))
-        .header(search_include(&include_paths, "libavutil/cpu.h"))
-        .header(search_include(&include_paths, "libavutil/crc.h"))
-        .header(search_include(&include_paths, "libavutil/dict.h"))
-        .header(search_include(&include_paths, "libavutil/display.h"))
-        .header(search_include(&include_paths, "libavutil/downmix_info.h"))
-        .header(search_include(&include_paths, "libavutil/error.h"))
-        .header(search_include(&include_paths, "libavutil/eval.h"))
-        .header(search_include(&include_paths, "libavutil/fifo.h"))
-        .header(search_include(&include_paths, "libavutil/file.h"))
-        .header(search_include(&include_paths, "libavutil/frame.h"))
-        .header(search_include(&include_paths, "libavutil/hash.h"))
-        .header(search_include(&include_paths, "libavutil/hmac.h"))
-        .header(search_include(&include_paths, "libavutil/hwcontext.h"))
-        .header(search_include(&include_paths, "libavutil/imgutils.h"))
-        .header(search_include(&include_paths, "libavutil/lfg.h"))
-        .header(search_include(&include_paths, "libavutil/log.h"))
-        .header(search_include(&include_paths, "libavutil/lzo.h"))
-        .header(search_include(&include_paths, "libavutil/macros.h"))
-        .header(search_include(&include_paths, "libavutil/mathematics.h"))
-        .header(search_include(&include_paths, "libavutil/md5.h"))
-        .header(search_include(&include_paths, "libavutil/mem.h"))
-        .header(search_include(&include_paths, "libavutil/motion_vector.h"))
-        .header(search_include(&include_paths, "libavutil/murmur3.h"))
-        .header(search_include(&include_paths, "libavutil/opt.h"))
-        .header(search_include(&include_paths, "libavutil/parseutils.h"))
-        .header(search_include(&include_paths, "libavutil/pixdesc.h"))
-        .header(search_include(&include_paths, "libavutil/pixfmt.h"))
-        .header(search_include(&include_paths, "libavutil/random_seed.h"))
-        .header(search_include(&include_paths, "libavutil/rational.h"))
-        .header(search_include(&include_paths, "libavutil/replaygain.h"))
-        .header(search_include(&include_paths, "libavutil/ripemd.h"))
-        .header(search_include(&include_paths, "libavutil/samplefmt.h"))
-        .header(search_include(&include_paths, "libavutil/sha.h"))
-        .header(search_include(&include_paths, "libavutil/sha512.h"))
-        .header(search_include(&include_paths, "libavutil/stereo3d.h"))
-        .header(search_include(&include_paths, "libavutil/avstring.h"))
-        .header(search_include(&include_paths, "libavutil/threadmessage.h"))
-        .header(search_include(&include_paths, "libavutil/time.h"))
-        .header(search_include(&include_paths, "libavutil/timecode.h"))
-        .header(search_include(&include_paths, "libavutil/twofish.h"))
-        .header(search_include(&include_paths, "libavutil/avutil.h"))
-        .header(search_include(&include_paths, "libavutil/xtea.h"));
-
-    if cargo_feature_enabled("postproc") {
-        builder = builder.header(search_include(&include_paths, "libpostproc/postprocess.h"));
-    }
-
-    if cargo_feature_enabled("swresample") {
-        builder = builder.header(search_include(&include_paths, "libswresample/swresample.h"));
-    }
-
-    if cargo_feature_enabled("swscale") {
-        builder = builder.header(search_include(&include_paths, "libswscale/swscale.h"));
+    if cargo_feature_enabled("avcodec") && ffmpeg_major_version < 5 {
+        builder = builder.header(search_include(&include_paths, "libavcodec/vaapi.h"))
     }
 
     if let Some(hwcontext_drm_header) =
