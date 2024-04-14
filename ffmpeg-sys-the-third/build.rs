@@ -412,11 +412,12 @@ static EXTERNAL_BUILD_LIBS: &[(&str, &str)] = &[
 ];
 
 fn build(ffmpeg_version: &str) -> io::Result<()> {
+    let source_dir = source();
     if search().join("lib").join("libavutil.a").exists() {
+        rustc_link_extralibs(&source_dir);
         return Ok(());
     }
 
-    let source_dir = source();
     fetch(&source_dir, ffmpeg_version)?;
 
     // Command's path is not relative to command's current_dir
@@ -541,7 +542,28 @@ fn build(ffmpeg_version: &str) -> io::Result<()> {
         return Err(io::Error::new(io::ErrorKind::Other, "make install failed"));
     }
 
+    rustc_link_extralibs(&source_dir);
     Ok(())
+}
+
+fn rustc_link_extralibs(source_dir: &Path) {
+    let config_mak = source_dir.join("ffbuild").join("config.mak");
+    let file = File::open(config_mak).unwrap();
+    let reader = BufReader::new(file);
+    let extra_libs = reader
+        .lines()
+        .find(|line| line.as_ref().unwrap().starts_with("EXTRALIBS"))
+        .map(|line| line.unwrap())
+        .unwrap();
+
+    let linker_args = extra_libs.split('=').last().unwrap().split(' ');
+    let include_libs = linker_args
+        .filter(|v| v.starts_with("-l"))
+        .map(|flag| &flag[2..]);
+
+    for lib in include_libs {
+        println!("cargo:rustc-link-lib={lib}");
+    }
 }
 
 #[cfg(not(target_env = "msvc"))]
@@ -836,27 +858,6 @@ fn main() {
             search().join("lib").to_string_lossy()
         );
         link_to_libraries(statik);
-
-        // Check additional required libraries.
-        {
-            let config_mak = source().join("ffbuild/config.mak");
-            let file = File::open(config_mak).unwrap();
-            let reader = BufReader::new(file);
-            let extra_libs = reader
-                .lines()
-                .find(|line| line.as_ref().unwrap().starts_with("EXTRALIBS"))
-                .map(|line| line.unwrap())
-                .unwrap();
-
-            let linker_args = extra_libs.split('=').last().unwrap().split(' ');
-            let include_libs = linker_args
-                .filter(|v| v.starts_with("-l"))
-                .map(|flag| &flag[2..]);
-
-            for lib in include_libs {
-                println!("cargo:rustc-link-lib={}", lib);
-            }
-        }
 
         vec![search().join("include")]
     }
