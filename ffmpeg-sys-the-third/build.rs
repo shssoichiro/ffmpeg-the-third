@@ -338,16 +338,16 @@ fn search() -> PathBuf {
     absolute
 }
 
-fn fetch() -> io::Result<()> {
+fn fetch(ffmpeg_version: &str) -> io::Result<()> {
     let output_base_path = output();
-    let clone_dest_dir = format!("ffmpeg-{}", ffmpeg_version());
+    let clone_dest_dir = format!("ffmpeg-{ffmpeg_version}");
     let _ = std::fs::remove_dir_all(output_base_path.join(&clone_dest_dir));
     let status = Command::new("git")
         .current_dir(&output_base_path)
         .arg("clone")
         .arg("--depth=1")
         .arg("-b")
-        .arg(format!("n{}", ffmpeg_version()))
+        .arg(format!("n{ffmpeg_version}"))
         .arg("https://github.com/FFmpeg/FFmpeg")
         .arg(&clone_dest_dir)
         .status()?;
@@ -414,12 +414,12 @@ static EXTERNAL_BUILD_LIBS: &[(&str, &str)] = &[
     ("SSH", "libssh"),
 ];
 
-fn build() -> io::Result<()> {
+fn build(ffmpeg_version: &str) -> io::Result<()> {
     if search().join("lib").join("libavutil.a").exists() {
         return Ok(());
     }
 
-    fetch()?;
+    fetch(ffmpeg_version)?;
 
     let source_dir = source();
 
@@ -830,10 +830,11 @@ fn link_to_libraries(statik: bool) {
 
 fn main() {
     let statik = cargo_feature_enabled("static");
+    let ffmpeg_version = ffmpeg_version();
     let ffmpeg_major_version: u32 = ffmpeg_major_version();
 
     let include_paths: Vec<PathBuf> = if cargo_feature_enabled("build") {
-        build().unwrap();
+        build(&ffmpeg_version).unwrap();
         println!(
             "cargo:rustc-link-search=native={}",
             search().join("lib").to_string_lossy()
