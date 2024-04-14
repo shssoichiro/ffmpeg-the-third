@@ -577,8 +577,6 @@ fn try_vcpkg(statik: bool) -> Option<Vec<PathBuf>> {
 // add well known package manager lib paths us as homebrew (or macports)
 #[cfg(target_os = "macos")]
 fn add_pkg_config_path() {
-    use std::path::Path;
-
     let pc_path = pkg_config::get_variable("pkg-config", "pc_path").unwrap();
     // append M1 homebrew pkgconfig path
     let brew_pkgconfig = cfg!(target_arch = "aarch64")
