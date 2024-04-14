@@ -326,14 +326,6 @@ fn output() -> PathBuf {
     PathBuf::from(env::var("OUT_DIR").unwrap())
 }
 
-fn search() -> PathBuf {
-    let mut absolute = env::current_dir().unwrap();
-    absolute.push(&output());
-    absolute.push("dist");
-
-    absolute
-}
-
 fn fetch(source_dir: &Path, ffmpeg_version: &str) -> io::Result<()> {
     let _ = std::fs::remove_dir_all(source_dir);
     let status = Command::new("git")
@@ -407,12 +399,12 @@ static EXTERNAL_BUILD_LIBS: &[(&str, &str)] = &[
     ("SSH", "libssh"),
 ];
 
-fn build(out_dir: &Path, ffmpeg_version: &str) -> io::Result<()> {
+fn build(out_dir: &Path, ffmpeg_version: &str) -> io::Result<PathBuf> {
     let source_dir = out_dir.join(format!("ffmpeg-{ffmpeg_version}"));
     let install_dir = out_dir.join("dist");
     if install_dir.join("lib").join("libavutil.a").exists() {
         rustc_link_extralibs(&source_dir);
-        return Ok(());
+        return Ok(install_dir);
     }
 
     fetch(&source_dir, ffmpeg_version)?;
@@ -540,7 +532,7 @@ fn build(out_dir: &Path, ffmpeg_version: &str) -> io::Result<()> {
     }
 
     rustc_link_extralibs(&source_dir);
-    Ok(())
+    Ok(install_dir)
 }
 
 fn rustc_link_extralibs(source_dir: &Path) {
@@ -850,14 +842,14 @@ fn main() {
     let ffmpeg_major_version: u32 = ffmpeg_major_version();
 
     let include_paths: Vec<PathBuf> = if cargo_feature_enabled("build") {
-        build(&out_dir, &ffmpeg_version).unwrap();
+        let install_dir = build(&out_dir, &ffmpeg_version).unwrap();
         println!(
             "cargo:rustc-link-search=native={}",
-            search().join("lib").to_string_lossy()
+            install_dir.join("lib").to_string_lossy()
         );
         link_to_libraries(statik);
 
-        vec![search().join("include")]
+        vec![install_dir.join("include")]
     }
     // Use prebuilt library
     else if let Ok(ffmpeg_dir) = env::var("FFMPEG_DIR") {
