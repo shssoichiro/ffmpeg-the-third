@@ -13,8 +13,12 @@ repository = "https://github.com/shssoichiro/ffmpeg-the-third"
 keywords = ["ffmpeg", "multimedia", "video", "audio"]
 categories = ["multimedia"]
 
-# Exclude CI scripts etc. from package
-exclude = [".github"]
+include = [
+    "LICENSE",
+    "Cargo.lock.MSRV",
+    "build.rs",
+    "src/",
+]
 
 # When changing MSRV: Also update build.yml and README.md
 rust-version = "1.61.0"
