@@ -11,6 +11,12 @@ authors = [
 ]
 license = "WTFPL"
 
+include = [
+    "LICENSE",
+    "build.rs",
+    "src/"
+]
+
 description = "FFI bindings to FFmpeg"
 repository = "https://github.com/shssoichiro/ffmpeg-the-third"
 keywords = ["audio", "video"]
