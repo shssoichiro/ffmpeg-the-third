@@ -48,13 +48,28 @@ default = [
     "non-exhaustive-enums",
 ]
 
+serialize = ["serde"]
 static = ["ffmpeg-sys-the-third/static"]
-build = ["static", "ffmpeg-sys-the-third/build"]
 
 # mark enums in generated bindings as #[non_exhaustive]
 non-exhaustive-enums = ["ffmpeg-sys-the-third/non-exhaustive-enums"]
 
-serialize = ["serde"]
+# components
+codec = ["ffmpeg-sys-the-third/avcodec"]
+device = ["ffmpeg-sys-the-third/avdevice", "format"]
+filter = ["ffmpeg-sys-the-third/avfilter"]
+format = ["ffmpeg-sys-the-third/avformat", "codec"]
+resampling = ["ffmpeg-sys-the-third/avresample"]
+postprocessing = ["ffmpeg-sys-the-third/postproc"]
+software-resampling = ["ffmpeg-sys-the-third/swresample"]
+software-scaling = ["ffmpeg-sys-the-third/swscale", "codec"]
+
+#
+# Build-related features
+#
+
+# build FFmpeg when building this crate
+build = ["static", "ffmpeg-sys-the-third/build"]
 
 # licensing
 build-license-gpl = ["ffmpeg-sys-the-third/build-license-gpl"]
@@ -117,16 +132,6 @@ build-lib-xvid = ["ffmpeg-sys-the-third/build-lib-xvid"]
 # protocols
 build-lib-smbclient = ["ffmpeg-sys-the-third/build-lib-smbclient"]
 build-lib-ssh = ["ffmpeg-sys-the-third/build-lib-ssh"]
-
-# components
-codec = ["ffmpeg-sys-the-third/avcodec"]
-device = ["ffmpeg-sys-the-third/avdevice", "format"]
-filter = ["ffmpeg-sys-the-third/avfilter"]
-format = ["ffmpeg-sys-the-third/avformat", "codec"]
-resampling = ["ffmpeg-sys-the-third/avresample"]
-postprocessing = ["ffmpeg-sys-the-third/postproc"]
-software-resampling = ["ffmpeg-sys-the-third/swresample"]
-software-scaling = ["ffmpeg-sys-the-third/swscale", "codec"]
 
 # platforms
 rpi = []
