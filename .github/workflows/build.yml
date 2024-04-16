@@ -3,7 +3,7 @@ on:
   push:
   pull_request:
   schedule:
-    - cron: "0 0 * * *" # Daily
+    - cron: "20 7 * * 4" # Weekly on thursday 
 
 env:
   CARGO_INCREMENTAL: 0
