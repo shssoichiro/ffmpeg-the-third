@@ -71,6 +71,9 @@ jobs:
         ffmpeg_version: ["4", "5", "6"]
       fail-fast: false
 
+    env:
+      PKG_CONFIG_PATH: /usr/local/opt/ffmpeg@${{ matrix.ffmpeg_version }}/lib/pkgconfig
+
     steps:
       - uses: actions/checkout@v4
       - name: Install dependencies
