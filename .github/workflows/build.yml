@@ -64,12 +64,17 @@ jobs:
         run: cargo test $CARGO_FEATURES
 
   build-test-lint-macos:
-    name: macOS - FFmpeg latest - build, test and lint
+    name: macOS - FFmpeg ${{ matrix.ffmpeg_version }} - build, test and lint
     runs-on: macos-latest
+    strategy:
+      matrix:
+        ffmpeg_version: ["4", "5", "6"]
+      fail-fast: false
+
     steps:
       - uses: actions/checkout@v4
       - name: Install dependencies
-        run: brew install ffmpeg pkg-config
+        run: brew install ffmpeg@${{ matrix.ffmpeg_version }} pkg-config
       - name: Install Rust stable with clippy and rustfmt
         uses: dtolnay/rust-toolchain@stable
         with:
