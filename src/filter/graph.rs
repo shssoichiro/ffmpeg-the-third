@@ -217,6 +217,15 @@ fn append_inout(list: &mut *mut AVFilterInOut, element: NonNull<AVFilterInOut>) 
     }
 }
 
+impl<'a> Drop for Parser<'a> {
+    fn drop(&mut self) {
+        unsafe {
+            avfilter_inout_free(&mut self.inputs);
+            avfilter_inout_free(&mut self.outputs);
+        }
+    }
+}
+
 impl Default for Graph {
     fn default() -> Self {
         Self::new()
