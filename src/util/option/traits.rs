@@ -5,7 +5,7 @@ use std::mem;
 
 use crate::ffi::*;
 use crate::util::format;
-use crate::{ChannelLayout, Error, Rational};
+use crate::{ChannelLayoutMask, Error, Rational};
 use libc::{c_int, c_void};
 
 macro_rules! check {
@@ -130,7 +130,7 @@ pub trait Settable: Target {
         }
     }
 
-    fn set_channel_layout(&mut self, name: &str, layout: ChannelLayout) -> Result<(), Error> {
+    fn set_channel_layout(&mut self, name: &str, layout: ChannelLayoutMask) -> Result<(), Error> {
         unsafe {
             let name = CString::new(name).unwrap();
 

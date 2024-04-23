@@ -4,14 +4,14 @@ use super::Delay;
 use crate::ffi::*;
 use crate::util::format;
 use crate::Dictionary;
-use crate::{frame, ChannelLayout, Error};
+use crate::{frame, ChannelLayoutMask, Error};
 use libc::c_int;
 use std::ffi::c_void;
 
 #[derive(Eq, PartialEq, Copy, Clone)]
 pub struct Definition {
     pub format: format::Sample,
-    pub channel_layout: ChannelLayout,
+    pub channel_layout: ChannelLayoutMask,
     pub rate: u32,
 }
 
@@ -40,10 +40,10 @@ impl Context {
     /// Create a resampler with the given definitions.
     pub fn get(
         src_format: format::Sample,
-        src_channel_layout: ChannelLayout,
+        src_channel_layout: ChannelLayoutMask,
         src_rate: u32,
         dst_format: format::Sample,
-        dst_channel_layout: ChannelLayout,
+        dst_channel_layout: ChannelLayoutMask,
         dst_rate: u32,
     ) -> Result<Self, Error> {
         Self::get_with(
@@ -60,10 +60,10 @@ impl Context {
     /// Create a resampler with the given definitions and custom options dictionary.
     pub fn get_with(
         src_format: format::Sample,
-        src_channel_layout: ChannelLayout,
+        src_channel_layout: ChannelLayoutMask,
         src_rate: u32,
         dst_format: format::Sample,
-        dst_channel_layout: ChannelLayout,
+        dst_channel_layout: ChannelLayoutMask,
         dst_rate: u32,
         options: Dictionary,
     ) -> Result<Self, Error> {

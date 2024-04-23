@@ -5,8 +5,11 @@ use std::slice;
 use super::Frame;
 use crate::ffi::*;
 use crate::util::format;
-use crate::ChannelLayout;
+use crate::ChannelLayoutMask;
 use libc::{c_int, c_ulonglong};
+
+#[cfg(feature = "ffmpeg_5_1")]
+use crate::ChannelLayout;
 
 #[derive(PartialEq, Eq)]
 pub struct Audio(Frame);
@@ -18,7 +21,12 @@ impl Audio {
     }
 
     #[inline]
-    pub unsafe fn alloc(&mut self, format: format::Sample, samples: usize, layout: ChannelLayout) {
+    pub unsafe fn alloc(
+        &mut self,
+        format: format::Sample,
+        samples: usize,
+        layout: ChannelLayoutMask,
+    ) {
         self.set_format(format);
         self.set_samples(samples);
         self.set_channel_layout(layout);
@@ -34,7 +42,7 @@ impl Audio {
     }
 
     #[inline]
-    pub fn new(format: format::Sample, samples: usize, layout: ChannelLayout) -> Self {
+    pub fn new(format: format::Sample, samples: usize, layout: ChannelLayoutMask) -> Self {
         unsafe {
             let mut frame = Audio::empty();
             frame.alloc(format, samples, layout);
@@ -62,14 +70,30 @@ impl Audio {
     }
 
     #[inline]
-    pub fn channel_layout(&self) -> ChannelLayout {
-        unsafe { ChannelLayout::from_bits_truncate((*self.as_ptr()).channel_layout as c_ulonglong) }
+    pub fn channel_layout(&self) -> ChannelLayoutMask {
+        unsafe {
+            ChannelLayoutMask::from_bits_truncate((*self.as_ptr()).channel_layout as c_ulonglong)
+        }
     }
 
     #[inline]
-    pub fn set_channel_layout(&mut self, value: ChannelLayout) {
+    pub fn set_channel_layout(&mut self, value: ChannelLayoutMask) {
         unsafe {
             (*self.as_mut_ptr()).channel_layout = value.bits() as u64;
+        }
+    }
+
+    #[cfg(feature = "ffmpeg_5_1")]
+    #[inline]
+    pub fn ch_layout(&self) -> ChannelLayout {
+        unsafe { ChannelLayout::from(&self.as_ref().unwrap().ch_layout) }
+    }
+
+    #[cfg(feature = "ffmpeg_5_1")]
+    #[inline]
+    pub fn set_ch_layout(&mut self, value: ChannelLayout) {
+        unsafe {
+            self.as_mut().unwrap().ch_layout = value.into_owned();
         }
     }
 
