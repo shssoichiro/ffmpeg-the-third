@@ -91,6 +91,7 @@ static AVUTIL_FEATURES: &[AVFeature] = &[
     AVFeature::new("FRAME_KEY"),
     AVFeature::new("PALETTE_HAS_CHANGED"),
     AVFeature::new("VULKAN_CONTIGUOUS_MEMORY"),
+    AVFeature::new("H274_FILM_GRAIN_VCS"),
 ];
 
 static AVCODEC_FEATURES: &[AVFeature] = &[
@@ -176,6 +177,9 @@ static AVCODEC_FEATURES: &[AVFeature] = &[
     AVFeature::new("DROPCHANGED"),
     AVFeature::new("AVFFT"),
     AVFeature::new("FF_PROFILE_LEVEL"),
+    AVFeature::new("AVCODEC_CLOSE"),
+    AVFeature::new("BUFFER_MIN_SIZE"),
+    AVFeature::new("VDPAU_ALLOC_GET_SET"),
 ];
 
 static AVFORMAT_FEATURES: &[AVFeature] = &[
@@ -197,9 +201,16 @@ static AVFORMAT_FEATURES: &[AVFeature] = &[
     AVFeature::new("LAVF_SHORTEST"),
     AVFeature::new("ALLOW_FLUSH"),
     AVFeature::new("AVSTREAM_SIDE_DATA"),
+    AVFeature::new("GET_DUR_ESTIMATE_METHOD"),
+    AVFeature::new("R_FRAME_RATE"),
 ];
 
-static AVDEVICE_FEATURES: &[AVFeature] = &[AVFeature::new("DEVICE_CAPABILITIES")];
+static AVDEVICE_FEATURES: &[AVFeature] = &[
+    AVFeature::new("DEVICE_CAPABILITIES"),
+    AVFeature::new("BKTR_DEVICE"),
+    AVFeature::new("OPENGL_DEVICE"),
+    AVFeature::new("SDL2_DEVICE"),
+];
 
 static AVFILTER_FEATURES: &[AVFeature] = &[
     AVFeature::new("AVFILTERPAD_PUBLIC"),
@@ -214,6 +225,7 @@ static AVFILTER_FEATURES: &[AVFeature] = &[
     AVFeature::new("BUFFERSINK_ALLOC"),
     AVFeature::new("PAD_COUNT"),
     AVFeature::new("LIBPLACEBO_OPTS"),
+    AVFeature::new("LINK_PUBLIC"),
 ];
 
 static AVRESAMPLE_FEATURES: &[AVFeature] = &[AVFeature::new("RESAMPLE_CLOSE_OPEN")];
@@ -623,7 +635,7 @@ fn check_features(include_paths: &[PathBuf]) {
             );
         }
     }
-    let version_check_info = [("avcodec", 56, 61, 0, 108)];
+    let version_check_info = [("avcodec", 56, 62, 0, 108)];
     for &(lib, begin_version_major, end_version_major, begin_version_minor, end_version_minor) in
         version_check_info.iter()
     {
@@ -771,6 +783,7 @@ fn check_features(include_paths: &[PathBuf]) {
         ("ffmpeg_5_1", 59, 37),
         ("ffmpeg_6_0", 60, 3),
         ("ffmpeg_6_1", 60, 31),
+        ("ffmpeg_7_0", 61, 3),
     ];
     for &(ffmpeg_version_flag, lavc_version_major, lavc_version_minor) in
         ffmpeg_lavc_versions.iter()
