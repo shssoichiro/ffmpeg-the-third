@@ -77,9 +77,10 @@ impl fmt::Debug for AVChannelLayout {
                         "map",
                         &std::slice::from_raw_parts(self.u.map, self.nb_channels as usize),
                     );
-                } // Starting with FFmpeg 7.0:
-                  // Not part of public API, but we have to exhaustively match
-                  // AVChannelOrder::FF_CHANNEL_ORDER_NB => {}
+                }
+                // Not part of public API, but we have to exhaustively match
+                #[cfg(feature = "ffmpeg_7_0")]
+                AVChannelOrder::FF_CHANNEL_ORDER_NB => {}
             }
         }
 
