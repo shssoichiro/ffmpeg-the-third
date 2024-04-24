@@ -306,6 +306,11 @@ impl<'a> ChannelLayout<'a> {
     pub const _7POINT1POINT2: Scl = ChannelLayout(Cow::Owned(AV_CHANNEL_LAYOUT_7POINT1POINT2));
     pub const _7POINT1POINT4_BACK: Scl =
         ChannelLayout(Cow::Owned(AV_CHANNEL_LAYOUT_7POINT1POINT4_BACK));
+    #[cfg(feature = "ffmpeg_7_0")]
+    pub const _7POINT2POINT3: Scl = ChannelLayout(Cow::Owned(AV_CHANNEL_LAYOUT_7POINT2POINT3));
+    #[cfg(feature = "ffmpeg_7_0")]
+    pub const _9POINT1POINT4_BACK: Scl =
+        ChannelLayout(Cow::Owned(AV_CHANNEL_LAYOUT_9POINT1POINT4_BACK));
     pub const HEXADECAGONAL: Scl = ChannelLayout(Cow::Owned(AV_CHANNEL_LAYOUT_HEXADECAGONAL));
     pub const STEREO_DOWNMIX: Scl = ChannelLayout(Cow::Owned(AV_CHANNEL_LAYOUT_STEREO_DOWNMIX));
     pub const _22POINT2: Scl = ChannelLayout(Cow::Owned(AV_CHANNEL_LAYOUT_22POINT2));
