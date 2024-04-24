@@ -80,6 +80,7 @@ bitflags! {
     }
 }
 
+#[cfg(not(feature = "ffmpeg_7_0"))]
 impl ChannelLayoutMask {
     #[inline]
     pub fn channels(&self) -> i32 {

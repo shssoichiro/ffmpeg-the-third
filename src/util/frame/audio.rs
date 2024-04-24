@@ -6,10 +6,13 @@ use super::Frame;
 use crate::ffi::*;
 use crate::util::format;
 use crate::ChannelLayoutMask;
-use libc::{c_int, c_ulonglong};
+use libc::c_int;
 
 #[cfg(feature = "ffmpeg_5_1")]
 use crate::ChannelLayout;
+
+#[cfg(not(feature = "ffmpeg_7_0"))]
+use libc::c_ulonglong;
 
 #[derive(PartialEq, Eq)]
 pub struct Audio(Frame);
@@ -69,6 +72,7 @@ impl Audio {
         }
     }
 
+    #[cfg(not(feature = "ffmpeg_7_0"))]
     #[inline]
     pub fn channel_layout(&self) -> ChannelLayoutMask {
         unsafe {
@@ -76,6 +80,7 @@ impl Audio {
         }
     }
 
+    #[cfg(not(feature = "ffmpeg_7_0"))]
     #[inline]
     pub fn set_channel_layout(&mut self, value: ChannelLayoutMask) {
         unsafe {
@@ -97,11 +102,13 @@ impl Audio {
         }
     }
 
+    #[cfg(not(feature = "ffmpeg_7_0"))]
     #[inline]
     pub fn channels(&self) -> u16 {
         unsafe { (*self.as_ptr()).channels as u16 }
     }
 
+    #[cfg(not(feature = "ffmpeg_7_0"))]
     #[inline]
     pub fn set_channels(&mut self, value: u16) {
         unsafe {

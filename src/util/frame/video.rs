@@ -173,11 +173,13 @@ impl Video {
         unsafe { Rational::from((*self.as_ptr()).sample_aspect_ratio) }
     }
 
+    #[cfg(not(feature = "ffmpeg_7_0"))]
     #[inline]
     pub fn coded_number(&self) -> usize {
         unsafe { (*self.as_ptr()).coded_picture_number as usize }
     }
 
+    #[cfg(not(feature = "ffmpeg_7_0"))]
     #[inline]
     pub fn display_number(&self) -> usize {
         unsafe { (*self.as_ptr()).display_picture_number as usize }
