@@ -225,7 +225,7 @@ pub enum Pixel {
     VIDEOTOOLBOX,
 
     // --- defaults
-    #[cfg(feature = "ffmpeg_4_0")]
+    #[cfg(all(feature = "ffmpeg_4_0", not(feature = "ffmpeg_7_0")))]
     XVMC,
 
     RGB32,
@@ -417,6 +417,9 @@ pub enum Pixel {
     #[cfg(feature = "ffmpeg_6_1")]
     GBRAP14LE,
 
+    #[cfg(feature = "ffmpeg_7_0")]
+    D3D12,
+
     #[cfg(feature = "rpi")]
     RPI,
     #[cfg(feature = "rpi")]
@@ -498,7 +501,7 @@ impl From<AVPixelFormat> for Pixel {
             AV_PIX_FMT_YUVJ420P => Pixel::YUVJ420P,
             AV_PIX_FMT_YUVJ422P => Pixel::YUVJ422P,
             AV_PIX_FMT_YUVJ444P => Pixel::YUVJ444P,
-            #[cfg(feature = "ffmpeg_4_0")]
+            #[cfg(all(feature = "ffmpeg_4_0", not(feature = "ffmpeg_7_0")))]
             AV_PIX_FMT_XVMC => Pixel::XVMC,
             #[cfg(all(feature = "ff_api_xvmc", not(feature = "ffmpeg_5_0")))]
             AV_PIX_FMT_XVMC_MPEG2_MC => Pixel::XVMC_MPEG2_MC,
@@ -825,6 +828,9 @@ impl From<AVPixelFormat> for Pixel {
             #[cfg(feature = "ffmpeg_6_1")]
             AV_PIX_FMT_GBRAP14LE => Pixel::GBRAP14LE,
 
+            #[cfg(feature = "ffmpeg_7_0")]
+            AV_PIX_FMT_D3D12 => Pixel::D3D12,
+
             #[cfg(feature = "rpi")]
             AV_PIX_FMT_RPI => Pixel::RPI,
             #[cfg(feature = "rpi")]
@@ -1062,7 +1068,7 @@ impl From<Pixel> for AVPixelFormat {
             Pixel::VIDEOTOOLBOX => AV_PIX_FMT_VIDEOTOOLBOX,
 
             // --- defaults
-            #[cfg(feature = "ffmpeg_4_0")]
+            #[cfg(all(feature = "ffmpeg_4_0", not(feature = "ffmpeg_7_0")))]
             Pixel::XVMC => AV_PIX_FMT_XVMC,
 
             Pixel::RGB32 => AV_PIX_FMT_RGB32,
@@ -1253,6 +1259,9 @@ impl From<Pixel> for AVPixelFormat {
             Pixel::GBRAP14BE => AV_PIX_FMT_GBRAP14BE,
             #[cfg(feature = "ffmpeg_6_1")]
             Pixel::GBRAP14LE => AV_PIX_FMT_GBRAP14LE,
+
+            #[cfg(feature = "ffmpeg_7_0")]
+            Pixel::D3D12 => AV_PIX_FMT_D3D12,
 
             #[cfg(feature = "rpi")]
             Pixel::RPI => AV_PIX_FMT_RPI,

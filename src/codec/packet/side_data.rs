@@ -57,6 +57,15 @@ pub enum Type {
 
     #[cfg(feature = "ffmpeg_5_0")]
     DYNAMIC_HDR10_PLUS,
+
+    #[cfg(feature = "ffmpeg_7_0")]
+    IAMF_MIX_GAIN_PARAM,
+    #[cfg(feature = "ffmpeg_7_0")]
+    IAMF_DEMIXING_INFO_PARAM,
+    #[cfg(feature = "ffmpeg_7_0")]
+    IAMF_RECON_GAIN_INFO_PARAM,
+    #[cfg(feature = "ffmpeg_7_0")]
+    AMBIENT_VIEWING_ENVIRONMENT,
 }
 
 impl From<AVPacketSideDataType> for Type {
@@ -109,6 +118,15 @@ impl From<AVPacketSideDataType> for Type {
 
             #[cfg(feature = "ffmpeg_5_0")]
             AV_PKT_DATA_DYNAMIC_HDR10_PLUS => Type::DYNAMIC_HDR10_PLUS,
+
+            #[cfg(feature = "ffmpeg_7_0")]
+            AV_PKT_DATA_IAMF_MIX_GAIN_PARAM => Type::IAMF_MIX_GAIN_PARAM,
+            #[cfg(feature = "ffmpeg_7_0")]
+            AV_PKT_DATA_IAMF_DEMIXING_INFO_PARAM => Type::IAMF_DEMIXING_INFO_PARAM,
+            #[cfg(feature = "ffmpeg_7_0")]
+            AV_PKT_DATA_IAMF_RECON_GAIN_INFO_PARAM => Type::IAMF_RECON_GAIN_INFO_PARAM,
+            #[cfg(feature = "ffmpeg_7_0")]
+            AV_PKT_DATA_AMBIENT_VIEWING_ENVIRONMENT => Type::AMBIENT_VIEWING_ENVIRONMENT,
 
             #[cfg(feature = "non-exhaustive-enums")]
             _ => unimplemented!(),
@@ -166,6 +184,15 @@ impl From<Type> for AVPacketSideDataType {
 
             #[cfg(feature = "ffmpeg_5_0")]
             Type::DYNAMIC_HDR10_PLUS => AV_PKT_DATA_DYNAMIC_HDR10_PLUS,
+
+            #[cfg(feature = "ffmpeg_7_0")]
+            Type::IAMF_MIX_GAIN_PARAM => AV_PKT_DATA_IAMF_MIX_GAIN_PARAM,
+            #[cfg(feature = "ffmpeg_7_0")]
+            Type::IAMF_DEMIXING_INFO_PARAM => AV_PKT_DATA_IAMF_DEMIXING_INFO_PARAM,
+            #[cfg(feature = "ffmpeg_7_0")]
+            Type::IAMF_RECON_GAIN_INFO_PARAM => AV_PKT_DATA_IAMF_RECON_GAIN_INFO_PARAM,
+            #[cfg(feature = "ffmpeg_7_0")]
+            Type::AMBIENT_VIEWING_ENVIRONMENT => AV_PKT_DATA_AMBIENT_VIEWING_ENVIRONMENT,
         }
     }
 }

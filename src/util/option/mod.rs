@@ -26,9 +26,18 @@ pub enum Type {
     VideoRate,
     Duration,
     Color,
+    #[cfg(not(feature = "ffmpeg_7_0"))]
     ChannelLayout,
+    #[cfg(feature = "ffmpeg_5_1")]
+    ChLayout,
     c_ulong,
     bool,
+
+    // FIXME: This is not supported yet. `enum Type` should become a bitflags struct.
+    // FIXME: AVOptionType is also not technically an enum because it may contain
+    //        values that are outside the defined enum variants!
+    #[cfg(feature = "ffmpeg_7_0")]
+    ArrayFlag = 0x10000,
 }
 
 impl From<AVOptionType> for Type {
@@ -53,9 +62,13 @@ impl From<AVOptionType> for Type {
             AV_OPT_TYPE_VIDEO_RATE => Type::VideoRate,
             AV_OPT_TYPE_DURATION => Type::Duration,
             AV_OPT_TYPE_COLOR => Type::Color,
+            #[cfg(not(feature = "ffmpeg_7_0"))]
             AV_OPT_TYPE_CHANNEL_LAYOUT => Type::ChannelLayout,
             #[cfg(feature = "ffmpeg_5_1")]
-            AV_OPT_TYPE_CHLAYOUT => Type::ChannelLayout,
+            AV_OPT_TYPE_CHLAYOUT => Type::ChLayout,
+
+            #[cfg(feature = "ffmpeg_7_0")]
+            AV_OPT_TYPE_FLAG_ARRAY => Type::ArrayFlag,
 
             #[cfg(feature = "non-exhaustive-enums")]
             _ => unimplemented!(),
@@ -85,7 +98,13 @@ impl From<Type> for AVOptionType {
             Type::VideoRate => AV_OPT_TYPE_VIDEO_RATE,
             Type::Duration => AV_OPT_TYPE_DURATION,
             Type::Color => AV_OPT_TYPE_COLOR,
+            #[cfg(not(feature = "ffmpeg_7_0"))]
             Type::ChannelLayout => AV_OPT_TYPE_CHANNEL_LAYOUT,
+            #[cfg(feature = "ffmpeg_5_1")]
+            Type::ChLayout => AV_OPT_TYPE_CHLAYOUT,
+
+            #[cfg(feature = "ffmpeg_7_0")]
+            Type::ArrayFlag => AV_OPT_TYPE_FLAG_ARRAY,
         }
     }
 }
