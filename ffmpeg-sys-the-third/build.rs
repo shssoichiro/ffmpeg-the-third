@@ -6,7 +6,7 @@ use std::env;
 use std::fmt::Write as FmtWrite;
 use std::fs::{self, File};
 use std::io::{self, BufRead, BufReader, Write};
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::process::Command;
 use std::str;
 
@@ -424,38 +424,23 @@ fn ffmpeg_version() -> String {
         .replace("ffmpeg-", "")
 }
 
-fn ffmpeg_major_version() -> u32 {
-    ffmpeg_version().split('.').next().unwrap().parse().unwrap()
+fn get_major_version(version_string: &str) -> u32 {
+    version_string.split('.').next().unwrap().parse().unwrap()
 }
 
 fn output() -> PathBuf {
     PathBuf::from(env::var("OUT_DIR").unwrap())
 }
 
-fn source() -> PathBuf {
-    output().join(format!("ffmpeg-{}", ffmpeg_version()))
-}
-
-fn search() -> PathBuf {
-    let mut absolute = env::current_dir().unwrap();
-    absolute.push(&output());
-    absolute.push("dist");
-
-    absolute
-}
-
-fn fetch() -> io::Result<()> {
-    let output_base_path = output();
-    let clone_dest_dir = format!("ffmpeg-{}", ffmpeg_version());
-    let _ = std::fs::remove_dir_all(output_base_path.join(&clone_dest_dir));
+fn fetch(source_dir: &Path, ffmpeg_version: &str) -> io::Result<()> {
+    let _ = std::fs::remove_dir_all(source_dir);
     let status = Command::new("git")
-        .current_dir(&output_base_path)
         .arg("clone")
         .arg("--depth=1")
         .arg("-b")
-        .arg(format!("n{}", ffmpeg_version()))
+        .arg(format!("n{ffmpeg_version}"))
         .arg("https://github.com/FFmpeg/FFmpeg")
-        .arg(&clone_dest_dir)
+        .arg(source_dir)
         .status()?;
 
     if status.success() {
@@ -520,8 +505,15 @@ static EXTERNAL_BUILD_LIBS: &[(&str, &str)] = &[
     ("SSH", "libssh"),
 ];
 
-fn build() -> io::Result<()> {
-    let source_dir = source();
+fn build(out_dir: &Path, ffmpeg_version: &str) -> io::Result<PathBuf> {
+    let source_dir = out_dir.join(format!("ffmpeg-{ffmpeg_version}"));
+    let install_dir = out_dir.join("dist");
+    if install_dir.join("lib").join("libavutil.a").exists() {
+        rustc_link_extralibs(&source_dir);
+        return Ok(install_dir);
+    }
+
+    fetch(&source_dir, ffmpeg_version)?;
 
     // Command's path is not relative to command's current_dir
     let configure_path = source_dir.join("configure");
@@ -529,7 +521,7 @@ fn build() -> io::Result<()> {
     let mut configure = Command::new(&configure_path);
     configure.current_dir(&source_dir);
 
-    configure.arg(format!("--prefix={}", search().to_string_lossy()));
+    configure.arg(format!("--prefix={}", install_dir.to_string_lossy()));
 
     if env::var("TARGET").unwrap() != env::var("HOST").unwrap() {
         // Rust targets are subtly different than naming scheme for compiler prefixes.
@@ -582,7 +574,7 @@ fn build() -> io::Result<()> {
     // the binary using ffmpeg-sys cannot be redistributed
     configure.switch("BUILD_LICENSE_NONFREE", "nonfree");
 
-    let ffmpeg_major_version: u32 = ffmpeg_major_version();
+    let ffmpeg_major_version: u32 = get_major_version(ffmpeg_version);
 
     // configure building libraries based on features
     for lib in LIBRARIES
@@ -628,7 +620,7 @@ fn build() -> io::Result<()> {
     // run make
     if !Command::new("make")
         .arg(format!("-j{num_jobs}"))
-        .current_dir(&source())
+        .current_dir(&source_dir)
         .status()?
         .success()
     {
@@ -637,7 +629,7 @@ fn build() -> io::Result<()> {
 
     // run make install
     if !Command::new("make")
-        .current_dir(&source())
+        .current_dir(&source_dir)
         .arg("install")
         .status()?
         .success()
@@ -645,7 +637,28 @@ fn build() -> io::Result<()> {
         return Err(io::Error::new(io::ErrorKind::Other, "make install failed"));
     }
 
-    Ok(())
+    rustc_link_extralibs(&source_dir);
+    Ok(install_dir)
+}
+
+fn rustc_link_extralibs(source_dir: &Path) {
+    let config_mak = source_dir.join("ffbuild").join("config.mak");
+    let file = File::open(config_mak).unwrap();
+    let reader = BufReader::new(file);
+    let extra_libs = reader
+        .lines()
+        .find(|line| line.as_ref().unwrap().starts_with("EXTRALIBS"))
+        .map(|line| line.unwrap())
+        .unwrap();
+
+    let linker_args = extra_libs.split('=').last().unwrap().split(' ');
+    let include_libs = linker_args
+        .filter(|v| v.starts_with("-l"))
+        .map(|flag| &flag[2..]);
+
+    for lib in include_libs {
+        println!("cargo:rustc-link-lib={lib}");
+    }
 }
 
 #[cfg(not(target_env = "msvc"))]
@@ -670,8 +683,6 @@ fn try_vcpkg(statik: bool) -> Option<Vec<PathBuf>> {
 // add well known package manager lib paths us as homebrew (or macports)
 #[cfg(target_os = "macos")]
 fn add_pkg_config_path() {
-    use std::path::Path;
-
     let pc_path = pkg_config::get_variable("pkg-config", "pc_path").unwrap();
     // append M1 homebrew pkgconfig path
     let brew_pkgconfig = cfg!(target_arch = "aarch64")
@@ -919,43 +930,20 @@ fn link_to_libraries(statik: bool) {
 }
 
 fn main() {
+    let out_dir = output();
     let statik = cargo_feature_enabled("static");
-    let ffmpeg_major_version: u32 = ffmpeg_major_version();
+    let ffmpeg_version = ffmpeg_version();
+    let ffmpeg_major_version: u32 = get_major_version(&ffmpeg_version);
 
     let include_paths: Vec<PathBuf> = if cargo_feature_enabled("build") {
+        let install_dir = build(&out_dir, &ffmpeg_version).unwrap();
         println!(
             "cargo:rustc-link-search=native={}",
-            search().join("lib").to_string_lossy()
+            install_dir.join("lib").to_string_lossy()
         );
         link_to_libraries(statik);
-        if fs::metadata(search().join("lib").join("libavutil.a")).is_err() {
-            fs::create_dir_all(output()).expect("failed to create build directory");
-            fetch().unwrap();
-            build().unwrap();
-        }
 
-        // Check additional required libraries.
-        {
-            let config_mak = source().join("ffbuild/config.mak");
-            let file = File::open(config_mak).unwrap();
-            let reader = BufReader::new(file);
-            let extra_libs = reader
-                .lines()
-                .find(|line| line.as_ref().unwrap().starts_with("EXTRALIBS"))
-                .map(|line| line.unwrap())
-                .unwrap();
-
-            let linker_args = extra_libs.split('=').last().unwrap().split(' ');
-            let include_libs = linker_args
-                .filter(|v| v.starts_with("-l"))
-                .map(|flag| &flag[2..]);
-
-            for lib in include_libs {
-                println!("cargo:rustc-link-lib={}", lib);
-            }
-        }
-
-        vec![search().join("include")]
+        vec![install_dir.join("include")]
     }
     // Use prebuilt library
     else if let Ok(ffmpeg_dir) = env::var("FFMPEG_DIR") {
@@ -1111,6 +1099,6 @@ fn main() {
 
     // Write the bindings to the $OUT_DIR/bindings.rs file.
     bindings
-        .write_to_file(output().join("bindings.rs"))
+        .write_to_file(out_dir.join("bindings.rs"))
         .expect("Couldn't write bindings!");
 }
