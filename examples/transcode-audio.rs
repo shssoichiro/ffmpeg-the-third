@@ -32,7 +32,10 @@ fn filter(
         let mut out = filter.get("out").unwrap();
 
         out.set_sample_format(encoder.format());
+        #[cfg(not(feature = "ffmpeg_5_1"))]
         out.set_channel_layout(encoder.channel_layout());
+        #[cfg(feature = "ffmpeg_5_1")]
+        out.set_ch_layout(encoder.ch_layout());
         out.set_sample_rate(encoder.rate());
     }
 
@@ -91,7 +94,7 @@ fn transcoder<P: AsRef<Path>>(
     let mut output = octx.add_stream(codec)?;
     let context = ffmpeg::codec::context::Context::from_parameters(output.parameters())?;
     let mut encoder = context.encoder().audio()?;
-    
+
     if global {
         encoder.set_flags(ffmpeg::codec::flag::Flags::GLOBAL_HEADER);
     }
