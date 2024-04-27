@@ -178,6 +178,18 @@ mod ch_layout {
         }
     }
 
+    impl<'a> ChannelLayoutIter<'a> {
+        pub fn best(self, max: u32) -> ChannelLayout<'a> {
+            self.fold(ChannelLayout::MONO, |acc, cur| {
+                if cur.channels() > acc.channels() && cur.channels() <= max {
+                    cur
+                } else {
+                    acc
+                }
+            })
+        }
+    }
+
     impl<'a> Iterator for ChannelLayoutIter<'a> {
         type Item = ChannelLayout<'a>;
 
