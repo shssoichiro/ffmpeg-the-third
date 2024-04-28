@@ -347,25 +347,24 @@ static POSTPROC_HEADERS: &[AVHeader] = &[AVHeader::new("postprocess.h")];
 struct Callbacks;
 
 impl ParseCallbacks for Callbacks {
-    fn int_macro(&self, _name: &str, value: i64) -> Option<IntKind> {
+    fn int_macro(&self, name: &str, value: i64) -> Option<IntKind> {
         let ch_layout_prefix = "AV_CH_";
         let codec_cap_prefix = "AV_CODEC_CAP_";
         let codec_flag_prefix = "AV_CODEC_FLAG_";
         let error_max_size = "AV_ERROR_MAX_STRING_SIZE";
 
-        if _name.starts_with(ch_layout_prefix) {
+        if name.starts_with(ch_layout_prefix) {
             Some(IntKind::ULongLong)
-        } else if value >= i32::min_value() as i64
-            && value <= i32::max_value() as i64
-            && (_name.starts_with(codec_cap_prefix) || _name.starts_with(codec_flag_prefix))
+        } else if (i32::MIN as i64..=i32::MAX as i64).contains(&value)
+            && (name.starts_with(codec_cap_prefix) || name.starts_with(codec_flag_prefix))
         {
             Some(IntKind::UInt)
-        } else if _name == error_max_size {
+        } else if name == error_max_size {
             Some(IntKind::Custom {
                 name: "usize",
                 is_signed: false,
             })
-        } else if value >= i32::min_value() as i64 && value <= i32::max_value() as i64 {
+        } else if (i32::MIN as i64..=i32::MAX as i64).contains(&value) {
             Some(IntKind::Int)
         } else {
             None
