@@ -15,6 +15,12 @@ impl DemuxerIter {
     }
 }
 
+impl Default for DemuxerIter {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Iterator for DemuxerIter {
     type Item = Format;
 
@@ -37,6 +43,12 @@ pub struct MuxerIter {
 impl MuxerIter {
     pub fn new() -> Self {
         Self { ptr: null_mut() }
+    }
+}
+
+impl Default for MuxerIter {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
