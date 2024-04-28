@@ -66,3 +66,28 @@ impl Iterator for MuxerIter {
         }
     }
 }
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn muxer_iter() {
+        for f in MuxerIter::new() {
+            println!("{}:", f.name());
+            println!("\t{}", f.description());
+            println!("\t{:?}", f.extensions());
+            println!("\t{:?}", f.mime_types());
+        }
+    }
+
+    #[test]
+    fn demuxer_iter() {
+        for f in DemuxerIter::new() {
+            println!("{}:", f.name());
+            println!("\t{}", f.description());
+            println!("\t{:?}", f.extensions());
+            println!("\t{:?}", f.mime_types());
+        }
+    }
+}
