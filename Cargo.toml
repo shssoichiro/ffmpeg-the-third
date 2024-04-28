@@ -15,7 +15,6 @@ categories = ["multimedia"]
 
 include = [
     "LICENSE",
-    "Cargo.lock.MSRV",
     "build.rs",
     "src/",
 ]
