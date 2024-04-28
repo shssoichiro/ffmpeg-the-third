@@ -12,6 +12,11 @@ mod iter;
 #[cfg(not(feature = "ffmpeg_5_0"))]
 pub use self::iter::Iter;
 
+#[cfg(feature = "ffmpeg_4_0")]
+mod new_iter;
+#[cfg(feature = "ffmpeg_4_0")]
+pub use self::new_iter::{DemuxerIter, MuxerIter};
+
 pub enum Format {
     Input(Input),
     Output(Output),
@@ -50,4 +55,14 @@ impl Format {
 #[cfg(not(feature = "ffmpeg_5_0"))]
 pub fn list() -> Iter {
     Iter::new()
+}
+
+#[cfg(feature = "ffmpeg_4_0")]
+pub fn list_demuxers() -> DemuxerIter {
+    DemuxerIter::new()
+}
+
+#[cfg(feature = "ffmpeg_4_0")]
+pub fn list_muxers() -> MuxerIter {
+    MuxerIter::new()
 }
