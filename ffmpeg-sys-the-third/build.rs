@@ -49,6 +49,10 @@ impl Library {
         }
     }
 
+    fn lib_name(&self) -> String {
+        format!("lib{}", self.name)
+    }
+
     fn enabled(&self) -> bool {
         !self.optional || cargo_feature_enabled(self.name)
     }
@@ -985,37 +989,17 @@ fn main() {
         }
 
         paths
-    }
-    // Fallback to pkg-config
-    else {
+    } else {
+        // Fallback to pkg-config
         add_pkg_config_path();
-        pkg_config::Config::new()
-            .statik(statik)
-            .probe("libavutil")
-            .unwrap();
+        let mut pkgconfig = pkg_config::Config::new();
+        pkgconfig.statik(statik);
 
-        let mut libs = vec![
-            ("libavformat", "AVFORMAT"),
-            ("libavfilter", "AVFILTER"),
-            ("libavdevice", "AVDEVICE"),
-            ("libswscale", "SWSCALE"),
-            ("libswresample", "SWRESAMPLE"),
-        ];
-        if ffmpeg_major_version < 5 {
-            libs.push(("libavresample", "AVRESAMPLE"));
+        for lib in LIBRARIES.iter().filter(|lib| lib.enabled()) {
+            let _ = pkgconfig.probe(&lib.lib_name()).unwrap();
         }
 
-        for (lib_name, env_variable_name) in libs.iter() {
-            if cargo_feature_enabled(env_variable_name) {
-                pkg_config::Config::new()
-                    .statik(statik)
-                    .probe(lib_name)
-                    .unwrap();
-            }
-        }
-
-        pkg_config::Config::new()
-            .statik(statik)
+        pkgconfig
             .probe("libavcodec")
             .unwrap()
             .include_paths
