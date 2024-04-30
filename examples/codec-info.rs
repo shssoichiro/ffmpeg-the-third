@@ -47,7 +47,8 @@ fn main() {
                     println!("\t formats: any");
                 }
 
-                if let Some(layouts) = audio.channel_layouts() {
+                #[cfg(feature = "ffmpeg_5_1")]
+                if let Some(layouts) = audio.ch_layouts() {
                     println!("\t channel_layouts: {:?}", layouts.collect::<Vec<_>>());
                 } else {
                     println!("\t channel_layouts: any");
@@ -97,7 +98,8 @@ fn main() {
                     println!("\t formats: any");
                 }
 
-                if let Some(layouts) = audio.channel_layouts() {
+                #[cfg(feature = "ffmpeg_5_1")]
+                if let Some(layouts) = audio.ch_layouts() {
                     println!("\t channel_layouts: {:?}", layouts.collect::<Vec<_>>());
                 } else {
                     println!("\t channel_layouts: any");

@@ -1,5 +1,5 @@
-use libc::{c_double, c_int};
 use crate::AVRational;
+use libc::{c_double, c_int};
 
 #[inline(always)]
 pub unsafe fn av_make_q(num: c_int, den: c_int) -> AVRational {

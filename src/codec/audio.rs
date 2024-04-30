@@ -2,7 +2,10 @@ use std::ops::Deref;
 
 use super::codec::Codec;
 use crate::ffi::*;
-use crate::{format, ChannelLayoutMask};
+use crate::format;
+
+#[cfg(not(feature = "ffmpeg_7_0"))]
+use crate::ChannelLayoutMask;
 
 #[derive(PartialEq, Eq, Copy, Clone)]
 pub struct Audio {
@@ -36,6 +39,7 @@ impl Audio {
         }
     }
 
+    #[cfg(not(feature = "ffmpeg_7_0"))]
     pub fn channel_layouts(&self) -> Option<ChannelLayoutMaskIter> {
         unsafe {
             if (*self.codec.as_ptr()).channel_layouts.is_null() {
@@ -116,10 +120,12 @@ impl Iterator for FormatIter {
     }
 }
 
+#[cfg(not(feature = "ffmpeg_7_0"))]
 pub struct ChannelLayoutMaskIter {
     ptr: *const u64,
 }
 
+#[cfg(not(feature = "ffmpeg_7_0"))]
 impl ChannelLayoutMaskIter {
     pub fn new(ptr: *const u64) -> Self {
         ChannelLayoutMaskIter { ptr }
@@ -136,6 +142,7 @@ impl ChannelLayoutMaskIter {
     }
 }
 
+#[cfg(not(feature = "ffmpeg_7_0"))]
 impl Iterator for ChannelLayoutMaskIter {
     type Item = ChannelLayoutMask;
 
@@ -168,6 +175,18 @@ mod ch_layout {
     impl<'a> ChannelLayoutIter<'a> {
         pub unsafe fn from_raw(ptr: *const AVChannelLayout) -> Option<Self> {
             ptr.as_ref().map(|next| Self { next })
+        }
+    }
+
+    impl<'a> ChannelLayoutIter<'a> {
+        pub fn best(self, max: u32) -> ChannelLayout<'a> {
+            self.fold(ChannelLayout::MONO, |acc, cur| {
+                if cur.channels() > acc.channels() && cur.channels() <= max {
+                    cur
+                } else {
+                    acc
+                }
+            })
         }
     }
 

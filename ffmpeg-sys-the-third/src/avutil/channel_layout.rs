@@ -77,9 +77,10 @@ impl fmt::Debug for AVChannelLayout {
                         "map",
                         &std::slice::from_raw_parts(self.u.map, self.nb_channels as usize),
                     );
-                } // Starting with FFmpeg 7.0:
-                  // Not part of public API, but we have to exhaustively match
-                  // AVChannelOrder::FF_CHANNEL_ORDER_NB => {}
+                }
+                // Not part of public API, but we have to exhaustively match
+                #[cfg(feature = "ffmpeg_7_0")]
+                AVChannelOrder::FF_CHANNEL_ORDER_NB => {}
             }
         }
 
@@ -184,6 +185,12 @@ pub const AV_CH_LAYOUT_7POINT1POINT2: u64 =
     AV_CH_LAYOUT_7POINT1 | AV_CH_TOP_FRONT_LEFT | AV_CH_TOP_FRONT_RIGHT;
 pub const AV_CH_LAYOUT_7POINT1POINT4_BACK: u64 =
     AV_CH_LAYOUT_7POINT1POINT2 | AV_CH_TOP_BACK_LEFT | AV_CH_TOP_BACK_RIGHT;
+#[cfg(feature = "ffmpeg_7_0")]
+pub const AV_CH_LAYOUT_7POINT2POINT3: u64 =
+    AV_CH_LAYOUT_7POINT1POINT2 | AV_CH_TOP_BACK_CENTER | AV_CH_LOW_FREQUENCY_2;
+#[cfg(feature = "ffmpeg_7_0")]
+pub const AV_CH_LAYOUT_9POINT1POINT4_BACK: u64 =
+    AV_CH_LAYOUT_7POINT1POINT4_BACK | AV_CH_FRONT_LEFT_OF_CENTER | AV_CH_FRONT_RIGHT_OF_CENTER;
 pub const AV_CH_LAYOUT_HEXADECAGONAL: u64 = AV_CH_LAYOUT_OCTAGONAL
     | AV_CH_WIDE_LEFT
     | AV_CH_WIDE_RIGHT
@@ -285,6 +292,12 @@ pub const AV_CHANNEL_LAYOUT_7POINT1POINT2: AVChannelLayout =
     AV_CHANNEL_LAYOUT_MASK(10, AV_CH_LAYOUT_7POINT1POINT2);
 pub const AV_CHANNEL_LAYOUT_7POINT1POINT4_BACK: AVChannelLayout =
     AV_CHANNEL_LAYOUT_MASK(12, AV_CH_LAYOUT_7POINT1POINT4_BACK);
+#[cfg(feature = "ffmpeg_7_0")]
+pub const AV_CHANNEL_LAYOUT_7POINT2POINT3: AVChannelLayout =
+    AV_CHANNEL_LAYOUT_MASK(12, AV_CH_LAYOUT_7POINT2POINT3);
+#[cfg(feature = "ffmpeg_7_0")]
+pub const AV_CHANNEL_LAYOUT_9POINT1POINT4_BACK: AVChannelLayout =
+    AV_CHANNEL_LAYOUT_MASK(14, AV_CH_LAYOUT_9POINT1POINT4_BACK);
 pub const AV_CHANNEL_LAYOUT_HEXADECAGONAL: AVChannelLayout =
     AV_CHANNEL_LAYOUT_MASK(16, AV_CH_LAYOUT_HEXADECAGONAL);
 pub const AV_CHANNEL_LAYOUT_STEREO_DOWNMIX: AVChannelLayout =

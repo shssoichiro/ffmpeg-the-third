@@ -28,6 +28,7 @@ bitflags! {
         const SURROUND_DIRECT_LEFT  = AV_CH_SURROUND_DIRECT_LEFT;
         const SURROUND_DIRECT_RIGHT = AV_CH_SURROUND_DIRECT_RIGHT;
         const LOW_FREQUENCY_2       = AV_CH_LOW_FREQUENCY_2;
+        #[cfg(not(feature = "ffmpeg_7_0"))]
         const NATIVE                = AV_CH_LAYOUT_NATIVE;
 
         const MONO                = AV_CH_LAYOUT_MONO;
@@ -68,6 +69,10 @@ bitflags! {
         const _7POINT1POINT2      = AV_CH_LAYOUT_7POINT1POINT2;
         #[cfg(feature = "ffmpeg_5_1")]
         const _7POINT1POINT4_BACK = AV_CH_LAYOUT_7POINT1POINT4_BACK;
+        #[cfg(feature = "ffmpeg_7_0")]
+        const _7POINT2POINT3      = AV_CH_LAYOUT_7POINT2POINT3;
+        #[cfg(feature = "ffmpeg_7_0")]
+        const _9POINT1POINT4_BACK = AV_CH_LAYOUT_9POINT1POINT4_BACK;
         const HEXADECAGONAL       = AV_CH_LAYOUT_HEXADECAGONAL;
         const STEREO_DOWNMIX      = AV_CH_LAYOUT_STEREO_DOWNMIX;
         #[cfg(feature = "ffmpeg_5_1")]
@@ -75,6 +80,7 @@ bitflags! {
     }
 }
 
+#[cfg(not(feature = "ffmpeg_7_0"))]
 impl ChannelLayoutMask {
     #[inline]
     pub fn channels(&self) -> i32 {

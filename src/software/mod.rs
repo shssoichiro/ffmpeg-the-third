@@ -35,13 +35,24 @@ pub fn converter(
 #[cfg(feature = "software-resampling")]
 pub mod resampling;
 
-#[cfg(feature = "software-resampling")]
+#[cfg(all(feature = "software-resampling", not(feature = "ffmpeg_7_0")))]
 #[inline]
 pub fn resampler(
     (in_format, in_layout, in_rate): (crate::format::Sample, crate::ChannelLayoutMask, u32),
     (out_format, out_layout, out_rate): (crate::format::Sample, crate::ChannelLayoutMask, u32),
 ) -> Result<resampling::Context, crate::Error> {
     resampling::Context::get(
+        in_format, in_layout, in_rate, out_format, out_layout, out_rate,
+    )
+}
+
+#[cfg(all(feature = "software-resampling", feature = "ffmpeg_5_1"))]
+#[inline]
+pub fn resampler2(
+    (in_format, in_layout, in_rate): (crate::format::Sample, crate::ChannelLayout, u32),
+    (out_format, out_layout, out_rate): (crate::format::Sample, crate::ChannelLayout, u32),
+) -> Result<resampling::Context, crate::Error> {
+    resampling::Context::get2(
         in_format, in_layout, in_rate, out_format, out_layout, out_rate,
     )
 }

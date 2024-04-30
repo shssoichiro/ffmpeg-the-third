@@ -29,6 +29,9 @@ impl From<AVChannelOrder> for ChannelOrder {
             AV_CHANNEL_ORDER_NATIVE => Native,
             AV_CHANNEL_ORDER_CUSTOM => Custom,
             AV_CHANNEL_ORDER_AMBISONIC => Ambisonic,
+            #[cfg(feature = "ffmpeg_7_0")]
+            // Not part of the API, should never be used
+            FF_CHANNEL_ORDER_NB => unreachable!(),
             #[cfg(feature = "non-exhaustive-enums")]
             _ => unimplemented!(),
         }
