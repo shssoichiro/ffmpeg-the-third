@@ -11,6 +11,12 @@ authors = [
 ]
 license = "WTFPL"
 
+include = [
+    "LICENSE",
+    "build.rs",
+    "src/"
+]
+
 description = "FFI bindings to FFmpeg"
 repository = "https://github.com/shssoichiro/ffmpeg-the-third"
 keywords = ["audio", "video"]
@@ -46,10 +52,26 @@ default = [
 ]
 
 static = []
-build = ["static"]
 
 # mark enums in generated bindings as #[non_exhaustive]
 non-exhaustive-enums = []
+
+# components
+avcodec = []
+avdevice = ["avformat"]
+avfilter = []
+avformat = ["avcodec"]
+avresample = []
+postproc = []
+swresample = []
+swscale = []
+
+#
+# Build-related features
+#
+
+# build FFmpeg when building this crate
+build = ["static"]
 
 # licensing
 build-license-gpl = ["build"]
@@ -114,13 +136,3 @@ build-lib-xvid = ["build"]
 # protocols
 build-lib-smbclient = ["build"]
 build-lib-ssh = ["build"]
-
-# components
-avcodec = []
-avdevice = ["avformat"]
-avfilter = []
-avformat = ["avcodec"]
-avresample = []
-postproc = []
-swresample = []
-swscale = []
