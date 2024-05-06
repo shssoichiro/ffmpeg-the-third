@@ -1,3 +1,7 @@
+## Version 2.0.1
+
+- Add Copy, Clone, Eq, Debug to some bitflags types that had lost them
+
 ## Version 2.0.0
 
 - [Breaking] Replace avutil macros with const fns
