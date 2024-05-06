@@ -1,6 +1,6 @@
 [package]
 name = "ffmpeg-sys-the-third"
-version = "1.2.0+ffmpeg-6.1"
+version = "2.0.0+ffmpeg-7.0"
 links = "ffmpeg"
 edition = "2021"
 
@@ -11,11 +11,7 @@ authors = [
 ]
 license = "WTFPL"
 
-include = [
-    "LICENSE",
-    "build.rs",
-    "src/"
-]
+include = ["LICENSE", "build.rs", "src/"]
 
 description = "FFI bindings to FFmpeg"
 repository = "https://github.com/shssoichiro/ffmpeg-the-third"
@@ -35,7 +31,7 @@ libc = "0.2"
 [build-dependencies]
 cc = "1.0"
 pkg-config = "0.3"
-bindgen = { version = "0.64", default-features = false, features = ["runtime"] }
+bindgen = { version = "0.69", default-features = false, features = ["runtime"] }
 
 [target.'cfg(target_env = "msvc")'.build-dependencies]
 vcpkg = "0.2"

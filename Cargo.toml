@@ -1,6 +1,6 @@
 [package]
 name = "ffmpeg-the-third"
-version = "1.3.0+ffmpeg-6.1"
+version = "2.0.0+ffmpeg-7.0"
 edition = "2021"
 
 authors = ["meh. <meh@schizofreni.co>", "Zhiming Wang <i@zhimingwang.org>"]
@@ -13,25 +13,21 @@ repository = "https://github.com/shssoichiro/ffmpeg-the-third"
 keywords = ["ffmpeg", "multimedia", "video", "audio"]
 categories = ["multimedia"]
 
-include = [
-    "LICENSE",
-    "build.rs",
-    "src/",
-]
+include = ["LICENSE", "build.rs", "src/"]
 
 # When changing MSRV: Also update build.yml and README.md
 rust-version = "1.61.0"
 
 [dependencies]
 libc = "0.2"
-bitflags = "1.2"
+bitflags = "2.5"
 
 [dependencies.image]
-version = "0.24"
+version = "0.25"
 optional = true
 
 [dependencies.ffmpeg-sys-the-third]
-version = "1.1.0"
+version = "2.0.0"
 default-features = false
 path = "ffmpeg-sys-the-third"
 

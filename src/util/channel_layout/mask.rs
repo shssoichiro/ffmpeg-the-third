@@ -2,6 +2,7 @@ use crate::ffi::*;
 use libc::c_ulonglong;
 
 bitflags! {
+    #[derive(Eq, PartialEq, Copy, Clone)]
     pub struct ChannelLayoutMask: c_ulonglong {
         const FRONT_LEFT            = AV_CH_FRONT_LEFT;
         const FRONT_RIGHT           = AV_CH_FRONT_RIGHT;

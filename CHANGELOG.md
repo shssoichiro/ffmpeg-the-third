@@ -1,6 +1,12 @@
-## Unreleased
+## Version 2.0.0
 
-- Replace macros `MKTAG`, `MKBETAG` and `FFERRTAG` with const functions
+- [Breaking] Replace avutil macros with const fns
+- [Feature] Support ffmpeg 7
+- [Feature] Add ChannelLayout API
+- Many changes to the build process
+- Fix avfiltergraph input/output
+- Migrate to Rust edition 2021 (only 3 years late)
+- Fix PadIter in FFmpeg pre-5.0
 
 ## Version 1.2.2
 
