@@ -15,6 +15,12 @@ impl ChannelLayoutIter {
     }
 }
 
+impl Default for ChannelLayoutIter {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Iterator for ChannelLayoutIter {
     type Item = ChannelLayout<'static>;
 
