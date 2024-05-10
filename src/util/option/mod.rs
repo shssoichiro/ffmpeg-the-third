@@ -39,6 +39,12 @@ bitflags! {
     }
 }
 
+impl Default for Type {
+    fn default() -> Self {
+        Self::empty()
+    }
+}
+
 impl From<AVOptionType> for Type {
     fn from(value: AVOptionType) -> Self {
         Self::from_bits_retain(value.0)
