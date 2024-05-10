@@ -17,13 +17,16 @@ bitflags! {
         const FLOAT             = AVOptionType::AV_OPT_TYPE_FLOAT.0 as c_uint;
         const STRING            = AVOptionType::AV_OPT_TYPE_STRING.0 as c_uint;
         const RATIONAL          = AVOptionType::AV_OPT_TYPE_RATIONAL.0 as c_uint;
+        /// `offset` must point to a pointer immediately followed by an int
+        /// for the length.
         const BINARY            = AVOptionType::AV_OPT_TYPE_BINARY.0 as c_uint;
         const DICTIONARY        = AVOptionType::AV_OPT_TYPE_DICT.0 as c_uint;
         const CONSTANT          = AVOptionType::AV_OPT_TYPE_CONST.0 as c_uint;
-
+        /// `offset` must point to two consecutive ints
         const IMAGE_SIZE        = AVOptionType::AV_OPT_TYPE_IMAGE_SIZE.0 as c_uint;
         const PIXEL_FORMAT      = AVOptionType::AV_OPT_TYPE_PIXEL_FMT.0 as c_uint;
         const SAMPLE_FORMAT     = AVOptionType::AV_OPT_TYPE_SAMPLE_FMT.0 as c_uint;
+        /// `offset` must point to AVRational
         const VIDEO_RATE        = AVOptionType::AV_OPT_TYPE_VIDEO_RATE.0 as c_uint;
         const DURATION          = AVOptionType::AV_OPT_TYPE_DURATION.0 as c_uint;
         const COLOR             = AVOptionType::AV_OPT_TYPE_COLOR.0 as c_uint;
@@ -34,6 +37,13 @@ bitflags! {
         const C_ULONG           = AVOptionType::AV_OPT_TYPE_UINT64.0 as c_uint;
         const BOOL              = AVOptionType::AV_OPT_TYPE_BOOL.0 as c_uint;
 
+        /// May be combined with another regular option type to declare an
+        /// array option.
+        ///
+        /// For array options, `AVOption.offset` should refer to a pointer
+        /// corresponding to the option type. The pointer should be immediately
+        /// followed by an unsigned int that will store the number of elements
+        /// in the array.
         #[cfg(feature = "ffmpeg_7_0")]
         const FLAG_ARRAY        = AVOptionType::AV_OPT_TYPE_FLAG_ARRAY.0 as c_uint;
     }
