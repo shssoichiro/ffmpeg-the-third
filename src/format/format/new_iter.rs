@@ -1,4 +1,4 @@
-use std::ptr::{addr_of_mut, null_mut};
+use std::ptr::null_mut;
 
 use crate::ffi::*;
 use crate::format::format::{Input, Output};
@@ -26,7 +26,7 @@ impl Iterator for DemuxerIter {
 
     fn next(&mut self) -> Option<Self::Item> {
         unsafe {
-            let next = av_demuxer_iterate(addr_of_mut!(self.ptr));
+            let next = av_demuxer_iterate(&mut self.ptr);
             if next.is_null() {
                 None
             } else {
@@ -57,7 +57,7 @@ impl Iterator for MuxerIter {
 
     fn next(&mut self) -> Option<Self::Item> {
         unsafe {
-            let next = av_muxer_iterate(addr_of_mut!(self.ptr));
+            let next = av_muxer_iterate(&mut self.ptr);
             if next.is_null() {
                 None
             } else {
