@@ -78,7 +78,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Install dependencies
-        run: brew install ffmpeg@${{ matrix.ffmpeg_version }} pkg-config
+        run: brew install ffmpeg@${{ matrix.ffmpeg_version }}
       - name: Install Rust stable with clippy and rustfmt
         uses: dtolnay/rust-toolchain@stable
         with:
