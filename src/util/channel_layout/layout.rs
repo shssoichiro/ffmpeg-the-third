@@ -4,6 +4,8 @@ use std::ffi::CString;
 use std::mem::{align_of, size_of};
 
 use crate::ffi::*;
+#[cfg(feature = "ffmpeg_7_0")]
+use crate::Error;
 use libc::{c_int, c_uint};
 
 use super::Channel;
@@ -245,6 +247,72 @@ impl<'a> ChannelLayout<'a> {
     pub fn is_valid(&self) -> bool {
         unsafe { av_channel_layout_check(self.as_ptr()) != 0 }
     }
+
+    /// Change the [`ChannelOrder`] of this channel layout. If the current layout is borrowed,
+    /// calling this function will clone the contained [`AVChannelLayout`].
+    ///
+    /// This change can be lossless or lossy:
+    /// - A lossless conversion keeps all [`Channel`] designations and names intact.
+    /// - A lossy conversion might lose [`Channel`] designations and names depending on the targeted
+    ///   channel order.
+    ///
+    /// # Supported conversions
+    /// - Any -> Custom: Always possible, always lossless.
+    /// - Any -> Unspecified: Always possible, only lossless if every channel is designated
+    ///   [`Unknown`][Channel#variant.Unknown] and no channel names are used.
+    /// - Custom -> Ambisonic: Possible if it contains ambisonic channels with optional non-diegetic
+    ///   channels in the end. Lossless only if no channels have custom names.
+    /// - Custom -> Native: Possible if it contains native channels in native order. Lossless only
+    ///   if no channels have custom names.
+    ///
+    /// # Returns
+    /// - [`Ok`] if the conversion succeeded. The contained [`ChannelRetypeKind`] indicates
+    ///   whether the conversion was lossless or not.
+    /// - [`Err`] if the conversion failed. The original layout is untouched in this case.
+    #[cfg(feature = "ffmpeg_7_0")]
+    pub fn retype(&mut self, target: ChannelRetypeTarget) -> Result<ChannelRetypeKind, Error> {
+        use std::cmp::Ordering;
+        use ChannelRetypeTarget as Target;
+
+        let (channel_order, flags) = match target {
+            Target::Lossy(order) => (order, 0),
+            Target::Lossless(order) => (order, AV_CHANNEL_LAYOUT_RETYPE_FLAG_LOSSLESS),
+            Target::Canonical => (
+                ChannelOrder::Unspecified,
+                AV_CHANNEL_LAYOUT_RETYPE_FLAG_CANONICAL,
+            ),
+        };
+
+        let ret = unsafe { av_channel_layout_retype(self.0.to_mut(), channel_order.into(), flags) };
+
+        match ret.cmp(&0) {
+            Ordering::Greater => Ok(ChannelRetypeKind::Lossy),
+            Ordering::Equal => Ok(ChannelRetypeKind::Lossless),
+            Ordering::Less => Err(Error::from(ret)),
+        }
+    }
+}
+
+/// Whether the retyping was lossless or not.
+#[cfg(feature = "ffmpeg_7_0")]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ChannelRetypeKind {
+    Lossless,
+    Lossy,
+}
+
+/// The possible targets for retyping channel layouts. See [`ChannelLayout::retype`]
+/// for more information.
+#[cfg(feature = "ffmpeg_7_0")]
+#[non_exhaustive]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ChannelRetypeTarget {
+    /// Target a specific channel order, allowing lossy retyping.
+    Lossy(ChannelOrder),
+    /// Target a specific channel order, only allowing lossless retyping.
+    Lossless(ChannelOrder),
+    /// Automatically select the simplest channel order which allows lossless retyping.
+    Canonical,
 }
 
 impl<'a> From<AVChannelLayout> for ChannelLayout<'a> {
@@ -473,6 +541,119 @@ mod test {
             let desc = layout.description();
             assert!(!desc.is_empty());
             assert_eq!(desc, expected);
+        }
+    }
+
+    #[cfg(feature = "ffmpeg_7_0")]
+    #[test]
+    fn retype() {
+        use ChannelLayout as Layout;
+        use ChannelOrder as Order;
+        use ChannelRetypeKind as Kind;
+        use ChannelRetypeTarget as Target;
+
+        let tests = [
+            (
+                // Ok(Lossless) if target order == current order
+                Layout::_7POINT1POINT4_BACK,
+                Target::Lossless(Order::Native),
+                Ok(Kind::Lossless),
+                Layout::_7POINT1POINT4_BACK,
+                true,
+            ),
+            (
+                // any -> custom always lossless
+                Layout::STEREO,
+                Target::Lossless(Order::Custom),
+                Ok(Kind::Lossless),
+                Layout::custom(vec![
+                    ChannelCustom::new(Channel::FrontLeft),
+                    ChannelCustom::new(Channel::FrontRight),
+                ]),
+                true,
+            ),
+            (
+                // any -> custom also works if lossy requested
+                Layout::STEREO,
+                Target::Lossy(Order::Custom),
+                Ok(Kind::Lossless),
+                Layout::custom(vec![
+                    ChannelCustom::new(Channel::FrontLeft),
+                    ChannelCustom::new(Channel::FrontRight),
+                ]),
+                true,
+            ),
+            (
+                // any -> unspecified lossy unless all channels are Channel::Unknown and unnamed
+                Layout::OCTAGONAL,
+                Target::Lossy(Order::Unspecified),
+                Ok(Kind::Lossy),
+                Layout::unspecified(8),
+                true,
+            ),
+            (
+                // AVERROR(ENOSYS) if lossless requested, but only lossy possible
+                Layout::OCTAGONAL,
+                Target::Lossless(Order::Unspecified),
+                Err(Error::Other {
+                    errno: libc::ENOSYS,
+                }),
+                Layout::OCTAGONAL,
+                true,
+            ),
+            (
+                // custom -> native lossless without names
+                Layout::custom(vec![
+                    ChannelCustom::new(Channel::FrontLeft),
+                    ChannelCustom::new(Channel::FrontRight),
+                    ChannelCustom::new(Channel::FrontCenter),
+                    ChannelCustom::new(Channel::LowFrequency),
+                ]),
+                Target::Lossy(Order::Native),
+                Ok(Kind::Lossless),
+                Layout::_3POINT1,
+                true,
+            ),
+            (
+                // custom -> native lossy with name
+                Layout::custom(vec![
+                    ChannelCustom::new(Channel::FrontLeft),
+                    ChannelCustom::new(Channel::FrontRight),
+                    ChannelCustom::named(Channel::FrontCenter, "front center"),
+                    ChannelCustom::new(Channel::LowFrequency),
+                ]),
+                Target::Lossy(Order::Native),
+                Ok(Kind::Lossy),
+                Layout::_3POINT1,
+                true,
+            ),
+            (
+                // AVERROR(EINVAL) if !layout.is_valid()
+                Layout::unspecified(0),
+                Target::Lossy(ChannelOrder::Custom),
+                Err(Error::Other {
+                    errno: libc::EINVAL,
+                }),
+                Layout::unspecified(0),
+                false,
+            ),
+        ];
+
+        for (layout, target, expected_result, expected_layout, expected_valid) in tests {
+            let mut layout = layout.clone();
+            let actual_result = layout.retype(target);
+
+            assert_eq!(
+                layout.is_valid(),
+                expected_valid,
+                "is_valid should return {expected_valid} for {layout:?}, but did not."
+            );
+            assert_eq!(
+                actual_result,
+                expected_result,
+                "retype should return {expected_result:?} for {layout:?}, but returned {actual_result:?}"
+            );
+            assert_eq!(layout, expected_layout);
         }
     }
 }
