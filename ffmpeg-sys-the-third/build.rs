@@ -1045,6 +1045,9 @@ fn main() {
         // We need/want to implement Debug by hand for some types
         .no_debug("AVChannelLayout")
         .no_debug("AVChannelCustom")
+        // In FFmpeg 7.0+, this has bitfield-like behaviour,
+        // so cannot be a "rustified" enum
+        .newtype_enum("AVOptionType")
         .allowlist_file(r#".*[/\\]libavutil[/\\].*"#)
         .allowlist_file(r#".*[/\\]libavcodec[/\\].*"#)
         .allowlist_file(r#".*[/\\]libavformat[/\\].*"#)
