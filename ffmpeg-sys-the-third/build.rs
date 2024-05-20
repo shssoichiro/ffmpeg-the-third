@@ -570,6 +570,8 @@ fn link_to_libraries(libraries: &[Library], statik: bool) {
 }
 
 fn main() {
+    println!("cargo::rerun-if-env-changed=FFMPEG_DIR");
+
     let out_dir = PathBuf::from(env::var("OUT_DIR").unwrap());
     let statik = cargo_feature_enabled("static");
 
