@@ -3,10 +3,13 @@
 use std::ffi::CString;
 use std::mem;
 
-use ffi::*;
+use crate::ffi::*;
+use crate::util::format;
+use crate::{Error, Rational};
 use libc::{c_int, c_void};
-use util::format;
-use {ChannelLayout, Error, Rational};
+
+#[cfg(not(feature = "ffmpeg_7_0"))]
+use crate::ChannelLayoutMask;
 
 macro_rules! check {
     ($expr:expr) => {
@@ -130,7 +133,8 @@ pub trait Settable: Target {
         }
     }
 
-    fn set_channel_layout(&mut self, name: &str, layout: ChannelLayout) -> Result<(), Error> {
+    #[cfg(not(feature = "ffmpeg_7_0"))]
+    fn set_channel_layout(&mut self, name: &str, layout: ChannelLayoutMask) -> Result<(), Error> {
         unsafe {
             let name = CString::new(name).unwrap();
 

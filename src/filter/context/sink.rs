@@ -1,7 +1,7 @@
 use super::Context;
-use ffi::*;
+use crate::ffi::*;
+use crate::{Error, Frame};
 use libc::c_int;
-use {Error, Frame};
 
 pub struct Sink<'a> {
     ctx: &'a mut Context<'a>,

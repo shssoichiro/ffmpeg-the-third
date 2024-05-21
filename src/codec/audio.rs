@@ -1,8 +1,11 @@
 use std::ops::Deref;
 
 use super::codec::Codec;
-use ffi::*;
-use {format, ChannelLayout};
+use crate::ffi::*;
+use crate::format;
+
+#[cfg(not(feature = "ffmpeg_7_0"))]
+use crate::ChannelLayoutMask;
 
 #[derive(PartialEq, Eq, Copy, Clone)]
 pub struct Audio {
@@ -36,16 +39,22 @@ impl Audio {
         }
     }
 
-    pub fn channel_layouts(&self) -> Option<ChannelLayoutIter> {
+    #[cfg(not(feature = "ffmpeg_7_0"))]
+    pub fn channel_layouts(&self) -> Option<ChannelLayoutMaskIter> {
         unsafe {
             if (*self.codec.as_ptr()).channel_layouts.is_null() {
                 None
             } else {
-                Some(ChannelLayoutIter::new(
+                Some(ChannelLayoutMaskIter::new(
                     (*self.codec.as_ptr()).channel_layouts,
                 ))
             }
         }
+    }
+
+    #[cfg(feature = "ffmpeg_5_1")]
+    pub fn ch_layouts(&self) -> Option<ChannelLayoutIter> {
+        unsafe { ChannelLayoutIter::from_raw((*self.codec.as_ptr()).ch_layouts) }
     }
 }
 
@@ -111,17 +120,19 @@ impl Iterator for FormatIter {
     }
 }
 
-pub struct ChannelLayoutIter {
+#[cfg(not(feature = "ffmpeg_7_0"))]
+pub struct ChannelLayoutMaskIter {
     ptr: *const u64,
 }
 
-impl ChannelLayoutIter {
+#[cfg(not(feature = "ffmpeg_7_0"))]
+impl ChannelLayoutMaskIter {
     pub fn new(ptr: *const u64) -> Self {
-        ChannelLayoutIter { ptr }
+        ChannelLayoutMaskIter { ptr }
     }
 
-    pub fn best(self, max: i32) -> ChannelLayout {
-        self.fold(ChannelLayout::MONO, |acc, cur| {
+    pub fn best(self, max: i32) -> ChannelLayoutMask {
+        self.fold(ChannelLayoutMask::MONO, |acc, cur| {
             if cur.channels() > acc.channels() && cur.channels() <= max {
                 cur
             } else {
@@ -131,8 +142,9 @@ impl ChannelLayoutIter {
     }
 }
 
-impl Iterator for ChannelLayoutIter {
-    type Item = ChannelLayout;
+#[cfg(not(feature = "ffmpeg_7_0"))]
+impl Iterator for ChannelLayoutMaskIter {
+    type Item = ChannelLayoutMask;
 
     fn next(&mut self) -> Option<<Self as Iterator>::Item> {
         unsafe {
@@ -140,10 +152,64 @@ impl Iterator for ChannelLayoutIter {
                 return None;
             }
 
-            let layout = ChannelLayout::from_bits_truncate(*self.ptr);
+            let layout = ChannelLayoutMask::from_bits_truncate(*self.ptr);
             self.ptr = self.ptr.offset(1);
 
             Some(layout)
         }
+    }
+}
+
+#[cfg(feature = "ffmpeg_5_1")]
+pub use ch_layout::ChannelLayoutIter;
+
+#[cfg(feature = "ffmpeg_5_1")]
+mod ch_layout {
+    use super::*;
+    use crate::ChannelLayout;
+
+    pub struct ChannelLayoutIter<'a> {
+        next: &'a AVChannelLayout,
+    }
+
+    impl<'a> ChannelLayoutIter<'a> {
+        pub unsafe fn from_raw(ptr: *const AVChannelLayout) -> Option<Self> {
+            ptr.as_ref().map(|next| Self { next })
+        }
+    }
+
+    impl<'a> ChannelLayoutIter<'a> {
+        pub fn best(self, max: u32) -> ChannelLayout<'a> {
+            self.fold(ChannelLayout::MONO, |acc, cur| {
+                if cur.channels() > acc.channels() && cur.channels() <= max {
+                    cur
+                } else {
+                    acc
+                }
+            })
+        }
+    }
+
+    impl<'a> Iterator for ChannelLayoutIter<'a> {
+        type Item = ChannelLayout<'a>;
+
+        fn next(&mut self) -> Option<Self::Item> {
+            unsafe {
+                let curr = self.next;
+                if *curr == zeroed_layout() {
+                    return None;
+                }
+
+                // SAFETY: We trust that there is always an initialized layout up until
+                // the zeroed-out AVChannelLayout, which signals the end of iteration.
+                self.next = (curr as *const AVChannelLayout).add(1).as_ref().unwrap();
+                Some(ChannelLayout::from(curr))
+            }
+        }
+    }
+
+    // TODO: Remove this with a const variable when zeroed() is const (1.75.0)
+    unsafe fn zeroed_layout() -> AVChannelLayout {
+        std::mem::zeroed()
     }
 }

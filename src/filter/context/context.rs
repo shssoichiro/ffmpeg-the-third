@@ -1,9 +1,15 @@
 use std::marker::PhantomData;
 
 use super::{Sink, Source};
-use ffi::*;
+use crate::ffi::*;
+use crate::{format, option};
 use libc::c_void;
-use {format, option, ChannelLayout};
+
+#[cfg(feature = "ffmpeg_5_1")]
+use crate::ChannelLayout;
+
+#[cfg(not(feature = "ffmpeg_7_0"))]
+use crate::ChannelLayoutMask;
 
 pub struct Context<'a> {
     ptr: *mut AVFilterContext,
@@ -49,8 +55,14 @@ impl<'a> Context<'a> {
         let _ = option::Settable::set(self, "sample_rates", &i64::from(value));
     }
 
-    pub fn set_channel_layout(&mut self, value: ChannelLayout) {
+    #[cfg(not(feature = "ffmpeg_7_0"))]
+    pub fn set_channel_layout(&mut self, value: ChannelLayoutMask) {
         let _ = option::Settable::set(self, "channel_layouts", &value.bits());
+    }
+
+    #[cfg(feature = "ffmpeg_5_1")]
+    pub fn set_ch_layout(&mut self, value: ChannelLayout) {
+        let _ = option::Settable::set_str(self, "channel_layouts", &value.description());
     }
 }
 

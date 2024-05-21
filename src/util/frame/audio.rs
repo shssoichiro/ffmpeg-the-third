@@ -3,10 +3,16 @@ use std::ops::{Deref, DerefMut};
 use std::slice;
 
 use super::Frame;
-use ffi::*;
-use libc::{c_int, c_ulonglong};
-use util::format;
-use ChannelLayout;
+use crate::ffi::*;
+use crate::util::format;
+use crate::ChannelLayoutMask;
+use libc::c_int;
+
+#[cfg(feature = "ffmpeg_5_1")]
+use crate::ChannelLayout;
+
+#[cfg(not(feature = "ffmpeg_7_0"))]
+use libc::c_ulonglong;
 
 #[derive(PartialEq, Eq)]
 pub struct Audio(Frame);
@@ -18,10 +24,18 @@ impl Audio {
     }
 
     #[inline]
-    pub unsafe fn alloc(&mut self, format: format::Sample, samples: usize, layout: ChannelLayout) {
+    pub unsafe fn alloc(
+        &mut self,
+        format: format::Sample,
+        samples: usize,
+        layout: ChannelLayoutMask,
+    ) {
         self.set_format(format);
         self.set_samples(samples);
+        #[cfg(not(feature = "ffmpeg_7_0"))]
         self.set_channel_layout(layout);
+        #[cfg(feature = "ffmpeg_7_0")]
+        self.set_ch_layout(ChannelLayout::from_mask(layout).unwrap());
 
         av_frame_get_buffer(self.as_mut_ptr(), 0);
     }
@@ -34,7 +48,7 @@ impl Audio {
     }
 
     #[inline]
-    pub fn new(format: format::Sample, samples: usize, layout: ChannelLayout) -> Self {
+    pub fn new(format: format::Sample, samples: usize, layout: ChannelLayoutMask) -> Self {
         unsafe {
             let mut frame = Audio::empty();
             frame.alloc(format, samples, layout);
@@ -61,23 +75,43 @@ impl Audio {
         }
     }
 
+    #[cfg(not(feature = "ffmpeg_7_0"))]
     #[inline]
-    pub fn channel_layout(&self) -> ChannelLayout {
-        unsafe { ChannelLayout::from_bits_truncate((*self.as_ptr()).channel_layout as c_ulonglong) }
+    pub fn channel_layout(&self) -> ChannelLayoutMask {
+        unsafe {
+            ChannelLayoutMask::from_bits_truncate((*self.as_ptr()).channel_layout as c_ulonglong)
+        }
     }
 
+    #[cfg(not(feature = "ffmpeg_7_0"))]
     #[inline]
-    pub fn set_channel_layout(&mut self, value: ChannelLayout) {
+    pub fn set_channel_layout(&mut self, value: ChannelLayoutMask) {
         unsafe {
             (*self.as_mut_ptr()).channel_layout = value.bits() as u64;
         }
     }
 
+    #[cfg(feature = "ffmpeg_5_1")]
+    #[inline]
+    pub fn ch_layout(&self) -> ChannelLayout {
+        unsafe { ChannelLayout::from(&self.as_ref().unwrap().ch_layout) }
+    }
+
+    #[cfg(feature = "ffmpeg_5_1")]
+    #[inline]
+    pub fn set_ch_layout(&mut self, value: ChannelLayout) {
+        unsafe {
+            self.as_mut().unwrap().ch_layout = value.into_owned();
+        }
+    }
+
+    #[cfg(not(feature = "ffmpeg_7_0"))]
     #[inline]
     pub fn channels(&self) -> u16 {
         unsafe { (*self.as_ptr()).channels as u16 }
     }
 
+    #[cfg(not(feature = "ffmpeg_7_0"))]
     #[inline]
     pub fn set_channels(&mut self, value: u16) {
         unsafe {
@@ -130,7 +164,12 @@ impl Audio {
         if self.is_packed() {
             1
         } else {
-            self.channels() as usize
+            #[cfg(not(feature = "ffmpeg_5_1"))]
+            let channels = self.channels() as usize;
+            #[cfg(feature = "ffmpeg_5_1")]
+            let channels = self.ch_layout().channels() as usize;
+
+            channels
         }
     }
 
@@ -140,7 +179,12 @@ impl Audio {
             panic!("out of bounds");
         }
 
-        if !<T as Sample>::is_valid(self.format(), self.channels() as u16) {
+        #[cfg(not(feature = "ffmpeg_5_1"))]
+        let channels = self.channels() as u16;
+        #[cfg(feature = "ffmpeg_5_1")]
+        let channels = self.ch_layout().channels() as u16;
+
+        if !<T as Sample>::is_valid(self.format(), channels) {
             panic!("unsupported type");
         }
 
@@ -153,7 +197,12 @@ impl Audio {
             panic!("out of bounds");
         }
 
-        if !<T as Sample>::is_valid(self.format(), self.channels() as u16) {
+        #[cfg(not(feature = "ffmpeg_5_1"))]
+        let channels = self.channels() as u16;
+        #[cfg(feature = "ffmpeg_5_1")]
+        let channels = self.ch_layout().channels() as u16;
+
+        if !<T as Sample>::is_valid(self.format(), channels) {
             panic!("unsupported type");
         }
 
@@ -207,9 +256,14 @@ impl DerefMut for Audio {
 
 impl ::std::fmt::Debug for Audio {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> Result<(), ::std::fmt::Error> {
+        #[cfg(not(feature = "ffmpeg_5_1"))]
+        let channels = self.channels() as u16;
+        #[cfg(feature = "ffmpeg_5_1")]
+        let channels = self.ch_layout().channels() as u16;
+
         f.write_str("ffmpeg::frame::Audio { ")?;
         f.write_str(&format!("format: {:?}, ", self.format()))?;
-        f.write_str(&format!("channels: {:?}, ", self.channels()))?;
+        f.write_str(&format!("channels: {channels}, "))?;
         f.write_str(&format!("rate: {:?}, ", self.rate()))?;
         f.write_str(&format!("samples: {:?} ", self.samples()))?;
         f.write_str("}")
@@ -218,7 +272,12 @@ impl ::std::fmt::Debug for Audio {
 
 impl Clone for Audio {
     fn clone(&self) -> Self {
-        let mut cloned = Audio::new(self.format(), self.samples(), self.channel_layout());
+        #[cfg(not(feature = "ffmpeg_5_1"))]
+        let mask = self.channel_layout();
+        #[cfg(feature = "ffmpeg_5_1")]
+        let mask = self.ch_layout().mask().unwrap();
+
+        let mut cloned = Audio::new(self.format(), self.samples(), mask);
         cloned.clone_from(self);
 
         cloned

@@ -1,5 +1,5 @@
-use ffi::AVDiscard::*;
-use ffi::*;
+use crate::ffi::AVDiscard::*;
+use crate::ffi::*;
 #[cfg(feature = "serialize")]
 use serde::{Deserialize, Serialize};
 

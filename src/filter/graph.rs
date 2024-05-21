@@ -1,11 +1,11 @@
 use std::ffi::{CStr, CString};
-use std::ptr;
+use std::ptr::{self, NonNull};
 use std::str::from_utf8_unchecked;
 
 use super::{Context, Filter};
-use ffi::*;
+use crate::ffi::*;
+use crate::Error;
 use libc::c_int;
-use Error;
 
 pub struct Graph {
     ptr: *mut AVFilterGraph,
@@ -145,24 +145,16 @@ impl<'a> Parser<'a> {
     pub fn input(mut self, name: &str, pad: usize) -> Result<Self, Error> {
         unsafe {
             let mut context = self.graph.get(name).ok_or(Error::InvalidData)?;
-            let input = avfilter_inout_alloc();
-
-            if input.is_null() {
-                panic!("out of memory");
-            }
+            let mut input = NonNull::new(avfilter_inout_alloc()).expect("out of memory");
 
             let name = CString::new(name).unwrap();
 
-            (*input).name = av_strdup(name.as_ptr());
-            (*input).filter_ctx = context.as_mut_ptr();
-            (*input).pad_idx = pad as c_int;
-            (*input).next = ptr::null_mut();
+            input.as_mut().name = av_strdup(name.as_ptr());
+            input.as_mut().filter_ctx = context.as_mut_ptr();
+            input.as_mut().pad_idx = pad as c_int;
+            input.as_mut().next = ptr::null_mut();
 
-            if self.inputs.is_null() {
-                self.inputs = input;
-            } else {
-                (*self.inputs).next = input;
-            }
+            append_inout(&mut self.inputs, input);
         }
 
         Ok(self)
@@ -171,24 +163,16 @@ impl<'a> Parser<'a> {
     pub fn output(mut self, name: &str, pad: usize) -> Result<Self, Error> {
         unsafe {
             let mut context = self.graph.get(name).ok_or(Error::InvalidData)?;
-            let output = avfilter_inout_alloc();
-
-            if output.is_null() {
-                panic!("out of memory");
-            }
+            let mut output = NonNull::new(avfilter_inout_alloc()).expect("out of memory");
 
             let name = CString::new(name).unwrap();
 
-            (*output).name = av_strdup(name.as_ptr());
-            (*output).filter_ctx = context.as_mut_ptr();
-            (*output).pad_idx = pad as c_int;
-            (*output).next = ptr::null_mut();
+            output.as_mut().name = av_strdup(name.as_ptr());
+            output.as_mut().filter_ctx = context.as_mut_ptr();
+            output.as_mut().pad_idx = pad as c_int;
+            output.as_mut().next = ptr::null_mut();
 
-            if self.outputs.is_null() {
-                self.outputs = output;
-            } else {
-                (*self.outputs).next = output;
-            }
+            append_inout(&mut self.outputs, output);
         }
 
         Ok(self)
@@ -213,6 +197,31 @@ impl<'a> Parser<'a> {
                 n if n >= 0 => Ok(()),
                 e => Err(Error::from(e)),
             }
+        }
+    }
+}
+
+fn append_inout(list: &mut *mut AVFilterInOut, element: NonNull<AVFilterInOut>) {
+    unsafe {
+        if list.is_null() {
+            *list = element.as_ptr();
+            return;
+        }
+
+        let mut curr = *list;
+        while !(*curr).next.is_null() {
+            curr = (*curr).next;
+        }
+
+        (*curr).next = element.as_ptr();
+    }
+}
+
+impl<'a> Drop for Parser<'a> {
+    fn drop(&mut self) {
+        unsafe {
+            avfilter_inout_free(&mut self.inputs);
+            avfilter_inout_free(&mut self.outputs);
         }
     }
 }

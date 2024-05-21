@@ -5,8 +5,8 @@ use std::ptr;
 use std::str::from_utf8_unchecked;
 
 use super::Flags;
-use ffi::*;
-use {codec, media};
+use crate::ffi::*;
+use crate::{codec, media};
 
 pub struct Output {
     ptr: *mut AVOutputFormat,
@@ -32,7 +32,15 @@ impl Output {
     }
 
     pub fn description(&self) -> &str {
-        unsafe { from_utf8_unchecked(CStr::from_ptr((*self.as_ptr()).long_name).to_bytes()) }
+        unsafe {
+            let long_name = (*self.as_ptr()).long_name;
+
+            if long_name.is_null() {
+                ""
+            } else {
+                from_utf8_unchecked(CStr::from_ptr(long_name).to_bytes())
+            }
+        }
     }
 
     pub fn extensions(&self) -> Vec<&str> {

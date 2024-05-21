@@ -1,17 +1,20 @@
 use std::ptr;
 
 use super::Delay;
-use ffi::*;
+use crate::ffi::*;
+use crate::util::format;
+use crate::Dictionary;
+use crate::{frame, ChannelLayoutMask, Error};
 use libc::c_int;
 use std::ffi::c_void;
-use util::format;
-use Dictionary;
-use {frame, ChannelLayout, Error};
+
+#[cfg(feature = "ffmpeg_5_1")]
+use crate::ChannelLayout;
 
 #[derive(Eq, PartialEq, Copy, Clone)]
 pub struct Definition {
     pub format: format::Sample,
-    pub channel_layout: ChannelLayout,
+    pub channel_layout: ChannelLayoutMask,
     pub rate: u32,
 }
 
@@ -38,12 +41,13 @@ impl Context {
 
 impl Context {
     /// Create a resampler with the given definitions.
+    #[cfg(not(feature = "ffmpeg_7_0"))]
     pub fn get(
         src_format: format::Sample,
-        src_channel_layout: ChannelLayout,
+        src_channel_layout: ChannelLayoutMask,
         src_rate: u32,
         dst_format: format::Sample,
-        dst_channel_layout: ChannelLayout,
+        dst_channel_layout: ChannelLayoutMask,
         dst_rate: u32,
     ) -> Result<Self, Error> {
         Self::get_with(
@@ -58,12 +62,13 @@ impl Context {
     }
 
     /// Create a resampler with the given definitions and custom options dictionary.
+    #[cfg(not(feature = "ffmpeg_7_0"))]
     pub fn get_with(
         src_format: format::Sample,
-        src_channel_layout: ChannelLayout,
+        src_channel_layout: ChannelLayoutMask,
         src_rate: u32,
         dst_format: format::Sample,
-        dst_channel_layout: ChannelLayout,
+        dst_channel_layout: ChannelLayoutMask,
         dst_rate: u32,
         options: Dictionary,
     ) -> Result<Self, Error> {
@@ -104,6 +109,90 @@ impl Context {
                         output: Definition {
                             format: dst_format,
                             channel_layout: dst_channel_layout,
+                            rate: dst_rate,
+                        },
+                    }),
+                }
+            } else {
+                Err(Error::InvalidData)
+            }
+        }
+    }
+
+    /// Create a resampler with the given definitions.
+    #[cfg(feature = "ffmpeg_5_1")]
+    pub fn get2(
+        src_format: format::Sample,
+        src_channel_layout: ChannelLayout,
+        src_rate: u32,
+        dst_format: format::Sample,
+        dst_channel_layout: ChannelLayout,
+        dst_rate: u32,
+    ) -> Result<Self, Error> {
+        Self::get_with2(
+            src_format,
+            src_channel_layout,
+            src_rate,
+            dst_format,
+            dst_channel_layout,
+            dst_rate,
+            Dictionary::new(),
+        )
+    }
+
+    /// Create a resampler with the given definitions and custom options dictionary.
+    #[cfg(feature = "ffmpeg_5_1")]
+    pub fn get_with2(
+        src_format: format::Sample,
+        src_channel_layout: ChannelLayout,
+        src_rate: u32,
+        dst_format: format::Sample,
+        dst_channel_layout: ChannelLayout,
+        dst_rate: u32,
+        options: Dictionary,
+    ) -> Result<Self, Error> {
+        unsafe {
+            let mut context_ptr = ptr::null_mut();
+            let res = swr_alloc_set_opts2(
+                ptr::addr_of_mut!(context_ptr),
+                dst_channel_layout.as_ptr() as _,
+                dst_format.into(),
+                dst_rate as c_int,
+                src_channel_layout.as_ptr() as _,
+                src_format.into(),
+                src_rate as c_int,
+                0,
+                ptr::null_mut(),
+            );
+
+            if res < 0 {
+                return Err(Error::from(res));
+            }
+
+            let mut opts = options.disown();
+            let res = av_opt_set_dict(context_ptr as *mut c_void, &mut opts);
+            Dictionary::own(opts);
+
+            if res != 0 {
+                return Err(Error::from(res));
+            }
+
+            if !context_ptr.is_null() {
+                match swr_init(context_ptr) {
+                    e if e < 0 => Err(Error::from(e)),
+
+                    _ => Ok(Context {
+                        ptr: context_ptr,
+
+                        input: Definition {
+                            format: src_format,
+                            channel_layout: src_channel_layout.mask().unwrap(),
+                            rate: src_rate,
+                        },
+
+                        output: Definition {
+                            format: dst_format,
+                            channel_layout: dst_channel_layout.mask().unwrap(),
                             rate: dst_rate,
                         },
                     }),

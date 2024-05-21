@@ -1,91 +1,69 @@
 mod traits;
 pub use self::traits::{Gettable, Iterable, Settable, Target};
 
-use ffi::AVOptionType::*;
-use ffi::*;
+use crate::ffi::*;
+use libc::c_uint;
 #[cfg(feature = "serialize")]
 use serde::{Deserialize, Serialize};
 
-#[derive(PartialEq, Eq, Copy, Clone, Debug)]
-#[cfg_attr(feature = "serialize", derive(Serialize, Deserialize))]
-pub enum Type {
-    Flags,
-    Int,
-    Int64,
-    Double,
-    Float,
-    String,
-    Rational,
-    Binary,
-    Dictionary,
-    Constant,
+bitflags! {
+    #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+    #[cfg_attr(feature = "serialize", derive(Serialize, Deserialize))]
+    pub struct Type: c_uint {
+        const FLAGS             = AVOptionType::AV_OPT_TYPE_FLAGS.0 as c_uint;
+        const INT               = AVOptionType::AV_OPT_TYPE_INT.0 as c_uint;
+        const INT64             = AVOptionType::AV_OPT_TYPE_INT64.0 as c_uint;
+        const DOUBLE            = AVOptionType::AV_OPT_TYPE_DOUBLE.0 as c_uint;
+        const FLOAT             = AVOptionType::AV_OPT_TYPE_FLOAT.0 as c_uint;
+        const STRING            = AVOptionType::AV_OPT_TYPE_STRING.0 as c_uint;
+        const RATIONAL          = AVOptionType::AV_OPT_TYPE_RATIONAL.0 as c_uint;
+        /// `offset` must point to a pointer immediately followed by an int
+        /// for the length.
+        const BINARY            = AVOptionType::AV_OPT_TYPE_BINARY.0 as c_uint;
+        const DICTIONARY        = AVOptionType::AV_OPT_TYPE_DICT.0 as c_uint;
+        const CONSTANT          = AVOptionType::AV_OPT_TYPE_CONST.0 as c_uint;
+        /// `offset` must point to two consecutive ints
+        const IMAGE_SIZE        = AVOptionType::AV_OPT_TYPE_IMAGE_SIZE.0 as c_uint;
+        const PIXEL_FORMAT      = AVOptionType::AV_OPT_TYPE_PIXEL_FMT.0 as c_uint;
+        const SAMPLE_FORMAT     = AVOptionType::AV_OPT_TYPE_SAMPLE_FMT.0 as c_uint;
+        /// `offset` must point to AVRational
+        const VIDEO_RATE        = AVOptionType::AV_OPT_TYPE_VIDEO_RATE.0 as c_uint;
+        const DURATION          = AVOptionType::AV_OPT_TYPE_DURATION.0 as c_uint;
+        const COLOR             = AVOptionType::AV_OPT_TYPE_COLOR.0 as c_uint;
+        #[cfg(not(feature = "ffmpeg_7_0"))]
+        const CHANNEL_LAYOUT    = AVOptionType::AV_OPT_TYPE_CHANNEL_LAYOUT.0 as c_uint;
+        #[cfg(feature = "ffmpeg_5_1")]
+        const CHLAYOUT          = AVOptionType::AV_OPT_TYPE_CHLAYOUT.0 as c_uint;
+        const C_ULONG           = AVOptionType::AV_OPT_TYPE_UINT64.0 as c_uint;
+        const BOOL              = AVOptionType::AV_OPT_TYPE_BOOL.0 as c_uint;
 
-    ImageSize,
-    PixelFormat,
-    SampleFormat,
-    VideoRate,
-    Duration,
-    Color,
-    ChannelLayout,
-    c_ulong,
-    bool,
+        /// May be combined with another regular option type to declare an
+        /// array option.
+        ///
+        /// For array options, `AVOption.offset` should refer to a pointer
+        /// corresponding to the option type. The pointer should be immediately
+        /// followed by an unsigned int that will store the number of elements
+        /// in the array.
+        #[cfg(feature = "ffmpeg_7_0")]
+        const FLAG_ARRAY        = AVOptionType::AV_OPT_TYPE_FLAG_ARRAY.0 as c_uint;
+    }
+}
+
+impl Default for Type {
+    fn default() -> Self {
+        Self::empty()
+    }
 }
 
 impl From<AVOptionType> for Type {
     fn from(value: AVOptionType) -> Self {
-        match value {
-            AV_OPT_TYPE_FLAGS => Type::Flags,
-            AV_OPT_TYPE_INT => Type::Int,
-            AV_OPT_TYPE_INT64 => Type::Int64,
-            AV_OPT_TYPE_DOUBLE => Type::Double,
-            AV_OPT_TYPE_FLOAT => Type::Float,
-            AV_OPT_TYPE_STRING => Type::String,
-            AV_OPT_TYPE_RATIONAL => Type::Rational,
-            AV_OPT_TYPE_BINARY => Type::Binary,
-            AV_OPT_TYPE_DICT => Type::Dictionary,
-            AV_OPT_TYPE_CONST => Type::Constant,
-            AV_OPT_TYPE_UINT64 => Type::c_ulong,
-            AV_OPT_TYPE_BOOL => Type::bool,
-
-            AV_OPT_TYPE_IMAGE_SIZE => Type::ImageSize,
-            AV_OPT_TYPE_PIXEL_FMT => Type::PixelFormat,
-            AV_OPT_TYPE_SAMPLE_FMT => Type::SampleFormat,
-            AV_OPT_TYPE_VIDEO_RATE => Type::VideoRate,
-            AV_OPT_TYPE_DURATION => Type::Duration,
-            AV_OPT_TYPE_COLOR => Type::Color,
-            AV_OPT_TYPE_CHANNEL_LAYOUT => Type::ChannelLayout,
-            #[cfg(feature = "ffmpeg_5_1")]
-            AV_OPT_TYPE_CHLAYOUT => Type::ChannelLayout,
-
-            #[cfg(feature = "non-exhaustive-enums")]
-            _ => unimplemented!(),
-        }
+        Self::from_bits_retain(value.0 as c_uint)
     }
 }
 
 impl From<Type> for AVOptionType {
     fn from(value: Type) -> AVOptionType {
-        match value {
-            Type::Flags => AV_OPT_TYPE_FLAGS,
-            Type::Int => AV_OPT_TYPE_INT,
-            Type::Int64 => AV_OPT_TYPE_INT64,
-            Type::Double => AV_OPT_TYPE_DOUBLE,
-            Type::Float => AV_OPT_TYPE_FLOAT,
-            Type::String => AV_OPT_TYPE_STRING,
-            Type::Rational => AV_OPT_TYPE_RATIONAL,
-            Type::Binary => AV_OPT_TYPE_BINARY,
-            Type::Dictionary => AV_OPT_TYPE_DICT,
-            Type::Constant => AV_OPT_TYPE_CONST,
-            Type::c_ulong => AV_OPT_TYPE_UINT64,
-            Type::bool => AV_OPT_TYPE_BOOL,
-
-            Type::ImageSize => AV_OPT_TYPE_IMAGE_SIZE,
-            Type::PixelFormat => AV_OPT_TYPE_PIXEL_FMT,
-            Type::SampleFormat => AV_OPT_TYPE_SAMPLE_FMT,
-            Type::VideoRate => AV_OPT_TYPE_VIDEO_RATE,
-            Type::Duration => AV_OPT_TYPE_DURATION,
-            Type::Color => AV_OPT_TYPE_COLOR,
-            Type::ChannelLayout => AV_OPT_TYPE_CHANNEL_LAYOUT,
-        }
+        // cast to whichever type the C enum uses
+        AVOptionType(value.bits() as _)
     }
 }

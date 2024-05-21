@@ -10,8 +10,8 @@ pub use self::audio::Audio;
 pub mod flag;
 pub use self::flag::Flags;
 
-use ffi::*;
-use {Dictionary, DictionaryRef};
+use crate::ffi::*;
+use crate::{Dictionary, DictionaryRef};
 
 #[derive(PartialEq, Eq, Copy, Clone, Debug)]
 pub struct Packet {
@@ -59,6 +59,16 @@ impl Frame {
     }
 
     #[inline(always)]
+    pub unsafe fn as_ref(&self) -> Option<&AVFrame> {
+        self.ptr.as_ref()
+    }
+
+    #[inline(always)]
+    pub unsafe fn as_mut(&mut self) -> Option<&mut AVFrame> {
+        self.ptr.as_mut()
+    }
+
+    #[inline(always)]
     pub unsafe fn is_empty(&self) -> bool {
         (*self.as_ptr()).data[0].is_null()
     }
@@ -79,7 +89,10 @@ impl Frame {
     pub fn packet(&self) -> Packet {
         unsafe {
             Packet {
+                #[cfg(not(feature = "ffmpeg_7_0"))]
                 duration: (*self.as_ptr()).pkt_duration as i64,
+                #[cfg(feature = "ffmpeg_7_0")]
+                duration: (*self.as_ptr()).duration as i64,
                 position: (*self.as_ptr()).pkt_pos as i64,
                 size: (*self.as_ptr()).pkt_size as usize,
 

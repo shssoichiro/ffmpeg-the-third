@@ -73,10 +73,14 @@ fn main() -> Result<(), ffmpeg::Error> {
                         println!("\tmax_rate: {}", audio.max_bit_rate());
                         println!("\tdelay: {}", audio.delay());
                         println!("\taudio.rate: {}", audio.rate());
-                        println!("\taudio.channels: {}", audio.channels());
                         println!("\taudio.format: {:?}", audio.format());
-                        println!("\taudio.frames: {}", audio.frames());
                         println!("\taudio.align: {}", audio.align());
+                        #[cfg(feature = "ffmpeg_5_1")]
+                        println!("\taudio.ch_layout: {:?}", audio.ch_layout());
+
+                        #[cfg(not(feature = "ffmpeg_5_1"))]
+                        println!("\taudio.channels: {}", audio.channels());
+                        #[cfg(not(feature = "ffmpeg_5_1"))]
                         println!("\taudio.channel_layout: {:?}", audio.channel_layout());
                     }
                 }

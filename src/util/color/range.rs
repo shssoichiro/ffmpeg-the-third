@@ -1,8 +1,8 @@
 use std::ffi::CStr;
 use std::str::from_utf8_unchecked;
 
-use ffi::AVColorRange::*;
-use ffi::*;
+use crate::ffi::AVColorRange::*;
+use crate::ffi::*;
 #[cfg(feature = "serialize")]
 use serde::{Deserialize, Serialize};
 

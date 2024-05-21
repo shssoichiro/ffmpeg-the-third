@@ -1,8 +1,8 @@
 [package]
 name = "ffmpeg-sys-the-third"
-version = "1.1.1+ffmpeg-6.0"
-build = "build.rs"
+version = "2.0.0+ffmpeg-7.0"
 links = "ffmpeg"
+edition = "2021"
 
 authors = [
     "meh. <meh@schizofreni.co>",
@@ -11,9 +11,15 @@ authors = [
 ]
 license = "WTFPL"
 
+include = ["LICENSE", "build.rs", "src/"]
+
 description = "FFI bindings to FFmpeg"
 repository = "https://github.com/shssoichiro/ffmpeg-the-third"
 keywords = ["audio", "video"]
+categories = ["multimedia", "external-ffi-bindings"]
+
+# When changing MSRV: Also update build.yml and README.md
+rust-version = "1.61.0"
 
 [lib]
 # Disable doctests as a workaround for https://github.com/rust-lang/rust-bindgen/issues/1313
@@ -23,11 +29,10 @@ doctest = false
 libc = "0.2"
 
 [build-dependencies]
-num_cpus = "1.11"
-clang = { version = "2.0.0", features = ["clang_3_9", "runtime"] }
 cc = "1.0"
 pkg-config = "0.3"
-bindgen = { version = "0.64", default-features = false, features = ["runtime"] }
+bindgen = { version = "0.69", default-features = false, features = ["runtime"] }
+clang = { version = "2.0.0", features = ["clang_3_9", "runtime"] }
 
 [target.'cfg(target_env = "msvc")'.build-dependencies]
 vcpkg = "0.2"
@@ -44,10 +49,26 @@ default = [
 ]
 
 static = []
-build = ["static"]
 
 # mark enums in generated bindings as #[non_exhaustive]
 non-exhaustive-enums = []
+
+# components
+avcodec = []
+avdevice = ["avformat"]
+avfilter = []
+avformat = ["avcodec"]
+avresample = []
+postproc = []
+swresample = []
+swscale = []
+
+#
+# Build-related features
+#
+
+# build FFmpeg when building this crate
+build = ["static"]
 
 # licensing
 build-license-gpl = ["build"]
@@ -112,13 +133,3 @@ build-lib-xvid = ["build"]
 # protocols
 build-lib-smbclient = ["build"]
 build-lib-ssh = ["build"]
-
-# components
-avcodec = []
-avdevice = ["avformat"]
-avfilter = []
-avformat = ["avcodec"]
-avresample = []
-postproc = []
-swresample = []
-swscale = []

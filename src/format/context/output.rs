@@ -3,13 +3,11 @@ use std::mem::size_of;
 use std::ops::{Deref, DerefMut};
 use std::ptr;
 
-use libc;
-
 use super::common::Context;
 use super::destructor;
-use codec::traits;
-use ffi::*;
-use {format, ChapterMut, Dictionary, Error, Rational, StreamMut};
+use crate::codec::traits;
+use crate::ffi::*;
+use crate::{format, ChapterMut, Dictionary, Error, Rational, StreamMut};
 
 pub struct Output {
     ptr: *mut AVFormatContext,

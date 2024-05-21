@@ -1,5 +1,5 @@
-use ffi::SwrDitherType::*;
-use ffi::*;
+use crate::ffi::SwrDitherType::*;
+use crate::ffi::*;
 #[cfg(feature = "serialize")]
 use serde::{Deserialize, Serialize};
 

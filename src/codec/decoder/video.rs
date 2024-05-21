@@ -1,19 +1,19 @@
 use std::ops::{Deref, DerefMut};
 
 #[cfg(not(feature = "ffmpeg_5_0"))]
-use ffi::*;
+use crate::ffi::*;
 use libc::c_int;
 
 use super::{slice, Opened};
-use codec::Context;
-use color;
+use crate::codec::Context;
+use crate::color;
 #[cfg(not(feature = "ffmpeg_5_0"))]
-use frame;
-use util::chroma;
-use util::format;
+use crate::frame;
+use crate::util::chroma;
+use crate::util::format;
 #[cfg(not(feature = "ffmpeg_5_0"))]
-use {packet, Error};
-use {FieldOrder, Rational};
+use crate::{packet, Error};
+use crate::{FieldOrder, Rational};
 
 pub struct Video(pub Opened);
 
@@ -84,6 +84,7 @@ impl Video {
         unsafe { chroma::Location::from((*self.as_ptr()).chroma_sample_location) }
     }
 
+    #[cfg(not(feature = "ffmpeg_7_0"))]
     pub fn set_slice_count(&mut self, value: usize) {
         unsafe {
             (*self.as_mut_ptr()).slice_count = value as c_int;

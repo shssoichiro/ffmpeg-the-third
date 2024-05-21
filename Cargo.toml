@@ -1,7 +1,7 @@
 [package]
 name = "ffmpeg-the-third"
-version = "1.2.2+ffmpeg-6.0"
-build = "build.rs"
+version = "2.0.1+ffmpeg-7.0"
+edition = "2021"
 
 authors = ["meh. <meh@schizofreni.co>", "Zhiming Wang <i@zhimingwang.org>"]
 license = "WTFPL"
@@ -10,9 +10,31 @@ description = "Safe FFmpeg wrapper (FFmpeg 4 compatible fork of the ffmpeg crate
 documentation = "https://docs.rs/ffmpeg-the-third"
 homepage = "https://github.com/shssoichiro/ffmpeg-the-third"
 repository = "https://github.com/shssoichiro/ffmpeg-the-third"
-readme = "README.md"
 keywords = ["ffmpeg", "multimedia", "video", "audio"]
 categories = ["multimedia"]
+
+include = ["LICENSE", "build.rs", "src/"]
+
+# When changing MSRV: Also update build.yml and README.md
+rust-version = "1.61.0"
+
+[dependencies]
+libc = "0.2"
+bitflags = "2.5"
+
+[dependencies.image]
+version = "0.25"
+optional = true
+
+[dependencies.ffmpeg-sys-the-third]
+version = "2.0.0"
+default-features = false
+path = "ffmpeg-sys-the-third"
+
+[dependencies.serde]
+version = "1.0.152"
+optional = true
+features = ["derive"]
 
 [features]
 default = [
@@ -25,13 +47,28 @@ default = [
     "non-exhaustive-enums",
 ]
 
+serialize = ["serde"]
 static = ["ffmpeg-sys-the-third/static"]
-build = ["static", "ffmpeg-sys-the-third/build"]
 
 # mark enums in generated bindings as #[non_exhaustive]
 non-exhaustive-enums = ["ffmpeg-sys-the-third/non-exhaustive-enums"]
 
-serialize = ["serde"]
+# components
+codec = ["ffmpeg-sys-the-third/avcodec"]
+device = ["ffmpeg-sys-the-third/avdevice", "format"]
+filter = ["ffmpeg-sys-the-third/avfilter"]
+format = ["ffmpeg-sys-the-third/avformat", "codec"]
+resampling = ["ffmpeg-sys-the-third/avresample"]
+postprocessing = ["ffmpeg-sys-the-third/postproc"]
+software-resampling = ["ffmpeg-sys-the-third/swresample"]
+software-scaling = ["ffmpeg-sys-the-third/swscale", "codec"]
+
+#
+# Build-related features
+#
+
+# build FFmpeg when building this crate
+build = ["static", "ffmpeg-sys-the-third/build"]
 
 # licensing
 build-license-gpl = ["ffmpeg-sys-the-third/build-license-gpl"]
@@ -95,35 +132,5 @@ build-lib-xvid = ["ffmpeg-sys-the-third/build-lib-xvid"]
 build-lib-smbclient = ["ffmpeg-sys-the-third/build-lib-smbclient"]
 build-lib-ssh = ["ffmpeg-sys-the-third/build-lib-ssh"]
 
-# components
-codec = ["ffmpeg-sys-the-third/avcodec"]
-device = ["ffmpeg-sys-the-third/avdevice", "format"]
-filter = ["ffmpeg-sys-the-third/avfilter"]
-format = ["ffmpeg-sys-the-third/avformat", "codec"]
-resampling = ["ffmpeg-sys-the-third/avresample"]
-postprocessing = ["ffmpeg-sys-the-third/postproc"]
-software-resampling = ["ffmpeg-sys-the-third/swresample"]
-software-scaling = ["ffmpeg-sys-the-third/swscale", "codec"]
-
 # platforms
 rpi = []
-
-[dependencies]
-libc = "0.2"
-bitflags = "1.2"
-
-[dependencies.image]
-version = "0.24"
-optional = true
-
-[dependencies.ffmpeg-sys-the-third]
-version = "1.1.0"
-default-features = false
-
-[dependencies.serde]
-version = "1.0.152"
-optional = true
-features = ["derive"]
-
-[patch.crates-io]
-ffmpeg-sys-the-third = { path = "ffmpeg-sys-the-third" }

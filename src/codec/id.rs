@@ -1,11 +1,11 @@
 use std::ffi::CStr;
 use std::str::from_utf8_unchecked;
 
-use ffi::AVCodecID::*;
-use ffi::*;
+use crate::ffi::AVCodecID::*;
+use crate::ffi::*;
+use crate::util::media;
 #[cfg(feature = "serialize")]
 use serde::{Deserialize, Serialize};
-use util::media;
 
 #[allow(non_camel_case_types)]
 #[derive(Eq, PartialEq, Clone, Copy, Debug)]
@@ -214,6 +214,7 @@ pub enum Id {
     AVRP,
     V012,
     AVUI,
+    #[cfg(not(feature = "ffmpeg_7_0"))]
     AYUV,
     TARGA_Y216,
     V308,
@@ -647,6 +648,25 @@ pub enum Id {
     VNULL,
     #[cfg(feature = "ffmpeg_6_0")]
     ANULL,
+
+    #[cfg(feature = "ffmpeg_6_1")]
+    PDV,
+    #[cfg(feature = "ffmpeg_6_1")]
+    EVC,
+    #[cfg(feature = "ffmpeg_6_1")]
+    RTV1,
+    #[cfg(feature = "ffmpeg_6_1")]
+    VMIX,
+    #[cfg(feature = "ffmpeg_7_0")]
+    LEAD,
+    #[cfg(feature = "ffmpeg_6_1")]
+    AC4,
+    #[cfg(feature = "ffmpeg_6_1")]
+    OSQ,
+    #[cfg(feature = "ffmpeg_7_0")]
+    QOA,
+    #[cfg(feature = "ffmpeg_6_1")]
+    SMPTE_2038,
 }
 
 impl Id {
@@ -866,6 +886,7 @@ impl From<AVCodecID> for Id {
             AV_CODEC_ID_AVRP => Id::AVRP,
             AV_CODEC_ID_012V => Id::V012,
             AV_CODEC_ID_AVUI => Id::AVUI,
+            #[cfg(not(feature = "ffmpeg_7_0"))]
             AV_CODEC_ID_AYUV => Id::AYUV,
             AV_CODEC_ID_TARGA_Y216 => Id::TARGA_Y216,
             AV_CODEC_ID_V308 => Id::V308,
@@ -1299,6 +1320,25 @@ impl From<AVCodecID> for Id {
             #[cfg(feature = "ffmpeg_6_0")]
             AV_CODEC_ID_ANULL => Id::ANULL,
 
+            #[cfg(feature = "ffmpeg_6_1")]
+            AV_CODEC_ID_PDV => Id::PDV,
+            #[cfg(feature = "ffmpeg_6_1")]
+            AV_CODEC_ID_EVC => Id::EVC,
+            #[cfg(feature = "ffmpeg_6_1")]
+            AV_CODEC_ID_RTV1 => Id::RTV1,
+            #[cfg(feature = "ffmpeg_6_1")]
+            AV_CODEC_ID_VMIX => Id::VMIX,
+            #[cfg(feature = "ffmpeg_7_0")]
+            AV_CODEC_ID_LEAD => Id::LEAD,
+            #[cfg(feature = "ffmpeg_6_1")]
+            AV_CODEC_ID_AC4 => Id::AC4,
+            #[cfg(feature = "ffmpeg_6_1")]
+            AV_CODEC_ID_OSQ => Id::OSQ,
+            #[cfg(feature = "ffmpeg_7_0")]
+            AV_CODEC_ID_QOA => Id::QOA,
+            #[cfg(feature = "ffmpeg_6_1")]
+            AV_CODEC_ID_SMPTE_2038 => Id::SMPTE_2038,
+
             #[cfg(feature = "non-exhaustive-enums")]
             _ => unimplemented!(),
         }
@@ -1511,6 +1551,7 @@ impl From<Id> for AVCodecID {
             Id::AVRP => AV_CODEC_ID_AVRP,
             Id::V012 => AV_CODEC_ID_012V,
             Id::AVUI => AV_CODEC_ID_AVUI,
+            #[cfg(not(feature = "ffmpeg_7_0"))]
             Id::AYUV => AV_CODEC_ID_AYUV,
             Id::TARGA_Y216 => AV_CODEC_ID_TARGA_Y216,
             Id::V308 => AV_CODEC_ID_V308,
@@ -1944,6 +1985,24 @@ impl From<Id> for AVCodecID {
             Id::VNULL => AV_CODEC_ID_VNULL,
             #[cfg(feature = "ffmpeg_6_0")]
             Id::ANULL => AV_CODEC_ID_ANULL,
+            #[cfg(feature = "ffmpeg_6_1")]
+            Id::PDV => AV_CODEC_ID_PDV,
+            #[cfg(feature = "ffmpeg_6_1")]
+            Id::EVC => AV_CODEC_ID_EVC,
+            #[cfg(feature = "ffmpeg_6_1")]
+            Id::RTV1 => AV_CODEC_ID_RTV1,
+            #[cfg(feature = "ffmpeg_6_1")]
+            Id::VMIX => AV_CODEC_ID_VMIX,
+            #[cfg(feature = "ffmpeg_7_0")]
+            Id::LEAD => AV_CODEC_ID_LEAD,
+            #[cfg(feature = "ffmpeg_6_1")]
+            Id::AC4 => AV_CODEC_ID_AC4,
+            #[cfg(feature = "ffmpeg_6_1")]
+            Id::OSQ => AV_CODEC_ID_OSQ,
+            #[cfg(feature = "ffmpeg_7_0")]
+            Id::QOA => AV_CODEC_ID_QOA,
+            #[cfg(feature = "ffmpeg_6_1")]
+            Id::SMPTE_2038 => AV_CODEC_ID_SMPTE_2038,
         }
     }
 }
