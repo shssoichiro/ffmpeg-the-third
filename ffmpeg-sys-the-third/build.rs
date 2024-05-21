@@ -744,25 +744,26 @@ fn check_features(include_paths: &[PathBuf]) {
     let tu = index
         .parser("check.c")
         .arguments(&include_args)
+        .detailed_preprocessing_record(true)
         .unsaved(&[clang::Unsaved::new("check.c", &includes_code)])
         .parse()
         .expect("Unable to parse unsaved file");
 
     for def in clang::sonar::find_definitions(tu.get_entity().get_children()) {
-        let clang::sonar::DefinitionValue::Integer(value_bool, value_int) = def.value else {
+        let clang::sonar::DefinitionValue::Integer(_, value) = def.value else {
             continue;
         };
         let name = def.name.as_str();
         if let Some(val) = features_defined_enabled.get_mut(name) {
-            *val = (true, value_bool);
+            *val = (true, value != 0);
         } else if let Some(name) = name.strip_prefix("LIB") {
             if let Some(name) = name.strip_suffix("_VERSION_MAJOR") {
                 if let Some(ver) = versions.get_mut(name.to_lowercase().as_str()) {
-                    ver.0 = value_int;
+                    ver.0 = value;
                 }
             } else if let Some(name) = name.strip_suffix("_VERSION_MINOR") {
                 if let Some(ver) = versions.get_mut(name.to_lowercase().as_str()) {
-                    ver.1 = value_int;
+                    ver.1 = value;
                 }
             }
         }
