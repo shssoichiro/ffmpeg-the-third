@@ -231,7 +231,6 @@ static AVFORMAT_FEATURES: &[AVFeature] = &[
     AVFeature::new("ALLOW_FLUSH"),
     AVFeature::new("AVSTREAM_SIDE_DATA"),
     AVFeature::new("GET_DUR_ESTIMATE_METHOD"),
-    AVFeature::new("R_FRAME_RATE"),
 ];
 
 static AVDEVICE_FEATURES: &[AVFeature] = &[
@@ -722,14 +721,20 @@ fn check_features(include_paths: &[PathBuf]) {
 
     let enabled_libraries = || LIBRARIES.iter().filter(|lib| lib.enabled());
 
-    let mut includes_code = String::new();
+    let mut code = String::new();
     for lib in enabled_libraries() {
-        let _ = writeln!(includes_code, "#include <lib{}/{}.h>", lib.name, lib.name);
+        let _ = writeln!(code, "#include <lib{}/{}.h>", lib.name, lib.name);
     }
 
     let mut features_defined_enabled = enabled_libraries()
         .flat_map(|lib| lib.features)
-        .map(|feature| (format!("FF_API_{}", feature.name), (false, false)))
+        .map(|feature| {
+            let feature_name = format!("FF_API_{}", feature.name);
+            let _ = writeln!(code, "#ifdef {feature_name}");
+            let _ = writeln!(code, "    int {} = {feature_name};", feature_name.to_lowercase());
+            let _ = writeln!(code, "#endif");
+            (feature_name.to_lowercase(), (false, false))
+        })
         .collect::<HashMap<_, _>>();
 
     let mut versions = enabled_libraries()
@@ -745,18 +750,28 @@ fn check_features(include_paths: &[PathBuf]) {
         .parser("check.c")
         .arguments(&include_args)
         .detailed_preprocessing_record(true)
-        .unsaved(&[clang::Unsaved::new("check.c", &includes_code)])
+        .unsaved(&[clang::Unsaved::new("check.c", &code)])
         .parse()
-        .expect("Unable to parse unsaved file");
+        .expect("Unable to parse generated file");
+
+    tu.get_entity().visit_children(|entity, _parent| {
+        if let Some(name) = entity.get_name() {
+            if entity.get_kind() == clang::EntityKind::VarDecl && name.starts_with("ff_api") {
+                if let Some(clang::EvaluationResult::SignedInteger(value)) = entity.evaluate() {
+                    if let Some(val) = features_defined_enabled.get_mut(&name) {
+                        *val = (true, value != 0);
+                    }
+                }
+            }
+        }
+        clang::EntityVisitResult::Continue
+    });
 
     for def in clang::sonar::find_definitions(tu.get_entity().get_children()) {
         let clang::sonar::DefinitionValue::Integer(_, value) = def.value else {
             continue;
         };
-        let name = def.name.as_str();
-        if let Some(val) = features_defined_enabled.get_mut(name) {
-            *val = (true, value != 0);
-        } else if let Some(name) = name.strip_prefix("LIB") {
+        if let Some(name) = def.name.strip_prefix("LIB") {
             if let Some(name) = name.strip_suffix("_VERSION_MAJOR") {
                 if let Some(ver) = versions.get_mut(name.to_lowercase().as_str()) {
                     ver.0 = value;
