@@ -32,6 +32,7 @@ libc = "0.2"
 cc = "1.0"
 pkg-config = "0.3"
 bindgen = { version = "0.69", default-features = false, features = ["runtime"] }
+clang = { version = "2.0.0", features = ["clang_3_9", "runtime"] }
 
 [target.'cfg(target_env = "msvc")'.build-dependencies]
 vcpkg = "0.2"
