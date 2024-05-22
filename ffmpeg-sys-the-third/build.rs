@@ -731,7 +731,11 @@ fn check_features(include_paths: &[PathBuf]) {
         .map(|feature| {
             let feature_name = format!("FF_API_{}", feature.name);
             let _ = writeln!(code, "#ifdef {feature_name}");
-            let _ = writeln!(code, "    int {} = {feature_name};", feature_name.to_lowercase());
+            let _ = writeln!(
+                code,
+                "    int {} = {feature_name};",
+                feature_name.to_lowercase()
+            );
             let _ = writeln!(code, "#endif");
             (feature_name.to_lowercase(), (false, false))
         })
