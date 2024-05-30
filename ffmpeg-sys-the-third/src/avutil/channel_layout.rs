@@ -311,6 +311,7 @@ pub const AV_CHANNEL_LAYOUT_7POINT1_TOP_BACK: AVChannelLayout =
 #[cfg(test)]
 mod test {
     use super::*;
+    use libc::c_char;
 
     // TODO: Missing: Ambisonic layout
 
@@ -330,15 +331,15 @@ mod test {
     };
 
     // TODO: Replace with cstr literals when MSRV is 1.77
-    const fn c_string<const N: usize, const K: usize>(byte_str: &[u8; N]) -> [i8; K] {
+    const fn c_string<const N: usize, const K: usize>(byte_str: &[u8; N]) -> [c_char; K] {
         // Need at least one NUL byte at the end
         assert!(N < K, "input string is too long (max 15 char)");
 
-        let mut result = [0i8; K];
+        let mut result = [0; K];
         let mut i = 0;
 
         while i < N {
-            result[i] = byte_str[i] as i8;
+            result[i] = byte_str[i] as c_char;
             i += 1;
         }
 

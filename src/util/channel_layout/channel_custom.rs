@@ -1,3 +1,5 @@
+use libc::c_char;
+
 use crate::ffi::{AVChannel, AVChannelCustom};
 
 use super::Channel;
@@ -30,12 +32,12 @@ impl ChannelCustom {
     }
 }
 
-fn to_char_array(bytes: &[u8]) -> [i8; 16] {
-    let mut result = [0i8; 16];
+fn to_char_array(bytes: &[u8]) -> [c_char; 16] {
+    let mut result = [0; 16];
 
     // Only take the first 15 bytes, leaving at least one NUL byte
     for (b, r) in bytes.iter().take(15).zip(&mut result) {
-        *r = *b as i8;
+        *r = *b as c_char;
     }
 
     result
