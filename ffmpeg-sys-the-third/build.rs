@@ -719,6 +719,8 @@ fn check_features(include_paths: &[PathBuf]) {
     let clang = clang::Clang::new().expect("Cannot find clang");
     let index = clang::Index::new(&clang, false, false);
 
+    println!("loaded clang version: {}", clang::get_version());
+
     let enabled_libraries = || LIBRARIES.iter().filter(|lib| lib.enabled());
 
     let mut code = String::new();
