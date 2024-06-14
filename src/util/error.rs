@@ -9,23 +9,6 @@ use libc::{c_char, c_int};
 #[cfg(feature = "serialize")]
 use serde::{Deserialize, Serialize};
 
-// Export POSIX error codes so that users can do something like
-//
-//   if error == (Error::Other { errno: EAGAIN }) {
-//       ...
-//   }
-pub use libc::{
-    E2BIG, EACCES, EADDRINUSE, EADDRNOTAVAIL, EAFNOSUPPORT, EAGAIN, EALREADY, EBADF, EBADMSG,
-    EBUSY, ECANCELED, ECHILD, ECONNABORTED, ECONNREFUSED, ECONNRESET, EDEADLK, EDESTADDRREQ, EDOM,
-    EEXIST, EFAULT, EFBIG, EHOSTUNREACH, EIDRM, EILSEQ, EINPROGRESS, EINTR, EINVAL, EIO, EISCONN,
-    EISDIR, ELOOP, EMFILE, EMLINK, EMSGSIZE, ENAMETOOLONG, ENETDOWN, ENETRESET, ENETUNREACH,
-    ENFILE, ENOBUFS, ENODATA, ENODEV, ENOENT, ENOEXEC, ENOLCK, ENOLINK, ENOMEM, ENOMSG,
-    ENOPROTOOPT, ENOSPC, ENOSR, ENOSTR, ENOSYS, ENOTCONN, ENOTDIR, ENOTEMPTY, ENOTRECOVERABLE,
-    ENOTSOCK, ENOTSUP, ENOTTY, ENXIO, EOPNOTSUPP, EOVERFLOW, EOWNERDEAD, EPERM, EPIPE, EPROTO,
-    EPROTONOSUPPORT, EPROTOTYPE, ERANGE, EROFS, ESPIPE, ESRCH, ETIME, ETIMEDOUT, ETXTBSY,
-    EWOULDBLOCK, EXDEV,
-};
-
 #[derive(Copy, Clone, PartialEq, Eq)]
 #[cfg_attr(feature = "serialize", derive(Serialize, Deserialize))]
 pub enum Error {
@@ -352,6 +335,7 @@ pub fn register_all() {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use libc::EAGAIN;
 
     #[test]
     fn test_error_roundtrip() {
