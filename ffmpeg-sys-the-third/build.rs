@@ -790,19 +790,20 @@ fn check_features(include_paths: &[PathBuf]) {
     }
 
     for (var, (var_defined, var_enabled)) in features_defined_enabled {
+        // Every possible feature needs an unconditional check-cfg to prevent warnings
+        println!(r#"cargo:rustc-check-cfg=cfg(feature, values("{}"))"#, var);
+        println!(r#"cargo:check_{}=true"#, var);
+
         if var_enabled {
-            println!(r#"cargo:rustc-cfg=feature="{}""#, var.to_lowercase());
-            println!(r#"cargo:{}=true"#, var.to_lowercase());
+            println!(r#"cargo:rustc-cfg=feature="{}""#, var);
+            println!(r#"cargo:{}=true"#, var);
         }
 
         // Also find out if defined or not (useful for cases where only the definition of a macro
         // can be used as distinction)
         if var_defined {
-            println!(
-                r#"cargo:rustc-cfg=feature="{}_is_defined""#,
-                var.to_lowercase()
-            );
-            println!(r#"cargo:{}_is_defined=true"#, var.to_lowercase());
+            println!(r#"cargo:rustc-cfg=feature="{}_is_defined""#, var);
+            println!(r#"cargo:{}_is_defined=true"#, var);
         }
     }
 
@@ -852,7 +853,10 @@ fn check_features(include_paths: &[PathBuf]) {
 
     for &(ffmpeg_version_flag, lavc_version_major, lavc_version_minor) in &ffmpeg_lavc_versions {
         // Every possible feature needs an unconditional check-cfg to prevent warnings
-        println!(r#"cargo:rustc-check-cfg=cfg(feature, values("{}"))"#, ffmpeg_version_flag);
+        println!(
+            r#"cargo:rustc-check-cfg=cfg(feature, values("{}"))"#,
+            ffmpeg_version_flag
+        );
         println!(r#"cargo:check_{}=true"#, ffmpeg_version_flag);
 
         if lavc_version >= (lavc_version_major, lavc_version_minor) {
