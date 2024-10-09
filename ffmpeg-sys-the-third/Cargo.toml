@@ -1,6 +1,6 @@
 [package]
 name = "ffmpeg-sys-the-third"
-version = "2.0.0+ffmpeg-7.0"
+version = "2.1.0+ffmpeg-7.1"
 links = "ffmpeg"
 edition = "2021"
 
@@ -19,7 +19,7 @@ keywords = ["audio", "video"]
 categories = ["multimedia", "external-ffi-bindings"]
 
 # When changing MSRV: Also update build.yml and README.md
-rust-version = "1.61.0"
+rust-version = "1.65.0"
 
 [lib]
 # Disable doctests as a workaround for https://github.com/rust-lang/rust-bindgen/issues/1313

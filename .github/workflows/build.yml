@@ -175,8 +175,8 @@ jobs:
           apt-get update
           apt-get install -y --no-install-recommends clang curl pkg-config
       # rust-version from Cargo.toml
-      - name: Install Rust 1.61.0
-        uses: dtolnay/rust-toolchain@1.61.0
+      - name: Install Rust 1.65.0
+        uses: dtolnay/rust-toolchain@1.65.0
       - uses: Swatinem/rust-cache@v2
         with:
           prefix-key: "v2-rust"
