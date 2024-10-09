@@ -137,6 +137,15 @@ pub const AV_CH_BOTTOM_FRONT_CENTER: u64 = 1 << (AV_CHAN_BOTTOM_FRONT_CENTER as 
 pub const AV_CH_BOTTOM_FRONT_LEFT: u64 = 1 << (AV_CHAN_BOTTOM_FRONT_LEFT as i32);
 pub const AV_CH_BOTTOM_FRONT_RIGHT: u64 = 1 << (AV_CHAN_BOTTOM_FRONT_RIGHT as i32);
 
+#[cfg(feature = "ffmpeg_7_1")]
+pub const AV_CH_SIDE_SURROUND_LEFT: u64 = 1 << (AV_CHAN_SIDE_SURROUND_LEFT as i32);
+#[cfg(feature = "ffmpeg_7_1")]
+pub const AV_CH_SIDE_SURROUND_RIGHT: u64 = 1 << (AV_CHAN_SIDE_SURROUND_RIGHT as i32);
+#[cfg(feature = "ffmpeg_7_1")]
+pub const AV_CH_TOP_SURROUND_LEFT: u64 = 1 << (AV_CHAN_TOP_SURROUND_LEFT as i32);
+#[cfg(feature = "ffmpeg_7_1")]
+pub const AV_CH_TOP_SURROUND_RIGHT: u64 = 1 << (AV_CHAN_TOP_SURROUND_RIGHT as i32);
+
 // Audio channel layouts
 pub const AV_CH_LAYOUT_MONO: u64 = AV_CH_FRONT_CENTER;
 pub const AV_CH_LAYOUT_STEREO: u64 = AV_CH_FRONT_LEFT | AV_CH_FRONT_RIGHT;
