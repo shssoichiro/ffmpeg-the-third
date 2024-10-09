@@ -121,6 +121,9 @@ static AVUTIL_FEATURES: &[AVFeature] = &[
     AVFeature::new("PALETTE_HAS_CHANGED"),
     AVFeature::new("VULKAN_CONTIGUOUS_MEMORY"),
     AVFeature::new("H274_FILM_GRAIN_VCS"),
+    AVFeature::new("MOD_UINTP2"),
+    AVFeature::new("RISCV_FD_ZBA"),
+    AVFeature::new("VULKAN_FIXED_QUEUES"),
 ];
 
 static AVCODEC_FEATURES: &[AVFeature] = &[
@@ -209,6 +212,7 @@ static AVCODEC_FEATURES: &[AVFeature] = &[
     AVFeature::new("AVCODEC_CLOSE"),
     AVFeature::new("BUFFER_MIN_SIZE"),
     AVFeature::new("VDPAU_ALLOC_GET_SET"),
+    AVFeature::new("QUALITY_FACTOR"),
 ];
 
 static AVFORMAT_FEATURES: &[AVFeature] = &[
@@ -231,6 +235,7 @@ static AVFORMAT_FEATURES: &[AVFeature] = &[
     AVFeature::new("ALLOW_FLUSH"),
     AVFeature::new("AVSTREAM_SIDE_DATA"),
     AVFeature::new("GET_DUR_ESTIMATE_METHOD"),
+    AVFeature::new("INTERNAL_TIMING"),
 ];
 
 static AVDEVICE_FEATURES: &[AVFeature] = &[
