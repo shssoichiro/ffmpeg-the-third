@@ -64,6 +64,11 @@ pub enum Type {
 
     #[cfg(feature = "ffmpeg_6_1")]
     VIDEO_HINT,
+
+    #[cfg(feature = "ffmpeg_7_1")]
+    LCEVC,
+    #[cfg(feature = "ffmpeg_7_1")]
+    ViewId,
 }
 
 impl Type {
@@ -130,6 +135,11 @@ impl From<AVFrameSideDataType> for Type {
             #[cfg(feature = "ffmpeg_6_1")]
             AV_FRAME_DATA_VIDEO_HINT => Type::VIDEO_HINT,
 
+            #[cfg(feature = "ffmpeg_7_1")]
+            AV_FRAME_DATA_LCEVC => Type::LCEVC,
+            #[cfg(feature = "ffmpeg_7_1")]
+            AV_FRAME_DATA_VIEW_ID => Type::ViewId,
+
             #[cfg(feature = "non-exhaustive-enums")]
             _ => unimplemented!(),
         }
@@ -190,6 +200,11 @@ impl From<Type> for AVFrameSideDataType {
 
             #[cfg(feature = "ffmpeg_6_1")]
             Type::VIDEO_HINT => AV_FRAME_DATA_VIDEO_HINT,
+
+            #[cfg(feature = "ffmpeg_7_1")]
+            Type::LCEVC => AV_FRAME_DATA_LCEVC,
+            #[cfg(feature = "ffmpeg_7_1")]
+            Type::ViewId => AV_FRAME_DATA_VIEW_ID,
         }
     }
 }
