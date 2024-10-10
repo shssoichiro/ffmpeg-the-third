@@ -116,8 +116,6 @@ pub enum Pixel {
     YUV444P10LE,
     YUV422P9BE,
     YUV422P9LE,
-    #[cfg(not(feature = "ffmpeg_4_0"))]
-    VDA_VLD,
 
     GBRP,
     GBRP9BE,
@@ -160,9 +158,6 @@ pub enum Pixel {
     BGRA64LE,
 
     YVYU422,
-
-    #[cfg(not(feature = "ffmpeg_4_0"))]
-    VDA,
 
     YA16BE,
     YA16LE,
@@ -225,7 +220,7 @@ pub enum Pixel {
     VIDEOTOOLBOX,
 
     // --- defaults
-    #[cfg(all(feature = "ffmpeg_4_0", not(feature = "ffmpeg_7_0")))]
+    #[cfg(not(feature = "ffmpeg_7_0"))]
     XVMC,
 
     RGB32,
@@ -313,29 +308,18 @@ pub enum Pixel {
     GBRAPF32LE,
     DRM_PRIME,
 
-    #[cfg(feature = "ffmpeg_4_0")]
     OPENCL,
 
-    #[cfg(feature = "ffmpeg_4_1")]
     GRAY14BE,
-    #[cfg(feature = "ffmpeg_4_1")]
     GRAY14LE,
-    #[cfg(feature = "ffmpeg_4_1")]
     GRAYF32BE,
-    #[cfg(feature = "ffmpeg_4_1")]
     GRAYF32LE,
 
-    #[cfg(feature = "ffmpeg_4_2")]
     YUVA422P12BE,
-    #[cfg(feature = "ffmpeg_4_2")]
     YUVA422P12LE,
-    #[cfg(feature = "ffmpeg_4_2")]
     YUVA444P12BE,
-    #[cfg(feature = "ffmpeg_4_2")]
     YUVA444P12LE,
-    #[cfg(feature = "ffmpeg_4_2")]
     NV24,
-    #[cfg(feature = "ffmpeg_4_2")]
     NV42,
 
     #[cfg(feature = "ffmpeg_4_3")]
@@ -501,7 +485,7 @@ impl From<AVPixelFormat> for Pixel {
             AV_PIX_FMT_YUVJ420P => Pixel::YUVJ420P,
             AV_PIX_FMT_YUVJ422P => Pixel::YUVJ422P,
             AV_PIX_FMT_YUVJ444P => Pixel::YUVJ444P,
-            #[cfg(all(feature = "ffmpeg_4_0", not(feature = "ffmpeg_7_0")))]
+            #[cfg(not(feature = "ffmpeg_7_0"))]
             AV_PIX_FMT_XVMC => Pixel::XVMC,
             #[cfg(all(feature = "ff_api_xvmc", not(feature = "ffmpeg_5_0")))]
             AV_PIX_FMT_XVMC_MPEG2_MC => Pixel::XVMC_MPEG2_MC,
@@ -591,8 +575,6 @@ impl From<AVPixelFormat> for Pixel {
             AV_PIX_FMT_YUV444P10LE => Pixel::YUV444P10LE,
             AV_PIX_FMT_YUV422P9BE => Pixel::YUV422P9BE,
             AV_PIX_FMT_YUV422P9LE => Pixel::YUV422P9LE,
-            #[cfg(not(feature = "ffmpeg_4_0"))]
-            AV_PIX_FMT_VDA_VLD => Pixel::VDA_VLD,
 
             AV_PIX_FMT_GBRP => Pixel::GBRP,
             AV_PIX_FMT_GBRP9BE => Pixel::GBRP9BE,
@@ -635,9 +617,6 @@ impl From<AVPixelFormat> for Pixel {
             AV_PIX_FMT_BGRA64LE => Pixel::BGRA64LE,
 
             AV_PIX_FMT_YVYU422 => Pixel::YVYU422,
-
-            #[cfg(not(feature = "ffmpeg_4_0"))]
-            AV_PIX_FMT_VDA => Pixel::VDA,
 
             AV_PIX_FMT_YA16BE => Pixel::YA16BE,
             AV_PIX_FMT_YA16LE => Pixel::YA16LE,
@@ -724,29 +703,18 @@ impl From<AVPixelFormat> for Pixel {
             AV_PIX_FMT_GBRAPF32LE => Pixel::GBRAPF32LE,
             AV_PIX_FMT_DRM_PRIME => Pixel::DRM_PRIME,
 
-            #[cfg(feature = "ffmpeg_4_0")]
             AV_PIX_FMT_OPENCL => Pixel::OPENCL,
 
-            #[cfg(feature = "ffmpeg_4_1")]
             AV_PIX_FMT_GRAY14BE => Pixel::GRAY14BE,
-            #[cfg(feature = "ffmpeg_4_1")]
             AV_PIX_FMT_GRAY14LE => Pixel::GRAY14LE,
-            #[cfg(feature = "ffmpeg_4_1")]
             AV_PIX_FMT_GRAYF32BE => Pixel::GRAYF32BE,
-            #[cfg(feature = "ffmpeg_4_1")]
             AV_PIX_FMT_GRAYF32LE => Pixel::GRAYF32LE,
 
-            #[cfg(feature = "ffmpeg_4_2")]
             AV_PIX_FMT_YUVA422P12BE => Pixel::YUVA422P12BE,
-            #[cfg(feature = "ffmpeg_4_2")]
             AV_PIX_FMT_YUVA422P12LE => Pixel::YUVA422P12LE,
-            #[cfg(feature = "ffmpeg_4_2")]
             AV_PIX_FMT_YUVA444P12BE => Pixel::YUVA444P12BE,
-            #[cfg(feature = "ffmpeg_4_2")]
             AV_PIX_FMT_YUVA444P12LE => Pixel::YUVA444P12LE,
-            #[cfg(feature = "ffmpeg_4_2")]
             AV_PIX_FMT_NV24 => Pixel::NV24,
-            #[cfg(feature = "ffmpeg_4_2")]
             AV_PIX_FMT_NV42 => Pixel::NV42,
 
             #[cfg(feature = "ffmpeg_4_3")]
@@ -959,8 +927,6 @@ impl From<Pixel> for AVPixelFormat {
             Pixel::YUV444P10LE => AV_PIX_FMT_YUV444P10LE,
             Pixel::YUV422P9BE => AV_PIX_FMT_YUV422P9BE,
             Pixel::YUV422P9LE => AV_PIX_FMT_YUV422P9LE,
-            #[cfg(not(feature = "ffmpeg_4_0"))]
-            Pixel::VDA_VLD => AV_PIX_FMT_VDA_VLD,
 
             Pixel::GBRP => AV_PIX_FMT_GBRP,
             Pixel::GBRP9BE => AV_PIX_FMT_GBRP9BE,
@@ -1003,9 +969,6 @@ impl From<Pixel> for AVPixelFormat {
             Pixel::BGRA64LE => AV_PIX_FMT_BGRA64LE,
 
             Pixel::YVYU422 => AV_PIX_FMT_YVYU422,
-
-            #[cfg(not(feature = "ffmpeg_4_0"))]
-            Pixel::VDA => AV_PIX_FMT_VDA,
 
             Pixel::YA16BE => AV_PIX_FMT_YA16BE,
             Pixel::YA16LE => AV_PIX_FMT_YA16LE,
@@ -1068,7 +1031,7 @@ impl From<Pixel> for AVPixelFormat {
             Pixel::VIDEOTOOLBOX => AV_PIX_FMT_VIDEOTOOLBOX,
 
             // --- defaults
-            #[cfg(all(feature = "ffmpeg_4_0", not(feature = "ffmpeg_7_0")))]
+            #[cfg(not(feature = "ffmpeg_7_0"))]
             Pixel::XVMC => AV_PIX_FMT_XVMC,
 
             Pixel::RGB32 => AV_PIX_FMT_RGB32,
@@ -1156,29 +1119,18 @@ impl From<Pixel> for AVPixelFormat {
             Pixel::GBRAPF32LE => AV_PIX_FMT_GBRAPF32LE,
             Pixel::DRM_PRIME => AV_PIX_FMT_DRM_PRIME,
 
-            #[cfg(feature = "ffmpeg_4_0")]
             Pixel::OPENCL => AV_PIX_FMT_OPENCL,
 
-            #[cfg(feature = "ffmpeg_4_1")]
             Pixel::GRAY14BE => AV_PIX_FMT_GRAY14BE,
-            #[cfg(feature = "ffmpeg_4_1")]
             Pixel::GRAY14LE => AV_PIX_FMT_GRAY14LE,
-            #[cfg(feature = "ffmpeg_4_1")]
             Pixel::GRAYF32BE => AV_PIX_FMT_GRAYF32BE,
-            #[cfg(feature = "ffmpeg_4_1")]
             Pixel::GRAYF32LE => AV_PIX_FMT_GRAYF32LE,
 
-            #[cfg(feature = "ffmpeg_4_2")]
             Pixel::YUVA422P12BE => AV_PIX_FMT_YUVA422P12BE,
-            #[cfg(feature = "ffmpeg_4_2")]
             Pixel::YUVA422P12LE => AV_PIX_FMT_YUVA422P12LE,
-            #[cfg(feature = "ffmpeg_4_2")]
             Pixel::YUVA444P12BE => AV_PIX_FMT_YUVA444P12BE,
-            #[cfg(feature = "ffmpeg_4_2")]
             Pixel::YUVA444P12LE => AV_PIX_FMT_YUVA444P12LE,
-            #[cfg(feature = "ffmpeg_4_2")]
             Pixel::NV24 => AV_PIX_FMT_NV24,
-            #[cfg(feature = "ffmpeg_4_2")]
             Pixel::NV42 => AV_PIX_FMT_NV42,
 
             #[cfg(feature = "ffmpeg_4_3")]

@@ -807,7 +807,7 @@ fn check_features(include_paths: &[PathBuf]) {
         }
     }
 
-    let version_check_info = [("avcodec", 56, 62, 0, 108)];
+    let version_check_info = [("avcodec", 57, 62, 0, 101)];
     for &(lib, begin_version_major, end_version_major, begin_version_minor, end_version_minor) in
         &version_check_info
     {
@@ -830,14 +830,6 @@ fn check_features(include_paths: &[PathBuf]) {
     }
 
     let ffmpeg_lavc_versions = [
-        ("ffmpeg_3_0", 57, 24),
-        ("ffmpeg_3_1", 57, 48),
-        ("ffmpeg_3_2", 57, 64),
-        ("ffmpeg_3_3", 57, 89),
-        ("ffmpeg_3_1", 57, 107),
-        ("ffmpeg_4_0", 58, 18),
-        ("ffmpeg_4_1", 58, 35),
-        ("ffmpeg_4_2", 58, 54),
         ("ffmpeg_4_3", 58, 91),
         ("ffmpeg_4_4", 58, 100),
         ("ffmpeg_5_0", 59, 18),
@@ -850,6 +842,9 @@ fn check_features(include_paths: &[PathBuf]) {
     let lavc_version = *versions
         .get("avcodec")
         .expect("Unable to find the version for lib{lib}");
+
+    // This allows removing a lot of #[cfg] attributes.
+    assert!(lavc_version >= (58, 54), "FFmpeg 4.2 or higher is required, but found avcodec version {lavc_version:?}");
 
     for &(ffmpeg_version_flag, lavc_version_major, lavc_version_minor) in &ffmpeg_lavc_versions {
         // Every possible feature needs an unconditional check-cfg to prevent warnings
