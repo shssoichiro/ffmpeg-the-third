@@ -31,17 +31,14 @@ pub enum Type {
     ContentLightLevel,
     IccProfile,
 
-    #[cfg(all(feature = "ffmpeg_4_0", not(feature = "ffmpeg_5_0")))]
+    #[cfg(not(feature = "ffmpeg_5_0"))]
     QPTableProperties,
-    #[cfg(all(feature = "ffmpeg_4_0", not(feature = "ffmpeg_5_0")))]
+    #[cfg(not(feature = "ffmpeg_5_0"))]
     QPTableData,
 
-    #[cfg(feature = "ffmpeg_4_1")]
     S12M_TIMECODE,
 
-    #[cfg(feature = "ffmpeg_4_2")]
     DYNAMIC_HDR_PLUS,
-    #[cfg(feature = "ffmpeg_4_2")]
     REGIONS_OF_INTEREST,
 
     #[cfg(feature = "ffmpeg_4_3")]
@@ -100,16 +97,13 @@ impl From<AVFrameSideDataType> for Type {
             AV_FRAME_DATA_CONTENT_LIGHT_LEVEL => Type::ContentLightLevel,
             AV_FRAME_DATA_ICC_PROFILE => Type::IccProfile,
 
-            #[cfg(all(feature = "ffmpeg_4_0", not(feature = "ffmpeg_5_0")))]
+            #[cfg(not(feature = "ffmpeg_5_0"))]
             AV_FRAME_DATA_QP_TABLE_PROPERTIES => Type::QPTableProperties,
-            #[cfg(all(feature = "ffmpeg_4_0", not(feature = "ffmpeg_5_0")))]
+            #[cfg(not(feature = "ffmpeg_5_0"))]
             AV_FRAME_DATA_QP_TABLE_DATA => Type::QPTableData,
-            #[cfg(feature = "ffmpeg_4_1")]
             AV_FRAME_DATA_S12M_TIMECODE => Type::S12M_TIMECODE,
 
-            #[cfg(feature = "ffmpeg_4_2")]
             AV_FRAME_DATA_DYNAMIC_HDR_PLUS => Type::DYNAMIC_HDR_PLUS,
-            #[cfg(feature = "ffmpeg_4_2")]
             AV_FRAME_DATA_REGIONS_OF_INTEREST => Type::REGIONS_OF_INTEREST,
 
             #[cfg(feature = "ffmpeg_4_3")]
@@ -164,16 +158,13 @@ impl From<Type> for AVFrameSideDataType {
             Type::ContentLightLevel => AV_FRAME_DATA_CONTENT_LIGHT_LEVEL,
             Type::IccProfile => AV_FRAME_DATA_ICC_PROFILE,
 
-            #[cfg(all(feature = "ffmpeg_4_0", not(feature = "ffmpeg_5_0")))]
+            #[cfg(not(feature = "ffmpeg_5_0"))]
             Type::QPTableProperties => AV_FRAME_DATA_QP_TABLE_PROPERTIES,
-            #[cfg(all(feature = "ffmpeg_4_0", not(feature = "ffmpeg_5_0")))]
+            #[cfg(not(feature = "ffmpeg_5_0"))]
             Type::QPTableData => AV_FRAME_DATA_QP_TABLE_DATA,
-            #[cfg(feature = "ffmpeg_4_1")]
             Type::S12M_TIMECODE => AV_FRAME_DATA_S12M_TIMECODE,
 
-            #[cfg(feature = "ffmpeg_4_2")]
             Type::DYNAMIC_HDR_PLUS => AV_FRAME_DATA_DYNAMIC_HDR_PLUS,
-            #[cfg(feature = "ffmpeg_4_2")]
             Type::REGIONS_OF_INTEREST => AV_FRAME_DATA_REGIONS_OF_INTEREST,
 
             #[cfg(feature = "ffmpeg_4_3")]
