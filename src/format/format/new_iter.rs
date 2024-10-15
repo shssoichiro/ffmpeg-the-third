@@ -2,7 +2,6 @@ use std::ptr::null_mut;
 
 use crate::ffi::*;
 use crate::format::format::{Input, Output};
-use crate::format::Format;
 use libc::c_void;
 
 pub struct DemuxerIter {
@@ -22,7 +21,7 @@ impl Default for DemuxerIter {
 }
 
 impl Iterator for DemuxerIter {
-    type Item = Format;
+    type Item = Input;
 
     fn next(&mut self) -> Option<Self::Item> {
         unsafe {
@@ -30,7 +29,7 @@ impl Iterator for DemuxerIter {
             if next.is_null() {
                 None
             } else {
-                Some(Format::Input(Input::wrap(next as _)))
+                Some(Input::wrap(next as _))
             }
         }
     }
@@ -53,7 +52,7 @@ impl Default for MuxerIter {
 }
 
 impl Iterator for MuxerIter {
-    type Item = Format;
+    type Item = Output;
 
     fn next(&mut self) -> Option<Self::Item> {
         unsafe {
@@ -61,7 +60,7 @@ impl Iterator for MuxerIter {
             if next.is_null() {
                 None
             } else {
-                Some(Format::Output(Output::wrap(next as _)))
+                Some(Output::wrap(next as _))
             }
         }
     }

@@ -44,8 +44,6 @@ pub mod format;
 #[cfg(feature = "format")]
 pub use crate::format::chapter::{Chapter, ChapterMut};
 #[cfg(feature = "format")]
-pub use crate::format::format::Format;
-#[cfg(feature = "format")]
 pub use crate::format::stream::{Stream, StreamMut};
 
 #[cfg(feature = "codec")]
