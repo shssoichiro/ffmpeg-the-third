@@ -1,72 +1,92 @@
-use std::ptr;
+use std::ptr::null_mut;
 
-use super::{Format, Input, Output};
 use crate::ffi::*;
+use crate::format::format::{Input, Output};
+use libc::c_void;
 
-pub struct Iter {
-    input: *mut AVInputFormat,
-    output: *mut AVOutputFormat,
-    step: Step,
+pub struct DemuxerIter {
+    ptr: *mut c_void,
 }
 
-enum Step {
-    Input,
-    Output,
-    Done,
-}
-
-impl Iter {
+impl DemuxerIter {
     pub fn new() -> Self {
-        Iter {
-            input: ptr::null_mut(),
-            output: ptr::null_mut(),
-            step: Step::Input,
-        }
+        Self { ptr: null_mut() }
     }
 }
 
-impl Default for Iter {
+impl Default for DemuxerIter {
     fn default() -> Self {
         Self::new()
     }
 }
 
-impl Iterator for Iter {
-    type Item = Format;
+impl Iterator for DemuxerIter {
+    type Item = Input;
 
-    fn next(&mut self) -> Option<<Self as Iterator>::Item> {
+    fn next(&mut self) -> Option<Self::Item> {
         unsafe {
-            match self.step {
-                Step::Input => {
-                    let ptr = av_iformat_next(self.input);
-
-                    if ptr.is_null() && !self.input.is_null() {
-                        self.step = Step::Output;
-
-                        self.next()
-                    } else {
-                        self.input = ptr;
-
-                        Some(Format::Input(Input::wrap(ptr)))
-                    }
-                }
-
-                Step::Output => {
-                    let ptr = av_oformat_next(self.output);
-
-                    if ptr.is_null() && !self.output.is_null() {
-                        self.step = Step::Done;
-
-                        self.next()
-                    } else {
-                        self.output = ptr;
-
-                        Some(Format::Output(Output::wrap(ptr)))
-                    }
-                }
-
-                Step::Done => None,
+            let next = av_demuxer_iterate(&mut self.ptr);
+            if next.is_null() {
+                None
+            } else {
+                Some(Input::wrap(next as _))
             }
+        }
+    }
+}
+
+pub struct MuxerIter {
+    ptr: *mut c_void,
+}
+
+impl MuxerIter {
+    pub fn new() -> Self {
+        Self { ptr: null_mut() }
+    }
+}
+
+impl Default for MuxerIter {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl Iterator for MuxerIter {
+    type Item = Output;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        unsafe {
+            let next = av_muxer_iterate(&mut self.ptr);
+            if next.is_null() {
+                None
+            } else {
+                Some(Output::wrap(next as _))
+            }
+        }
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn muxer_iter() {
+        for f in MuxerIter::new() {
+            println!("{}:", f.name());
+            println!("\t{}", f.description());
+            println!("\t{:?}", f.extensions());
+            println!("\t{:?}", f.mime_types());
+        }
+    }
+
+    #[test]
+    fn demuxer_iter() {
+        for f in DemuxerIter::new() {
+            println!("{}:", f.name());
+            println!("\t{}", f.description());
+            println!("\t{:?}", f.extensions());
+            println!("\t{:?}", f.mime_types());
         }
     }
 }
