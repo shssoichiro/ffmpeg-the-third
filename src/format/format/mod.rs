@@ -8,9 +8,9 @@ mod output;
 pub use self::output::Output;
 
 #[cfg(feature = "ffmpeg_4_0")]
-mod new_iter;
+mod iter;
 #[cfg(feature = "ffmpeg_4_0")]
-pub use self::new_iter::{DemuxerIter, MuxerIter};
+pub use self::iter::{DemuxerIter, MuxerIter};
 
 #[cfg(feature = "ffmpeg_4_0")]
 pub fn list_demuxers() -> DemuxerIter {
