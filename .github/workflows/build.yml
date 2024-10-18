@@ -30,7 +30,15 @@ jobs:
     strategy:
       matrix:
         ffmpeg_version:
-          ["4.2", "4.3", "4.4", "5.0", "5.1", "6.0", "6.1", "7.0"]
+          - "4.2"
+          - "4.3"
+          - "4.4"
+          - "5.0"
+          - "5.1"
+          - "6.0"
+          - "6.1"
+          - "7.0"
+          - "7.1"
       fail-fast: false
 
     steps:
@@ -45,9 +53,9 @@ jobs:
           components: rustfmt, clippy
       - uses: Swatinem/rust-cache@v2
         with:
-          prefix-key: "v2-rust"
+          prefix-key: "v3-rust"
           # Only save cache for one FFmpeg version
-          save-if: ${{ matrix.ffmpeg_version == '7.0' }}
+          save-if: ${{ matrix.ffmpeg_version == '7.1' }}
 
       - name: Check format
         run: cargo fmt -- --check
@@ -108,7 +116,7 @@ jobs:
     strategy:
       matrix:
         # GyanD builds don't go as far back as the Ubuntu builds
-        ffmpeg_version: ["4.4", "5.0", "5.1", "6.0", "6.1", "7.0"]
+        ffmpeg_version: ["4.4", "5.0", "5.1", "6.0", "6.1", "7.0", "7.1"]
       fail-fast: false
 
     env:
@@ -138,8 +146,8 @@ jobs:
           components: rustfmt, clippy
       - uses: Swatinem/rust-cache@v2
         with:
-          prefix-key: "v2-rust"
-          save-if: ${{ matrix.ffmpeg_version == '7.0' }}
+          prefix-key: "v3-rust"
+          save-if: ${{ matrix.ffmpeg_version == '7.1' }}
 
       - name: Check format
         run: cargo fmt -- --check
@@ -167,8 +175,8 @@ jobs:
           apt-get update
           apt-get install -y --no-install-recommends clang curl pkg-config
       # rust-version from Cargo.toml
-      - name: Install Rust 1.61.0
-        uses: dtolnay/rust-toolchain@1.61.0
+      - name: Install Rust 1.65.0
+        uses: dtolnay/rust-toolchain@1.65.0
       - uses: Swatinem/rust-cache@v2
         with:
           prefix-key: "v2-rust"

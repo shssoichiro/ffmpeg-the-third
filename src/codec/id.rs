@@ -644,8 +644,12 @@ pub enum Id {
     OSQ,
     #[cfg(feature = "ffmpeg_7_0")]
     QOA,
+    #[cfg(feature = "ffmpeg_7_1")]
+    LC3,
     #[cfg(feature = "ffmpeg_6_1")]
     SMPTE_2038,
+    #[cfg(feature = "ffmpeg_7_1")]
+    LCEVC,
 }
 
 impl Id {
@@ -1294,8 +1298,12 @@ impl From<AVCodecID> for Id {
             AV_CODEC_ID_OSQ => Id::OSQ,
             #[cfg(feature = "ffmpeg_7_0")]
             AV_CODEC_ID_QOA => Id::QOA,
+            #[cfg(feature = "ffmpeg_7_1")]
+            AV_CODEC_ID_LC3 => Id::LC3,
             #[cfg(feature = "ffmpeg_6_1")]
             AV_CODEC_ID_SMPTE_2038 => Id::SMPTE_2038,
+            #[cfg(feature = "ffmpeg_7_1")]
+            AV_CODEC_ID_LCEVC => Id::LCEVC,
 
             #[cfg(feature = "non-exhaustive-enums")]
             _ => unimplemented!(),
@@ -1938,8 +1946,12 @@ impl From<Id> for AVCodecID {
             Id::OSQ => AV_CODEC_ID_OSQ,
             #[cfg(feature = "ffmpeg_7_0")]
             Id::QOA => AV_CODEC_ID_QOA,
+            #[cfg(feature = "ffmpeg_7_1")]
+            Id::LC3 => AV_CODEC_ID_LC3,
             #[cfg(feature = "ffmpeg_6_1")]
             Id::SMPTE_2038 => AV_CODEC_ID_SMPTE_2038,
+            #[cfg(feature = "ffmpeg_7_1")]
+            Id::LCEVC => AV_CODEC_ID_LCEVC,
         }
     }
 }

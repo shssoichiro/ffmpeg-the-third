@@ -121,6 +121,9 @@ static AVUTIL_FEATURES: &[AVFeature] = &[
     AVFeature::new("PALETTE_HAS_CHANGED"),
     AVFeature::new("VULKAN_CONTIGUOUS_MEMORY"),
     AVFeature::new("H274_FILM_GRAIN_VCS"),
+    AVFeature::new("MOD_UINTP2"),
+    AVFeature::new("RISCV_FD_ZBA"),
+    AVFeature::new("VULKAN_FIXED_QUEUES"),
 ];
 
 static AVCODEC_FEATURES: &[AVFeature] = &[
@@ -209,6 +212,7 @@ static AVCODEC_FEATURES: &[AVFeature] = &[
     AVFeature::new("AVCODEC_CLOSE"),
     AVFeature::new("BUFFER_MIN_SIZE"),
     AVFeature::new("VDPAU_ALLOC_GET_SET"),
+    AVFeature::new("QUALITY_FACTOR"),
 ];
 
 static AVFORMAT_FEATURES: &[AVFeature] = &[
@@ -231,6 +235,7 @@ static AVFORMAT_FEATURES: &[AVFeature] = &[
     AVFeature::new("ALLOW_FLUSH"),
     AVFeature::new("AVSTREAM_SIDE_DATA"),
     AVFeature::new("GET_DUR_ESTIMATE_METHOD"),
+    AVFeature::new("INTERNAL_TIMING"),
 ];
 
 static AVDEVICE_FEATURES: &[AVFeature] = &[
@@ -484,13 +489,18 @@ static EXTERNAL_BUILD_LIBS: &[(&str, &str)] = &[
     // Encoders/decoders
     ("AACPLUS", "libaacplus"),
     ("CELT", "libcelt"),
-    ("DCADEC", "libdcadec"),
+    ("CODEC2", "libcodec2"),
     ("DAV1D", "libdav1d"),
+    ("DAVS2", "libdavs2"),
+    ("DCADEC", "libdcadec"),
     ("FAAC", "libfaac"),
     ("FDK_AAC", "libfdk-aac"),
     ("GSM", "libgsm"),
     ("ILBC", "libilbc"),
-    ("VAZAAR", "libvazaar"),
+    ("JXL", "libjxl"),
+    ("KVAZAAR", "libkvazaar"),
+    ("LC3", "liblc3"),
+    ("LCEVC_DEC", "liblcevc-dec"),
     ("MP3LAME", "libmp3lame"),
     ("OPENCORE_AMRNB", "libopencore-amrnb"),
     ("OPENCORE_AMRWB", "libopencore-amrwb"),
@@ -498,22 +508,30 @@ static EXTERNAL_BUILD_LIBS: &[(&str, &str)] = &[
     ("OPENH265", "libopenh265"),
     ("OPENJPEG", "libopenjpeg"),
     ("OPUS", "libopus"),
+    ("RAV1E", "librav1e"),
     ("SCHROEDINGER", "libschroedinger"),
     ("SHINE", "libshine"),
     ("SNAPPY", "libsnappy"),
     ("SPEEX", "libspeex"),
     ("STAGEFRIGHT_H264", "libstagefright-h264"),
+    ("SVTAV1", "libsvtav1"),
     ("THEORA", "libtheora"),
     ("TWOLAME", "libtwolame"),
+    ("UAVS3D", "libuavs3d"),
     ("UTVIDEO", "libutvideo"),
     ("VO_AACENC", "libvo-aacenc"),
     ("VO_AMRWBENC", "libvo-amrwbenc"),
     ("VORBIS", "libvorbis"),
     ("VPX", "libvpx"),
+    ("VVENC", "libvvenc"),
     ("WAVPACK", "libwavpack"),
     ("WEBP", "libwebp"),
     ("X264", "libx264"),
     ("X265", "libx265"),
+    ("XEVE", "libxeve"),
+    ("XEVD", "libxevd"),
+    ("XAVS", "libxavs"),
+    ("XAVS2", "libxavs2"),
     ("AVS", "libavs"),
     ("XVID", "libxvid"),
     // Protocols
@@ -837,6 +855,7 @@ fn check_features(include_paths: &[PathBuf]) {
         ("ffmpeg_6_0", 60, 3),
         ("ffmpeg_6_1", 60, 31),
         ("ffmpeg_7_0", 61, 3),
+        ("ffmpeg_7_1", 61, 19),
     ];
 
     let lavc_version = *versions

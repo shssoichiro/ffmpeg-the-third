@@ -40,6 +40,15 @@ pub enum Channel {
     BottomFrontLeft,
     BottomFrontRight,
 
+    #[cfg(feature = "ffmpeg_7_1")]
+    SideSurroundLeft,
+    #[cfg(feature = "ffmpeg_7_1")]
+    SideSurroundRight,
+    #[cfg(feature = "ffmpeg_7_1")]
+    TopSurroundLeft,
+    #[cfg(feature = "ffmpeg_7_1")]
+    TopSurroundRight,
+
     /// Channel is empty and can be safely skipped.
     Unused,
 
@@ -142,6 +151,16 @@ impl From<AVChannel> for Channel {
             AV_CHAN_BOTTOM_FRONT_CENTER => BottomFrontCenter,
             AV_CHAN_BOTTOM_FRONT_LEFT => BottomFrontLeft,
             AV_CHAN_BOTTOM_FRONT_RIGHT => BottomFrontRight,
+
+            #[cfg(feature = "ffmpeg_7_1")]
+            AV_CHAN_SIDE_SURROUND_LEFT => SideSurroundLeft,
+            #[cfg(feature = "ffmpeg_7_1")]
+            AV_CHAN_SIDE_SURROUND_RIGHT => SideSurroundRight,
+            #[cfg(feature = "ffmpeg_7_1")]
+            AV_CHAN_TOP_SURROUND_LEFT => TopSurroundLeft,
+            #[cfg(feature = "ffmpeg_7_1")]
+            AV_CHAN_TOP_SURROUND_RIGHT => TopSurroundRight,
+
             AV_CHAN_UNUSED => Unused,
             AV_CHAN_UNKNOWN => Unknown,
             AV_CHAN_AMBISONIC_BASE => AmbisonicBase,
@@ -190,6 +209,16 @@ impl From<Channel> for AVChannel {
             BottomFrontCenter => AV_CHAN_BOTTOM_FRONT_CENTER,
             BottomFrontLeft => AV_CHAN_BOTTOM_FRONT_LEFT,
             BottomFrontRight => AV_CHAN_BOTTOM_FRONT_RIGHT,
+
+            #[cfg(feature = "ffmpeg_7_1")]
+            SideSurroundLeft => AV_CHAN_SIDE_SURROUND_LEFT,
+            #[cfg(feature = "ffmpeg_7_1")]
+            SideSurroundRight => AV_CHAN_SIDE_SURROUND_RIGHT,
+            #[cfg(feature = "ffmpeg_7_1")]
+            TopSurroundLeft => AV_CHAN_TOP_SURROUND_LEFT,
+            #[cfg(feature = "ffmpeg_7_1")]
+            TopSurroundRight => AV_CHAN_TOP_SURROUND_RIGHT,
+
             Unused => AV_CHAN_UNUSED,
             Unknown => AV_CHAN_UNKNOWN,
             AmbisonicBase => AV_CHAN_AMBISONIC_BASE,
