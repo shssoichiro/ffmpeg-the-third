@@ -20,15 +20,10 @@ pub mod capabilities;
 pub use self::capabilities::Capabilities;
 
 pub mod codec;
+pub use self::codec::{Audio, Codec, Video};
 
 pub mod parameters;
 pub use self::parameters::Parameters;
-
-pub mod video;
-pub use self::video::Video;
-
-pub mod audio;
-pub use self::audio::Audio;
 
 pub mod audio_service;
 pub mod field_order;

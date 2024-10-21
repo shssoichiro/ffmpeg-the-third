@@ -83,7 +83,8 @@ fn transcoder<P: AsRef<Path>>(
     let mut decoder = context.decoder().audio()?;
     let codec = ffmpeg::encoder::find(octx.format().codec(path, media::Type::Audio))
         .expect("failed to find encoder")
-        .audio()?;
+        .audio()
+        .expect("encoder is not audio encoder");
     let global = octx
         .format()
         .flags()
