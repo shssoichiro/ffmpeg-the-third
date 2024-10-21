@@ -1,25 +1,26 @@
+use super::codec::UnknownType;
 use super::{decoder, encoder};
-use crate::codec::{Audio, Id, Video};
+use crate::codec::Id;
 use crate::Codec;
 
-pub trait Decoder {
-    fn decoder(self) -> Option<Codec>;
+pub trait Decoder<T> {
+    fn decoder(self) -> Option<Codec<T>>;
 }
 
-impl<'a> Decoder for &'a str {
-    fn decoder(self) -> Option<Codec> {
+impl<'a> Decoder<UnknownType> for &'a str {
+    fn decoder(self) -> Option<Codec<UnknownType>> {
         decoder::find_by_name(self)
     }
 }
 
-impl Decoder for Id {
-    fn decoder(self) -> Option<Codec> {
+impl Decoder<UnknownType> for Id {
+    fn decoder(self) -> Option<Codec<UnknownType>> {
         decoder::find(self)
     }
 }
 
-impl Decoder for Codec {
-    fn decoder(self) -> Option<Codec> {
+impl<T> Decoder<T> for Codec<T> {
+    fn decoder(self) -> Option<Codec<T>> {
         if self.is_decoder() {
             Some(self)
         } else {
@@ -28,50 +29,30 @@ impl Decoder for Codec {
     }
 }
 
-impl Decoder for Option<Codec> {
-    fn decoder(self) -> Option<Codec> {
+impl<T> Decoder<T> for Option<Codec<T>> {
+    fn decoder(self) -> Option<Codec<T>> {
         self.and_then(|c| c.decoder())
     }
 }
 
-impl Decoder for Audio {
-    fn decoder(self) -> Option<Codec> {
-        if self.is_decoder() {
-            Some(*self)
-        } else {
-            None
-        }
-    }
+pub trait Encoder<T> {
+    fn encoder(self) -> Option<Codec<T>>;
 }
 
-impl Decoder for Video {
-    fn decoder(self) -> Option<Codec> {
-        if self.is_decoder() {
-            Some(*self)
-        } else {
-            None
-        }
-    }
-}
-
-pub trait Encoder {
-    fn encoder(self) -> Option<Codec>;
-}
-
-impl<'a> Encoder for &'a str {
-    fn encoder(self) -> Option<Codec> {
+impl<'a> Encoder<UnknownType> for &'a str {
+    fn encoder(self) -> Option<Codec<UnknownType>> {
         encoder::find_by_name(self)
     }
 }
 
-impl Encoder for Id {
-    fn encoder(self) -> Option<Codec> {
+impl Encoder<UnknownType> for Id {
+    fn encoder(self) -> Option<Codec<UnknownType>> {
         encoder::find(self)
     }
 }
 
-impl Encoder for Codec {
-    fn encoder(self) -> Option<Codec> {
+impl<T> Encoder<T> for Codec<T> {
+    fn encoder(self) -> Option<Codec<T>> {
         if self.is_encoder() {
             Some(self)
         } else {
@@ -80,28 +61,8 @@ impl Encoder for Codec {
     }
 }
 
-impl Encoder for Option<Codec> {
-    fn encoder(self) -> Option<Codec> {
+impl<T> Encoder<T> for Option<Codec<T>> {
+    fn encoder(self) -> Option<Codec<T>> {
         self.and_then(|c| c.encoder())
-    }
-}
-
-impl Encoder for Audio {
-    fn encoder(self) -> Option<Codec> {
-        if self.is_encoder() {
-            Some(*self)
-        } else {
-            None
-        }
-    }
-}
-
-impl Encoder for Video {
-    fn encoder(self) -> Option<Codec> {
-        if self.is_encoder() {
-            Some(*self)
-        } else {
-            None
-        }
     }
 }

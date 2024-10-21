@@ -62,13 +62,7 @@ impl Context {
     }
 
     pub fn codec(&self) -> Option<Codec> {
-        unsafe {
-            if (*self.as_ptr()).codec.is_null() {
-                None
-            } else {
-                Some(Codec::wrap((*self.as_ptr()).codec as *mut _))
-            }
-        }
+        unsafe { Codec::from_raw((*self.as_ptr()).codec) }
     }
 
     pub fn medium(&self) -> media::Type {

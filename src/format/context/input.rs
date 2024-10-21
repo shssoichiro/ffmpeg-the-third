@@ -43,12 +43,7 @@ impl Input {
     pub fn video_codec(&self) -> Option<Codec> {
         unsafe {
             let ptr = (*self.as_ptr()).video_codec;
-
-            if ptr.is_null() {
-                None
-            } else {
-                Some(Codec::wrap(ptr))
-            }
+            Codec::from_raw(ptr)
         }
     }
 
@@ -56,12 +51,7 @@ impl Input {
     pub fn audio_codec(&self) -> Option<Codec> {
         unsafe {
             let ptr = (*self.as_ptr()).audio_codec;
-
-            if ptr.is_null() {
-                None
-            } else {
-                Some(Codec::wrap(ptr))
-            }
+            Codec::from_raw(ptr)
         }
     }
 
@@ -69,12 +59,7 @@ impl Input {
     pub fn subtitle_codec(&self) -> Option<Codec> {
         unsafe {
             let ptr = (*self.as_ptr()).subtitle_codec;
-
-            if ptr.is_null() {
-                None
-            } else {
-                Some(Codec::wrap(ptr))
-            }
+            Codec::from_raw(ptr)
         }
     }
 
@@ -82,12 +67,7 @@ impl Input {
     pub fn data_codec(&self) -> Option<Codec> {
         unsafe {
             let ptr = (*self.as_ptr()).data_codec;
-
-            if ptr.is_null() {
-                None
-            } else {
-                Some(Codec::wrap(ptr))
-            }
+            Codec::from_raw(ptr)
         }
     }
 

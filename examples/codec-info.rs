@@ -20,7 +20,7 @@ fn main() {
                 println!("\t profiles: none");
             }
 
-            if let Ok(video) = codec.video() {
+            if let Some(video) = codec.video() {
                 if let Some(rates) = video.rates() {
                     println!("\t rates: {:?}", rates.collect::<Vec<_>>());
                 } else {
@@ -34,7 +34,7 @@ fn main() {
                 }
             }
 
-            if let Ok(audio) = codec.audio() {
+            if let Some(audio) = codec.audio() {
                 if let Some(rates) = audio.rates() {
                     println!("\t rates: {:?}", rates.collect::<Vec<_>>());
                 } else {
@@ -71,7 +71,7 @@ fn main() {
                 println!("\t profiles: {:?}", profiles.collect::<Vec<_>>());
             }
 
-            if let Ok(video) = codec.video() {
+            if let Some(video) = codec.video() {
                 if let Some(rates) = video.rates() {
                     println!("\t rates: {:?}", rates.collect::<Vec<_>>());
                 } else {
@@ -85,7 +85,7 @@ fn main() {
                 }
             }
 
-            if let Ok(audio) = codec.audio() {
+            if let Some(audio) = codec.audio() {
                 if let Some(rates) = audio.rates() {
                     println!("\t rates: {:?}", rates.collect::<Vec<_>>());
                 } else {
