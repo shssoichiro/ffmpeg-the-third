@@ -13,6 +13,8 @@ pub mod picture;
 
 pub mod discard;
 
+pub mod config;
+
 pub mod context;
 pub use self::context::Context;
 

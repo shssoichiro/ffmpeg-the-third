@@ -1,9 +1,15 @@
 use std::marker::PhantomData;
 use std::ptr::NonNull;
 
+use super::config::{
+    FrameRateIter, PixelFormatIter, SampleFormatIter, SampleRateIter, TerminatedPtrIter,
+};
 use super::{Capabilities, Id, Profile};
 use crate::ffi::*;
-use crate::{format, media, utils};
+use crate::{media, utils};
+
+#[cfg(feature = "ffmpeg_7_1")]
+use crate::codec::config::{ColorRangeIter, ColorSpaceIter, Supported};
 
 pub type Audio = Codec<AudioType>;
 pub type Video = Codec<VideoType>;
@@ -143,8 +149,34 @@ impl Iterator for ProfileIter {
 }
 
 impl Codec<AudioType> {
+    /// Checks if the given sample rate is supported by this audio codec.
+    #[cfg(feature = "ffmpeg_7_1")]
+    pub fn supports_rate(self, rate: libc::c_int) -> bool {
+        self.supported_rates().supports(rate)
+    }
+
+    /// Returns a [`Supported`] representing the supported sample rates.
+    #[cfg(feature = "ffmpeg_7_1")]
+    pub fn supported_rates(self) -> Supported<SampleRateIter<'static>> {
+        use super::config::supported_sample_rates;
+        supported_sample_rates(self, None).expect("audio codec returns supported sample rates")
+    }
+
     pub fn rates(&self) -> Option<SampleRateIter> {
         unsafe { SampleRateIter::from_raw((*self.as_ptr()).supported_samplerates) }
+    }
+
+    /// Checks if the given sample format is supported by this audio codec.
+    #[cfg(feature = "ffmpeg_7_1")]
+    pub fn supports_format(self, format: crate::format::Sample) -> bool {
+        self.supported_formats().supports(format)
+    }
+
+    /// Returns a [`Supported`] representing the supported sample formats.
+    #[cfg(feature = "ffmpeg_7_1")]
+    pub fn supported_formats(self) -> Supported<SampleFormatIter<'static>> {
+        use super::config::supported_sample_formats;
+        supported_sample_formats(self, None).expect("audio codec returns supported sample formats")
     }
 
     pub fn formats(&self) -> Option<SampleFormatIter> {
@@ -153,13 +185,7 @@ impl Codec<AudioType> {
 
     #[cfg(not(feature = "ffmpeg_7_0"))]
     pub fn channel_layouts(&self) -> Option<ChannelLayoutMaskIter> {
-        unsafe {
-            if (*self.as_ptr()).channel_layouts.is_null() {
-                None
-            } else {
-                Some(ChannelLayoutMaskIter::new((*self.as_ptr()).channel_layouts))
-            }
-        }
+        unsafe { ChannelLayoutMaskIter::from_raw((*self.as_ptr()).channel_layouts) }
     }
 
     #[cfg(feature = "ffmpeg_5_1")]
@@ -169,136 +195,79 @@ impl Codec<AudioType> {
 }
 
 impl Codec<VideoType> {
+    /// Checks if the given frame rate is supported by this video codec.
+    #[cfg(feature = "ffmpeg_7_1")]
+    pub fn supports_rate(self, rate: crate::Rational) -> bool {
+        self.supported_rates().supports(rate)
+    }
+
+    /// Returns a [`Supported`] representing the supported frame rates.
+    #[cfg(feature = "ffmpeg_7_1")]
+    pub fn supported_rates(self) -> Supported<FrameRateIter<'static>> {
+        use crate::codec::config::supported_frame_rates;
+        supported_frame_rates(self, None).expect("video codec returns supported frame rates")
+    }
+
     pub fn rates(&self) -> Option<FrameRateIter> {
         unsafe { FrameRateIter::from_raw((*self.as_ptr()).supported_framerates) }
+    }
+
+    /// Checks if the given pixel format is supported by this video codec.
+    #[cfg(feature = "ffmpeg_7_1")]
+    pub fn supports_format(self, format: crate::format::Pixel) -> bool {
+        self.supported_formats().supports(format)
+    }
+
+    /// Returns a [`Supported`] representing the supported pixel formats.
+    #[cfg(feature = "ffmpeg_7_1")]
+    pub fn supported_formats(self) -> Supported<PixelFormatIter<'static>> {
+        use crate::codec::config::supported_pixel_formats;
+        supported_pixel_formats(self, None).expect("video codec returns supported pixel formats")
     }
 
     pub fn formats(&self) -> Option<PixelFormatIter> {
         unsafe { PixelFormatIter::from_raw((*self.as_ptr()).pix_fmts) }
     }
-}
 
-pub struct FrameRateIter {
-    ptr: NonNull<AVRational>,
-}
-
-impl FrameRateIter {
-    pub fn from_raw(ptr: *const AVRational) -> Option<Self> {
-        NonNull::new(ptr as *mut _).map(|ptr| Self { ptr })
+    /// Checks if the given color space is supported by this video codec.
+    #[cfg(feature = "ffmpeg_7_1")]
+    pub fn supports_color_space(self, space: crate::color::Space) -> bool {
+        self.supported_color_spaces().supports(space)
     }
-}
 
-impl Iterator for FrameRateIter {
-    type Item = Rational;
-
-    fn next(&mut self) -> Option<<Self as Iterator>::Item> {
-        unsafe {
-            if (*self.ptr.as_ptr()).num == 0 && (*self.ptr.as_ptr()).den == 0 {
-                return None;
-            }
-
-            let rate = (*self.ptr.as_ptr()).into();
-            self.ptr = NonNull::new_unchecked(self.ptr.as_ptr().add(1));
-
-            Some(rate)
-        }
+    /// Returns a [`Supported`] representing the supported color spaces.
+    #[cfg(feature = "ffmpeg_7_1")]
+    pub fn supported_color_spaces(self) -> Supported<ColorSpaceIter<'static>> {
+        use crate::codec::config::supported_color_spaces;
+        supported_color_spaces(self, None).expect("video codec returns supported color spaces")
     }
-}
 
-pub struct PixelFormatIter {
-    ptr: NonNull<AVPixelFormat>,
-}
-
-impl PixelFormatIter {
-    pub fn from_raw(ptr: *const AVPixelFormat) -> Option<Self> {
-        NonNull::new(ptr as *mut _).map(|ptr| Self { ptr })
+    /// Checks if the given color range is supported by this video codec.
+    #[cfg(feature = "ffmpeg_7_1")]
+    pub fn supports_color_range(self, range: crate::color::Range) -> bool {
+        self.supported_color_ranges().supports(range)
     }
-}
 
-impl Iterator for PixelFormatIter {
-    type Item = format::Pixel;
-
-    fn next(&mut self) -> Option<<Self as Iterator>::Item> {
-        unsafe {
-            if (*self.ptr.as_ptr()) == AVPixelFormat::AV_PIX_FMT_NONE {
-                return None;
-            }
-
-            let format = (*self.ptr.as_ptr()).into();
-            self.ptr = NonNull::new_unchecked(self.ptr.as_ptr().add(1));
-
-            Some(format)
-        }
+    /// Returns a [`Supported`] representing the supported color ranges.
+    #[cfg(feature = "ffmpeg_7_1")]
+    pub fn supported_color_ranges(self) -> Supported<ColorRangeIter<'static>> {
+        use crate::codec::config::supported_color_ranges;
+        supported_color_ranges(self, None).expect("video codec returns supported color ranges")
     }
 }
 
 #[cfg(not(feature = "ffmpeg_7_0"))]
 use crate::ChannelLayoutMask;
-use crate::Rational;
-
-pub struct SampleRateIter {
-    ptr: NonNull<i32>,
-}
-
-impl SampleRateIter {
-    pub fn from_raw(ptr: *const i32) -> Option<Self> {
-        NonNull::new(ptr as *mut _).map(|ptr| Self { ptr })
-    }
-}
-
-impl Iterator for SampleRateIter {
-    type Item = i32;
-
-    fn next(&mut self) -> Option<<Self as Iterator>::Item> {
-        unsafe {
-            if (*self.ptr.as_ptr()) == 0 {
-                return None;
-            }
-
-            let rate = *self.ptr.as_ptr();
-            self.ptr = NonNull::new_unchecked(self.ptr.as_ptr().add(1));
-
-            Some(rate)
-        }
-    }
-}
-
-pub struct SampleFormatIter {
-    ptr: NonNull<AVSampleFormat>,
-}
-
-impl SampleFormatIter {
-    pub fn from_raw(ptr: *const AVSampleFormat) -> Option<Self> {
-        NonNull::new(ptr as *mut _).map(|ptr| Self { ptr })
-    }
-}
-
-impl Iterator for SampleFormatIter {
-    type Item = format::Sample;
-
-    fn next(&mut self) -> Option<<Self as Iterator>::Item> {
-        unsafe {
-            if (*self.ptr.as_ptr()) == AVSampleFormat::AV_SAMPLE_FMT_NONE {
-                return None;
-            }
-
-            let format = (*self.ptr.as_ptr()).into();
-            self.ptr = NonNull::new_unchecked(self.ptr.as_ptr().add(1));
-
-            Some(format)
-        }
-    }
-}
 
 #[cfg(not(feature = "ffmpeg_7_0"))]
 pub struct ChannelLayoutMaskIter {
-    ptr: *const u64,
+    ptr: NonNull<u64>,
 }
 
 #[cfg(not(feature = "ffmpeg_7_0"))]
 impl ChannelLayoutMaskIter {
-    pub fn new(ptr: *const u64) -> Self {
-        ChannelLayoutMaskIter { ptr }
+    pub fn from_raw(ptr: *const u64) -> Option<Self> {
+        NonNull::new(ptr as *mut _).map(|ptr| Self { ptr })
     }
 
     pub fn best(self, max: i32) -> ChannelLayoutMask {
@@ -318,12 +287,13 @@ impl Iterator for ChannelLayoutMaskIter {
 
     fn next(&mut self) -> Option<<Self as Iterator>::Item> {
         unsafe {
-            if *self.ptr == 0 {
+            let ptr = self.ptr.as_ptr();
+            if *ptr == 0 {
                 return None;
             }
 
-            let layout = ChannelLayoutMask::from_bits_truncate(*self.ptr);
-            self.ptr = self.ptr.offset(1);
+            let layout = ChannelLayoutMask::from_bits_truncate(*ptr);
+            self.ptr = NonNull::new_unchecked(ptr.add(1));
 
             Some(layout)
         }
