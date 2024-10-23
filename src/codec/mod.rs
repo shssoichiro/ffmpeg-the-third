@@ -11,6 +11,9 @@ pub mod subtitle;
 #[cfg(not(feature = "ffmpeg_5_0"))]
 pub mod picture;
 
+pub mod descriptor;
+pub use self::descriptor::CodecDescriptor;
+
 pub mod discard;
 
 pub mod config;
@@ -38,6 +41,9 @@ pub use self::debug::Debug;
 
 pub mod profile;
 pub use self::profile::Profile;
+
+pub mod props;
+pub use self::props::CodecProperties;
 
 pub mod threading;
 
