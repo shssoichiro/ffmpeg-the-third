@@ -1,5 +1,25 @@
-use crate::AVPixelFormat;
+use libc::c_int;
+
+use crate::{AVChromaLocation, AVPixelFormat};
 use crate::AVPixelFormat::*;
+
+impl AVChromaLocation {
+    pub fn from_c_int(n: c_int) -> Option<Self> {
+        use AVChromaLocation as AVCL;
+
+        Some(match n {
+            n if n == AVCL::AVCHROMA_LOC_UNSPECIFIED as c_int => AVCL::AVCHROMA_LOC_UNSPECIFIED,
+            n if n == AVCL::AVCHROMA_LOC_LEFT as c_int => AVCL::AVCHROMA_LOC_LEFT,
+            n if n == AVCL::AVCHROMA_LOC_CENTER as c_int => AVCL::AVCHROMA_LOC_CENTER,
+            n if n == AVCL::AVCHROMA_LOC_TOPLEFT as c_int => AVCL::AVCHROMA_LOC_TOPLEFT,
+            n if n == AVCL::AVCHROMA_LOC_TOP as c_int => AVCL::AVCHROMA_LOC_TOP,
+            n if n == AVCL::AVCHROMA_LOC_BOTTOMLEFT as c_int => AVCL::AVCHROMA_LOC_BOTTOMLEFT,
+            n if n == AVCL::AVCHROMA_LOC_BOTTOM as c_int => AVCL::AVCHROMA_LOC_BOTTOM,
+
+            _ => return None,
+        })
+    }
+}
 
 #[cfg(target_endian = "little")]
 pub const AV_PIX_FMT_RGB32: AVPixelFormat = AV_PIX_FMT_BGRA;
