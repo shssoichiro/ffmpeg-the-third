@@ -15,12 +15,12 @@ pub use self::format::{Input, Output};
 
 pub mod network;
 
-use std::ffi::{CStr, CString};
+use std::ffi::CString;
 use std::path::Path;
 use std::ptr;
-use std::str::from_utf8_unchecked;
 
 use crate::ffi::*;
+use crate::utils;
 use crate::{Dictionary, Error};
 
 #[cfg(not(feature = "ffmpeg_5_0"))]
@@ -49,11 +49,11 @@ pub fn version() -> u32 {
 }
 
 pub fn configuration() -> &'static str {
-    unsafe { from_utf8_unchecked(CStr::from_ptr(avformat_configuration()).to_bytes()) }
+    unsafe { utils::str_from_c_ptr(avformat_configuration()) }
 }
 
 pub fn license() -> &'static str {
-    unsafe { from_utf8_unchecked(CStr::from_ptr(avformat_license()).to_bytes()) }
+    unsafe { utils::str_from_c_ptr(avformat_license()) }
 }
 
 // XXX: use to_cstring when stable

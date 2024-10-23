@@ -1,9 +1,6 @@
-use std::ffi::CStr;
-use std::str::from_utf8_unchecked;
-
 use super::{Audio, Capabilities, Id, Profile, Video};
 use crate::ffi::*;
-use crate::{media, Error};
+use crate::{media, utils, Error};
 
 #[derive(PartialEq, Eq, Copy, Clone)]
 pub struct Codec {
@@ -37,18 +34,11 @@ impl Codec {
     }
 
     pub fn name(&self) -> &str {
-        unsafe { from_utf8_unchecked(CStr::from_ptr((*self.as_ptr()).name).to_bytes()) }
+        unsafe { utils::str_from_c_ptr((*self.as_ptr()).name) }
     }
 
     pub fn description(&self) -> &str {
-        unsafe {
-            let long_name = (*self.as_ptr()).long_name;
-            if long_name.is_null() {
-                ""
-            } else {
-                from_utf8_unchecked(CStr::from_ptr(long_name).to_bytes())
-            }
-        }
+        unsafe { utils::optional_str_from_c_ptr((*self.as_ptr()).long_name).unwrap_or("") }
     }
 
     pub fn medium(&self) -> media::Type {

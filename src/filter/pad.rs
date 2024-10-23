@@ -1,9 +1,8 @@
-use std::ffi::CStr;
 use std::marker::PhantomData;
-use std::str::from_utf8_unchecked;
 
 use crate::ffi::*;
 use crate::media;
+use crate::utils;
 
 pub struct Pad<'a> {
     ptr: *const AVFilterPad,
@@ -34,12 +33,7 @@ impl<'a> Pad<'a> {
     pub fn name(&self) -> Option<&str> {
         unsafe {
             let ptr = avfilter_pad_get_name(self.ptr, self.idx as i32);
-
-            if ptr.is_null() {
-                None
-            } else {
-                Some(from_utf8_unchecked(CStr::from_ptr(ptr).to_bytes()))
-            }
+            utils::optional_str_from_c_ptr(ptr)
         }
     }
 

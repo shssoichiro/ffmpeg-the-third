@@ -17,19 +17,17 @@ pub use self::context::Context;
 
 mod extensions;
 
-use std::ffi::CStr;
-use std::str::from_utf8_unchecked;
-
 use crate::ffi::*;
+use crate::utils;
 
 pub fn version() -> u32 {
     unsafe { swscale_version() }
 }
 
 pub fn configuration() -> &'static str {
-    unsafe { from_utf8_unchecked(CStr::from_ptr(swscale_configuration()).to_bytes()) }
+    unsafe { utils::str_from_c_ptr(swscale_configuration()) }
 }
 
 pub fn license() -> &'static str {
-    unsafe { from_utf8_unchecked(CStr::from_ptr(swscale_license()).to_bytes()) }
+    unsafe { utils::str_from_c_ptr(swscale_license()) }
 }

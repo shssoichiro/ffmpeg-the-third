@@ -1,9 +1,8 @@
-use std::ffi::CStr;
 use std::marker::PhantomData;
-use std::str::from_utf8_unchecked;
 
 use super::{Flags, Pad};
 use crate::ffi::*;
+use crate::utils;
 
 pub struct Filter {
     ptr: *mut AVFilter,
@@ -25,19 +24,11 @@ impl Filter {
 
 impl Filter {
     pub fn name(&self) -> &str {
-        unsafe { from_utf8_unchecked(CStr::from_ptr((*self.as_ptr()).name).to_bytes()) }
+        unsafe { utils::str_from_c_ptr((*self.as_ptr()).name) }
     }
 
     pub fn description(&self) -> Option<&str> {
-        unsafe {
-            let ptr = (*self.as_ptr()).description;
-
-            if ptr.is_null() {
-                None
-            } else {
-                Some(from_utf8_unchecked(CStr::from_ptr(ptr).to_bytes()))
-            }
-        }
+        unsafe { utils::optional_str_from_c_ptr((*self.as_ptr()).description) }
     }
 
     pub fn inputs(&self) -> Option<PadIter> {

@@ -1,9 +1,9 @@
-use std::ffi::{CStr, CString};
+use std::ffi::CString;
 use std::marker::PhantomData;
 use std::ptr;
-use std::str::from_utf8_unchecked;
 
 use crate::ffi::*;
+use crate::utils;
 
 pub struct Iter<'a> {
     ptr: *const AVDictionary,
@@ -32,8 +32,8 @@ impl<'a> Iterator for Iter<'a> {
             let entry = av_dict_get(self.ptr, empty.as_ptr(), self.cur, AV_DICT_IGNORE_SUFFIX);
 
             if !entry.is_null() {
-                let key = from_utf8_unchecked(CStr::from_ptr((*entry).key).to_bytes());
-                let val = from_utf8_unchecked(CStr::from_ptr((*entry).value).to_bytes());
+                let key = utils::str_from_c_ptr((*entry).key);
+                let val = utils::str_from_c_ptr((*entry).value);
 
                 self.cur = entry;
 

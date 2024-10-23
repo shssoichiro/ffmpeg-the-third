@@ -1,9 +1,7 @@
-use std::ffi::CStr;
-use std::str::from_utf8_unchecked;
-
 use crate::ffi::AVCodecID::*;
 use crate::ffi::*;
 use crate::util::media;
+use crate::utils;
 #[cfg(feature = "serialize")]
 use serde::{Deserialize, Serialize};
 
@@ -661,7 +659,7 @@ impl Id {
     }
 
     pub fn name(&self) -> &'static str {
-        unsafe { from_utf8_unchecked(CStr::from_ptr(avcodec_get_name((*self).into())).to_bytes()) }
+        unsafe { utils::str_from_c_ptr(avcodec_get_name((*self).into())) }
     }
 }
 

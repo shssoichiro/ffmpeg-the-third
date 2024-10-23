@@ -1,11 +1,11 @@
-use std::ffi::{CStr, CString};
+use std::ffi::CString;
 use std::ops::Index;
 use std::ptr;
 use std::slice;
-use std::str::from_utf8_unchecked;
 
 use crate::ffi::AVSampleFormat::*;
 use crate::ffi::*;
+use crate::utils;
 use libc::{c_int, c_void};
 #[cfg(feature = "serialize")]
 use serde::{Deserialize, Serialize};
@@ -33,9 +33,7 @@ pub enum Type {
 impl Sample {
     #[inline]
     pub fn name(&self) -> &'static str {
-        unsafe {
-            from_utf8_unchecked(CStr::from_ptr(av_get_sample_fmt_name((*self).into())).to_bytes())
-        }
+        unsafe { utils::str_from_c_ptr(av_get_sample_fmt_name((*self).into())) }
     }
 
     #[inline]
