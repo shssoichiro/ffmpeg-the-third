@@ -4,7 +4,8 @@ use std::ptr::NonNull;
 use super::config::{
     FrameRateIter, PixelFormatIter, SampleFormatIter, SampleRateIter, TerminatedPtrIter,
 };
-use super::{Capabilities, Id, Profile};
+use super::profile::ProfileIter;
+use super::{Capabilities, Id};
 use crate::ffi::*;
 use crate::{media, utils};
 
@@ -116,34 +117,6 @@ impl<T> Codec<T> {
             } else {
                 Some(ProfileIter::new(self.id(), (*self.as_ptr()).profiles))
             }
-        }
-    }
-}
-
-pub struct ProfileIter {
-    id: Id,
-    ptr: *const AVProfile,
-}
-
-impl ProfileIter {
-    pub fn new(id: Id, ptr: *const AVProfile) -> Self {
-        ProfileIter { id, ptr }
-    }
-}
-
-impl Iterator for ProfileIter {
-    type Item = Profile;
-
-    fn next(&mut self) -> Option<<Self as Iterator>::Item> {
-        unsafe {
-            if (*self.ptr).profile == FF_PROFILE_UNKNOWN {
-                return None;
-            }
-
-            let profile = Profile::from((self.id, (*self.ptr).profile));
-            self.ptr = self.ptr.offset(1);
-
-            Some(profile)
         }
     }
 }
