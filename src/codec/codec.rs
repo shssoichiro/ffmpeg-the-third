@@ -4,6 +4,7 @@ use std::ptr::NonNull;
 use super::config::{
     FrameRateIter, PixelFormatIter, SampleFormatIter, SampleRateIter, TerminatedPtrIter,
 };
+use super::descriptor::{CodecDescriptor, CodecDescriptorIter};
 use super::profile::ProfileIter;
 use super::{Capabilities, Id};
 use crate::ffi::*;
@@ -11,6 +12,10 @@ use crate::{media, utils};
 
 #[cfg(feature = "ffmpeg_7_1")]
 use crate::codec::config::{ColorRangeIter, ColorSpaceIter, Supported};
+
+pub fn list_descriptors() -> CodecDescriptorIter {
+    CodecDescriptorIter::new()
+}
 
 pub type Audio = Codec<AudioType>;
 pub type Video = Codec<VideoType>;
@@ -117,6 +122,13 @@ impl<T> Codec<T> {
             } else {
                 Some(ProfileIter::new(self.id(), (*self.as_ptr()).profiles))
             }
+        }
+    }
+
+    pub fn descriptor(self) -> Option<CodecDescriptor> {
+        unsafe {
+            let ptr = avcodec_descriptor_get(self.id().into());
+            CodecDescriptor::from_raw(ptr)
         }
     }
 }
