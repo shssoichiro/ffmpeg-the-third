@@ -2,11 +2,10 @@ pub mod extensions;
 pub mod input;
 pub mod output;
 
-use std::ffi::CStr;
 use std::marker::PhantomData;
-use std::str::from_utf8_unchecked;
 
 use crate::ffi::*;
+use crate::utils;
 
 pub struct Info<'a> {
     ptr: *mut AVDeviceInfo,
@@ -33,13 +32,11 @@ impl<'a> Info<'a> {
 
 impl<'a> Info<'a> {
     pub fn name(&self) -> &str {
-        unsafe { from_utf8_unchecked(CStr::from_ptr((*self.as_ptr()).device_name).to_bytes()) }
+        unsafe { utils::str_from_c_ptr((*self.as_ptr()).device_name) }
     }
 
     pub fn description(&self) -> &str {
-        unsafe {
-            from_utf8_unchecked(CStr::from_ptr((*self.as_ptr()).device_description).to_bytes())
-        }
+        unsafe { utils::str_from_c_ptr((*self.as_ptr()).device_description) }
     }
 }
 
@@ -54,9 +51,9 @@ pub fn version() -> u32 {
 }
 
 pub fn configuration() -> &'static str {
-    unsafe { from_utf8_unchecked(CStr::from_ptr(avdevice_configuration()).to_bytes()) }
+    unsafe { utils::str_from_c_ptr(avdevice_configuration()) }
 }
 
 pub fn license() -> &'static str {
-    unsafe { from_utf8_unchecked(CStr::from_ptr(avdevice_license()).to_bytes()) }
+    unsafe { utils::str_from_c_ptr(avdevice_license()) }
 }

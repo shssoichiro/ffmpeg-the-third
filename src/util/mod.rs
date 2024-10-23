@@ -16,10 +16,8 @@ pub mod range;
 pub mod rational;
 pub mod time;
 
-use std::ffi::CStr;
-use std::str::from_utf8_unchecked;
-
 use crate::ffi::*;
+use crate::utils;
 
 #[inline(always)]
 pub fn version() -> u32 {
@@ -28,10 +26,10 @@ pub fn version() -> u32 {
 
 #[inline(always)]
 pub fn configuration() -> &'static str {
-    unsafe { from_utf8_unchecked(CStr::from_ptr(avutil_configuration()).to_bytes()) }
+    unsafe { utils::str_from_c_ptr(avutil_configuration()) }
 }
 
 #[inline(always)]
 pub fn license() -> &'static str {
-    unsafe { from_utf8_unchecked(CStr::from_ptr(avutil_license()).to_bytes()) }
+    unsafe { utils::str_from_c_ptr(avutil_license()) }
 }

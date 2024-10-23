@@ -1,9 +1,8 @@
-use std::ffi::CStr;
 use std::marker::PhantomData;
-use std::str::from_utf8_unchecked;
 
 use super::{Flags, Type};
 use crate::ffi::*;
+use crate::utils;
 #[cfg(not(feature = "ffmpeg_5_0"))]
 use crate::{format, Picture};
 
@@ -122,7 +121,7 @@ impl<'a> Text<'a> {
 
 impl<'a> Text<'a> {
     pub fn get(&self) -> &str {
-        unsafe { from_utf8_unchecked(CStr::from_ptr((*self.as_ptr()).text).to_bytes()) }
+        unsafe { utils::str_from_c_ptr((*self.as_ptr()).text) }
     }
 }
 
@@ -147,6 +146,6 @@ impl<'a> Ass<'a> {
 
 impl<'a> Ass<'a> {
     pub fn get(&self) -> &str {
-        unsafe { from_utf8_unchecked(CStr::from_ptr((*self.as_ptr()).ass).to_bytes()) }
+        unsafe { utils::str_from_c_ptr((*self.as_ptr()).ass) }
     }
 }

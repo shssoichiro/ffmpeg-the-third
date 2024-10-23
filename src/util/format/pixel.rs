@@ -1,10 +1,11 @@
 use std::error;
-use std::ffi::{CStr, CString, NulError};
+use std::ffi::{CString, NulError};
 use std::fmt;
-use std::str::{from_utf8_unchecked, FromStr};
+use std::str::FromStr;
 
 use crate::ffi::AVPixelFormat::*;
 use crate::ffi::*;
+use crate::utils;
 #[cfg(feature = "serialize")]
 use serde::{Deserialize, Serialize};
 
@@ -448,7 +449,7 @@ impl Descriptor {
     }
 
     pub fn name(self) -> &'static str {
-        unsafe { from_utf8_unchecked(CStr::from_ptr((*self.as_ptr()).name).to_bytes()) }
+        unsafe { utils::str_from_c_ptr((*self.as_ptr()).name) }
     }
 
     pub fn nb_components(self) -> u8 {
