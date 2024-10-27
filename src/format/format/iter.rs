@@ -26,11 +26,7 @@ impl Iterator for DemuxerIter {
     fn next(&mut self) -> Option<Self::Item> {
         unsafe {
             let next = av_demuxer_iterate(&mut self.ptr);
-            if next.is_null() {
-                None
-            } else {
-                Some(Input::wrap(next as _))
-            }
+            Input::from_raw(next)
         }
     }
 }

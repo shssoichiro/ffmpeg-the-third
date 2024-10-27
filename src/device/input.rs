@@ -3,50 +3,60 @@ use std::ptr;
 use crate::ffi::*;
 use crate::format;
 
-pub struct AudioIter(*mut AVInputFormat);
+pub struct AudioIter(*const AVInputFormat);
 
 impl Iterator for AudioIter {
     type Item = format::Input;
 
     fn next(&mut self) -> Option<<Self as Iterator>::Item> {
         unsafe {
-            let ptr = av_input_audio_device_next(self.0) as *mut AVInputFormat;
+            let inner = self.0;
 
-            if ptr.is_null() && !self.0.is_null() {
-                None
-            } else {
+            // Pre-5.0 FFmpeg uses a non-const pointer here
+            #[cfg(not(feature = "ffmpeg_5_0"))]
+            let inner = inner as *mut _;
+
+            let ptr = av_input_audio_device_next(inner);
+
+            if let Some(input) = format::Input::from_raw(ptr) {
                 self.0 = ptr;
-
-                Some(format::Input::wrap(ptr))
+                Some(input)
+            } else {
+                None
             }
         }
     }
 }
 
 pub fn audio() -> AudioIter {
-    AudioIter(ptr::null_mut())
+    AudioIter(ptr::null())
 }
 
-pub struct VideoIter(*mut AVInputFormat);
+pub struct VideoIter(*const AVInputFormat);
 
 impl Iterator for VideoIter {
     type Item = format::Input;
 
     fn next(&mut self) -> Option<<Self as Iterator>::Item> {
         unsafe {
-            let ptr = av_input_video_device_next(self.0) as *mut AVInputFormat;
+            let inner = self.0;
 
-            if ptr.is_null() && !self.0.is_null() {
-                None
-            } else {
+            // Pre-5.0 FFmpeg uses a non-const pointer here
+            #[cfg(not(feature = "ffmpeg_5_0"))]
+            let inner = inner as *mut _;
+
+            let ptr = av_input_video_device_next(inner);
+
+            if let Some(input) = format::Input::from_raw(ptr) {
                 self.0 = ptr;
-
-                Some(format::Input::wrap(ptr))
+                Some(input)
+            } else {
+                None
             }
         }
     }
 }
 
 pub fn video() -> VideoIter {
-    VideoIter(ptr::null_mut())
+    VideoIter(ptr::null())
 }
