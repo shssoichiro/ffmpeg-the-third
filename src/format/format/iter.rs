@@ -53,11 +53,7 @@ impl Iterator for MuxerIter {
     fn next(&mut self) -> Option<Self::Item> {
         unsafe {
             let next = av_muxer_iterate(&mut self.ptr);
-            if next.is_null() {
-                None
-            } else {
-                Some(Output::wrap(next as _))
-            }
+            Output::from_raw(next)
         }
     }
 }
