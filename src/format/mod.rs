@@ -23,27 +23,6 @@ use crate::ffi::*;
 use crate::utils;
 use crate::{Dictionary, Error};
 
-#[cfg(not(feature = "ffmpeg_5_0"))]
-pub fn register_all() {
-    unsafe {
-        av_register_all();
-    }
-}
-
-#[cfg(not(feature = "ffmpeg_5_0"))]
-pub fn register_input(mut format: Input) {
-    unsafe {
-        av_register_input_format(format.as_mut_ptr());
-    }
-}
-
-#[cfg(not(feature = "ffmpeg_5_0"))]
-pub fn register_output(mut format: Output) {
-    unsafe {
-        av_register_output_format(format.as_mut_ptr());
-    }
-}
-
 pub fn version() -> u32 {
     unsafe { avformat_version() }
 }
