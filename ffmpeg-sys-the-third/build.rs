@@ -84,29 +84,18 @@ impl AVFeature {
 }
 
 static AVUTIL_FEATURES: &[AVFeature] = &[
-    AVFeature::new("OLD_AVOPTIONS"),
-    AVFeature::new("PIX_FMT"),
-    AVFeature::new("CONTEXT_SIZE"),
-    AVFeature::new("PIX_FMT_DESC"),
-    AVFeature::new("AV_REVERSE"),
-    AVFeature::new("AUDIOCONVERT"),
-    AVFeature::new("CPU_FLAG_MMX2"),
-    AVFeature::new("LLS_PRIVATE"),
-    AVFeature::new("AVFRAME_LAVC"),
-    AVFeature::new("VDPAU"),
-    AVFeature::new("GET_CHANNEL_LAYOUT_COMPAT"),
-    AVFeature::new("XVMC"),
-    AVFeature::new("OPT_TYPE_METADATA"),
-    AVFeature::new("DLOG"),
-    AVFeature::new("HMAC"),
+    // before 5.0 (< v57)
     AVFeature::new("VAAPI"),
     AVFeature::new("PKT_PTS"),
     AVFeature::new("ERROR_FRAME"),
     AVFeature::new("FRAME_QP"),
+    // before 6.0 (< v58)
     AVFeature::new("D2STR"),
     AVFeature::new("DECLARE_ALIGNED"),
     AVFeature::new("COLORSPACE_NAME"),
     AVFeature::new("AV_MALLOCZ_ARRAY"),
+    // before 7.0 (< v59)
+    AVFeature::new("XVMC"),
     AVFeature::new("FIFO_PEEK2"),
     AVFeature::new("FIFO_OLD_API"),
     AVFeature::new("OLD_CHANNEL_LAYOUT"),
@@ -114,6 +103,7 @@ static AVUTIL_FEATURES: &[AVFeature] = &[
     AVFeature::new("PKT_DURATION"),
     AVFeature::new("REORDERED_OPAQUE"),
     AVFeature::new("FRAME_PICTURE_NUMBER"),
+    // before 8.0 (< v60)
     AVFeature::new("HDR_VIVID_THREE_SPLINE"),
     AVFeature::new("FRAME_PKT"),
     AVFeature::new("INTERLACED_FRAME"),
@@ -127,58 +117,9 @@ static AVUTIL_FEATURES: &[AVFeature] = &[
 ];
 
 static AVCODEC_FEATURES: &[AVFeature] = &[
-    AVFeature::new("VIMA_DECODER"),
-    AVFeature::new("REQUEST_CHANNELS"),
-    AVFeature::new("OLD_DECODE_AUDIO"),
-    AVFeature::new("OLD_ENCODE_AUDIO"),
-    AVFeature::new("OLD_ENCODE_VIDEO"),
-    AVFeature::new("CODEC_ID"),
-    AVFeature::new("AUDIO_CONVERT"),
-    AVFeature::new("AVCODEC_RESAMPLE"),
-    AVFeature::new("DEINTERLACE"),
-    AVFeature::new("DESTRUCT_PACKET"),
-    AVFeature::new("GET_BUFFER"),
-    AVFeature::new("MISSING_SAMPLE"),
+    // before 5.0 (< v59)
     AVFeature::new("LOWRES"),
-    AVFeature::new("CAP_VDPAU"),
-    AVFeature::new("BUFS_VDPAU"),
-    AVFeature::new("VOXWARE"),
-    AVFeature::new("SET_DIMENSIONS"),
-    AVFeature::new("DEBUG_MV"),
-    AVFeature::new("AC_VLC"),
-    AVFeature::new("OLD_MSMPEG4"),
-    AVFeature::new("ASPECT_EXTENDED"),
-    AVFeature::new("THREAD_OPAQUE"),
-    AVFeature::new("CODEC_PKT"),
-    AVFeature::new("ARCH_ALPHA"),
-    AVFeature::new("ERROR_RATE"),
-    AVFeature::new("QSCALE_TYPE"),
-    AVFeature::new("MB_TYPE"),
-    AVFeature::new("MAX_BFRAMES"),
-    AVFeature::new("NEG_LINESIZES"),
-    AVFeature::new("EMU_EDGE"),
-    AVFeature::new("ARCH_SH4"),
-    AVFeature::new("ARCH_SPARC"),
-    AVFeature::new("UNUSED_MEMBERS"),
-    AVFeature::new("IDCT_XVIDMMX"),
-    AVFeature::new("INPUT_PRESERVED"),
-    AVFeature::new("NORMALIZE_AQP"),
-    AVFeature::new("GMC"),
-    AVFeature::new("MV0"),
-    AVFeature::new("CODEC_NAME"),
-    AVFeature::new("AFD"),
-    AVFeature::new("VISMV"),
-    AVFeature::new("DV_FRAME_PROFILE"),
-    AVFeature::new("AUDIOENC_DELAY"),
-    AVFeature::new("VAAPI_CONTEXT"),
-    AVFeature::new("AVCTX_TIMEBASE"),
-    AVFeature::new("MPV_OPT"),
-    AVFeature::new("STREAM_CODEC_TAG"),
-    AVFeature::new("QUANT_BIAS"),
-    AVFeature::new("RC_STRATEGY"),
     AVFeature::new("CODED_FRAME"),
-    AVFeature::new("MOTION_EST"),
-    AVFeature::new("WITHOUT_PREFIX"),
     AVFeature::new("CONVERGENCE_DURATION"),
     AVFeature::new("PRIVATE_OPT"),
     AVFeature::new("CODER_TYPE"),
@@ -187,15 +128,18 @@ static AVCODEC_FEATURES: &[AVFeature] = &[
     AVFeature::new("VBV_DELAY"),
     AVFeature::new("SIDEDATA_ONLY_PKT"),
     AVFeature::new("AVPICTURE"),
+    // before 6.0 (< v60)
     AVFeature::new("OPENH264_SLICE_MODE"),
     AVFeature::new("OPENH264_CABAC"),
     AVFeature::new("UNUSED_CODEC_CAPS"),
     AVFeature::new("THREAD_SAFE_CALLBACKS"),
+    AVFeature::new("DEBUG_MV"),
     AVFeature::new("GET_FRAME_CLASS"),
     AVFeature::new("AUTO_THREADS"),
-    AVFeature::new("INIT_PACKET"),
+    AVFeature::new("AVCTX_TIMEBASE"),
     AVFeature::new("FLAG_TRUNCATED"),
     AVFeature::new("SUB_TEXT_FORMAT"),
+    // before 7.0 (< v61)
     AVFeature::new("IDCT_NONE"),
     AVFeature::new("SVTAV1_OPTS"),
     AVFeature::new("AYUV_CODECID"),
@@ -204,7 +148,17 @@ static AVCODEC_FEATURES: &[AVFeature] = &[
     AVFeature::new("VT_HWACCEL_CONTEXT"),
     AVFeature::new("AVCTX_FRAME_NUMBER"),
     AVFeature::new("SLICE_OFFSET"),
+    // before 8.0 (< v62)
     AVFeature::new("SUBFRAMES"),
+    AVFeature::new("TICKS_PER_FRAME"),
+    AVFeature::new("DROPCHANGED"),
+    AVFeature::new("AVFFT"),
+    AVFeature::new("FF_PROFILE_LEVEL"),
+    AVFeature::new("AVCODEC_CLOSE"),
+    AVFeature::new("BUFFER_MIN_SIZE"),
+    AVFeature::new("VDPAU_ALLOC_GET_SET"),
+    AVFeature::new("QUALITY_FACTOR"),
+    AVFeature::new("INIT_PACKET"),
     AVFeature::new("TICKS_PER_FRAME"),
     AVFeature::new("DROPCHANGED"),
     AVFeature::new("AVFFT"),
@@ -216,55 +170,55 @@ static AVCODEC_FEATURES: &[AVFeature] = &[
 ];
 
 static AVFORMAT_FEATURES: &[AVFeature] = &[
-    AVFeature::new("LAVF_BITEXACT"),
-    AVFeature::new("LAVF_FRAC"),
-    AVFeature::new("URL_FEOF"),
-    AVFeature::new("PROBESIZE_32"),
+    // before 5.0 (< v59)
     AVFeature::new("LAVF_AVCTX"),
     AVFeature::new("OLD_OPEN_CALLBACKS"),
+    // before 6.0 (< v60)
     AVFeature::new("LAVF_PRIV_OPT"),
-    AVFeature::new("COMPUTE_PKT_FIELDS2"),
     AVFeature::new("AVIOCONTEXT_WRITTEN"),
-    AVFeature::new("AVSTREAM_CLASS"),
-    AVFeature::new("R_FRAME_RATE"),
+    // before 7.0 (< v61)
     AVFeature::new("GET_END_PTS"),
     AVFeature::new("AVIODIRCONTEXT"),
     AVFeature::new("AVFORMAT_IO_CLOSE"),
     AVFeature::new("AVIO_WRITE_NONCONST"),
+    // before 8.0 (< v62)
+    AVFeature::new("COMPUTE_PKT_FIELDS2"),
     AVFeature::new("LAVF_SHORTEST"),
     AVFeature::new("ALLOW_FLUSH"),
     AVFeature::new("AVSTREAM_SIDE_DATA"),
     AVFeature::new("GET_DUR_ESTIMATE_METHOD"),
     AVFeature::new("INTERNAL_TIMING"),
+    // after 5.0 (> v59)
+    AVFeature::new("AVSTREAM_CLASS"),
+    // for all eternity
+    AVFeature::new("R_FRAME_RATE"),
 ];
 
 static AVDEVICE_FEATURES: &[AVFeature] = &[
+    // before 6.0 (< v60)
     AVFeature::new("DEVICE_CAPABILITIES"),
+    // before 8.0 (< v62)
     AVFeature::new("BKTR_DEVICE"),
     AVFeature::new("OPENGL_DEVICE"),
     AVFeature::new("SDL2_DEVICE"),
 ];
 
 static AVFILTER_FEATURES: &[AVFeature] = &[
-    AVFeature::new("AVFILTERPAD_PUBLIC"),
-    AVFeature::new("FOO_COUNT"),
-    AVFeature::new("OLD_FILTER_OPTS"),
+    // before 5.0 (< v8)
     AVFeature::new("OLD_FILTER_OPTS_ERROR"),
-    AVFeature::new("AVFILTER_OPEN"),
-    AVFeature::new("OLD_FILTER_REGISTER"),
-    AVFeature::new("OLD_GRAPH_PARSE"),
-    AVFeature::new("NOCONST_GET_NAME"),
+    // before 6.0 (< v9)
     AVFeature::new("SWS_PARAM_OPTION"),
     AVFeature::new("BUFFERSINK_ALLOC"),
     AVFeature::new("PAD_COUNT"),
+    // before 7.0 (< v10)
     AVFeature::new("LIBPLACEBO_OPTS"),
+    // before 8.0 (< v11)
     AVFeature::new("LINK_PUBLIC"),
 ];
 
-static AVRESAMPLE_FEATURES: &[AVFeature] = &[AVFeature::new("RESAMPLE_CLOSE_OPEN")];
+static AVRESAMPLE_FEATURES: &[AVFeature] = &[];
 
-static SWSCALE_FEATURES: &[AVFeature] =
-    &[AVFeature::new("SWS_CPU_CAPS"), AVFeature::new("ARCH_BFIN")];
+static SWSCALE_FEATURES: &[AVFeature] = &[];
 
 static SWRESAMPLE_FEATURES: &[AVFeature] = &[];
 
@@ -863,7 +817,10 @@ fn check_features(include_paths: &[PathBuf]) {
         .expect("Unable to find the version for lib{lib}");
 
     // This allows removing a lot of #[cfg] attributes.
-    assert!(lavc_version >= (58, 54), "FFmpeg 4.2 or higher is required, but found avcodec version {lavc_version:?}");
+    assert!(
+        lavc_version >= (58, 54),
+        "FFmpeg 4.2 or higher is required, but found avcodec version {lavc_version:?}"
+    );
 
     for &(ffmpeg_version_flag, lavc_version_major, lavc_version_minor) in &ffmpeg_lavc_versions {
         // Every possible feature needs an unconditional check-cfg to prevent warnings
