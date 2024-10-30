@@ -66,7 +66,6 @@ static LIBRARIES: &[Library] = &[
     Library::optional("avformat", AVFORMAT_FEATURES, AVFORMAT_HEADERS),
     Library::optional("avdevice", AVDEVICE_FEATURES, AVDEVICE_HEADERS),
     Library::optional("avfilter", AVFILTER_FEATURES, AVFILTER_HEADERS),
-    Library::optional("avresample", AVRESAMPLE_FEATURES, AVRESAMPLE_HEADERS),
     Library::optional("swscale", SWSCALE_FEATURES, SWSCALE_HEADERS),
     Library::optional("swresample", SWRESAMPLE_FEATURES, SWRESAMPLE_HEADERS),
     Library::optional("postproc", POSTPROC_FEATURES, POSTPROC_HEADERS),
@@ -216,8 +215,6 @@ static AVFILTER_FEATURES: &[AVFeature] = &[
     AVFeature::new("LINK_PUBLIC"),
 ];
 
-static AVRESAMPLE_FEATURES: &[AVFeature] = &[];
-
 static SWSCALE_FEATURES: &[AVFeature] = &[];
 
 static SWRESAMPLE_FEATURES: &[AVFeature] = &[];
@@ -302,7 +299,6 @@ static AVFILTER_HEADERS: &[AVHeader] = &[
     AVHeader::new("buffersrc.h"),
     AVHeader::new("avfilter.h"),
 ];
-static AVRESAMPLE_HEADERS: &[AVHeader] = &[AVHeader::new("avresample.h")];
 static SWSCALE_HEADERS: &[AVHeader] = &[AVHeader::new("swscale.h")];
 static SWRESAMPLE_HEADERS: &[AVHeader] = &[AVHeader::new("swresample.h")];
 static POSTPROC_HEADERS: &[AVHeader] = &[AVHeader::new("postprocess.h")];
@@ -562,14 +558,8 @@ fn build(out_dir: &Path, ffmpeg_version: &str) -> io::Result<PathBuf> {
     // the binary using ffmpeg-sys cannot be redistributed
     configure.switch("BUILD_LICENSE_NONFREE", "nonfree");
 
-    let ffmpeg_major_version: u32 = get_major_version(ffmpeg_version);
-
     // configure building libraries based on features
-    for lib in LIBRARIES
-        .iter()
-        .filter(|lib| lib.optional)
-        .filter(|lib| !(lib.name == "avresample" && ffmpeg_major_version >= 5))
-    {
+    for lib in LIBRARIES.iter().filter(|lib| lib.optional) {
         configure.switch(&lib.name.to_uppercase(), lib.name);
     }
 
@@ -971,7 +961,6 @@ fn main() {
         .allowlist_file(r#".*[/\\]libavformat[/\\].*"#)
         .allowlist_file(r#".*[/\\]libavdevice[/\\].*"#)
         .allowlist_file(r#".*[/\\]libavfilter[/\\].*"#)
-        .allowlist_file(r#".*[/\\]libavresample[/\\].*"#)
         .allowlist_file(r#".*[/\\]libswscale[/\\].*"#)
         .allowlist_file(r#".*[/\\]libswresample[/\\].*"#)
         .allowlist_file(r#".*[/\\]libpostproc[/\\].*"#)
