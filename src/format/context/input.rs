@@ -1,11 +1,10 @@
 use std::ffi::CString;
 use std::mem;
-use std::ops::{Deref, DerefMut};
+use std::ops::{Bound, Deref, DerefMut, RangeBounds};
 
 use super::common::Context;
 use super::destructor;
 use crate::ffi::*;
-use crate::util::range::Range;
 #[cfg(not(feature = "ffmpeg_5_0"))]
 use crate::Codec;
 use crate::{format, Error, Packet, Stream};
@@ -117,16 +116,21 @@ impl Input {
         }
     }
 
-    pub fn seek<R: Range<i64>>(&mut self, ts: i64, range: R) -> Result<(), Error> {
+    pub fn seek<R: RangeBounds<i64>>(&mut self, ts: i64, range: R) -> Result<(), Error> {
         unsafe {
-            match avformat_seek_file(
-                self.as_mut_ptr(),
-                -1,
-                range.start().cloned().unwrap_or(i64::MIN),
-                ts,
-                range.end().cloned().unwrap_or(i64::MAX),
-                0,
-            ) {
+            let start = match range.start_bound().cloned() {
+                Bound::Included(i) => i,
+                Bound::Excluded(i) => i.saturating_add(1),
+                Bound::Unbounded => i64::MIN,
+            };
+
+            let end = match range.end_bound().cloned() {
+                Bound::Included(i) => i,
+                Bound::Excluded(i) => i.saturating_sub(1),
+                Bound::Unbounded => i64::MAX,
+            };
+
+            match avformat_seek_file(self.as_mut_ptr(), -1, start, ts, end, 0) {
                 s if s >= 0 => Ok(()),
                 e => Err(Error::from(e)),
             }

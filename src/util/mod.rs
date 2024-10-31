@@ -12,7 +12,6 @@ pub mod mathematics;
 pub mod media;
 pub mod option;
 pub mod picture;
-pub mod range;
 pub mod rational;
 pub mod time;
 
