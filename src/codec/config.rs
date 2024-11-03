@@ -46,11 +46,11 @@ where
     /// # Example
     ///
     /// ```
-    /// use ffmpeg_the_third::codec::{encoder, Id};
+    /// use ffmpeg_the_third::codec::{decoder, Id};
     /// use ffmpeg_the_third::format::sample::{Sample, Type};
     ///
-    /// let codec = encoder::find(Id::MP3)
-    ///     .expect("Can find an MP3 encoder")
+    /// let codec = decoder::find(Id::MP3)
+    ///     .expect("Can find an MP3 decoder")
     ///     .audio()
     ///     .unwrap();
     ///
@@ -297,7 +297,7 @@ mod test {
 
     #[test]
     fn audio_encoder() {
-        let codec = encoder::find(Id::MP3).expect("can find mp3 encoder");
+        let codec = encoder::find(Id::OPUS).expect("can find opus encoder");
 
         // looks like every codec returns Supported::All for color space.
         // might change in a future FFmpeg release
@@ -352,15 +352,15 @@ mod test {
 
     #[test]
     fn supports() {
-        let codec = encoder::find(Id::VP9).expect("can find VP9 encoder");
+        let codec = encoder::find(Id::FFV1).expect("can find FFV1 encoder");
 
         assert!(supported_color_ranges(codec, None)
             .expect("can check color range support")
-            .supports(Range::JPEG));
+            .supports(Range::MPEG));
 
         assert!(!supported_pixel_formats(codec, None)
             .expect("can check color range support")
-            .supports(Pixel::BGR8));
+            .supports(Pixel::GRAY16));
 
         assert!(supported_frame_rates(codec, None)
             .expect("can check frame rate support")
