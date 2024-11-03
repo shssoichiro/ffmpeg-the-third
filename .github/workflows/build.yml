@@ -35,14 +35,19 @@ jobs:
             file: "ffmpeg-4.3-linux-gcc.tar.xz"
           - version: "4.4"
             file: "ffmpeg-4.4-linux-clang-default.tar.xz"
+            lib_subdir: "amd64"
           - version: "5.1"
             file: "ffmpeg-5.1-linux-clang-default.tar.xz"
+            lib_subdir: "amd64"
           - version: "6.1"
             file: "ffmpeg-6.1-linux-clang-default.tar.xz"
+            lib_subdir: "amd64"
           - version: "7.0"
             file: "ffmpeg-7.0-linux-clang-default.tar.xz"
+            lib_subdir: "amd64"
           - version: "7.1"
             file: "ffmpeg-7.1-linux-clang-default.tar.xz"
+            lib_subdir: "amd64"
       fail-fast: false
 
     steps:
@@ -53,11 +58,19 @@ jobs:
           sudo apt-get install -y --no-install-recommends \
                                libva2 libva-drm2 libva-x11-2 libvdpau1 libxv1
       - name: Download FFmpeg
+        shell: bash
         run: |
           mkdir ffmpeg-libs
           curl -L "https://sourceforge.net/projects/avbuild/files/linux/${{ matrix.ffmpeg.file }}/download" \
             | tar xJf - --strip 1 -C ffmpeg-libs
-          echo "PKG_CONFIG_PATH=$PWD/ffmpeg-libs/lib/amd64/pkgconfig" >> "$GITHUB_ENV"
+
+          # https://github.com/wang-bin/avbuild/issues/76
+          PC_FILES=(ffmpeg-libs/lib/${{ matrix.ffmpeg.lib_subdir }}/pkgconfig/*.pc)
+          sed -i 's/^prefix=.*$/prefix=${pcfiledir}\/..\/..\/../g' $PC_FILES
+          sed -i 's/^libdir=.*$/libdir=${prefix}\/lib\/${{ matrix.ffmpeg.lib_subdir }}/g' $PC_FILES
+
+          echo "PKG_CONFIG_PATH=$PWD/ffmpeg-libs/lib/${{ matrix.ffmpeg.lib_subdir }}/pkgconfig" >> "$GITHUB_ENV"
+          echo "LD_LIBRARY_PATH=$PWD/ffmpeg-libs/lib/${{ matrix.ffmpeg.lib_subdir }}" >> "$GITHUB_ENV"
       - name: Install Rust stable with clippy and rustfmt
         uses: dtolnay/rust-toolchain@stable
         with:
@@ -181,11 +194,19 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Download FFmpeg
+        shell: bash
         run: |
           mkdir ffmpeg-libs
           curl -L "https://sourceforge.net/projects/avbuild/files/linux/ffmpeg-7.1-linux-clang-lite.tar.xz/download" \
             | tar xJf - --strip 1 -C ffmpeg-libs
+
+          # https://github.com/wang-bin/avbuild/issues/76
+          PC_FILES=(ffmpeg-libs/lib/amd64/pkgconfig/*.pc)
+          sed -i 's/^prefix=.*$/prefix=${pcfiledir}\/..\/..\/../g' $PC_FILES
+          sed -i 's/^libdir=.*$/libdir=${prefix}\/lib\/amd64/g' $PC_FILES
+
           echo "PKG_CONFIG_PATH=$PWD/ffmpeg-libs/lib/amd64/pkgconfig" >> "$GITHUB_ENV"
+          echo "LD_LIBRARY_PATH=$PWD/ffmpeg-libs" >> "$GITHUB_ENV"
       # rust-version from Cargo.toml
       - name: Install Rust 1.65.0
         uses: dtolnay/rust-toolchain@1.65.0
