@@ -18,7 +18,7 @@ impl Decoder {
         }
     }
 
-    pub fn open_as<D: traits::Decoder>(mut self, codec: D) -> Result<Opened, Error> {
+    pub fn open_as<T, D: traits::Decoder<T>>(mut self, codec: D) -> Result<Opened, Error> {
         unsafe {
             if let Some(codec) = codec.decoder() {
                 match avcodec_open2(self.as_mut_ptr(), codec.as_ptr(), ptr::null_mut()) {
@@ -31,7 +31,7 @@ impl Decoder {
         }
     }
 
-    pub fn open_as_with<D: traits::Decoder>(
+    pub fn open_as_with<T, D: traits::Decoder<T>>(
         mut self,
         codec: D,
         options: Dictionary,

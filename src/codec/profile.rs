@@ -387,3 +387,31 @@ impl From<Profile> for c_int {
         }
     }
 }
+
+pub struct ProfileIter {
+    id: Id,
+    ptr: *const AVProfile,
+}
+
+impl ProfileIter {
+    pub fn new(id: Id, ptr: *const AVProfile) -> Self {
+        ProfileIter { id, ptr }
+    }
+}
+
+impl Iterator for ProfileIter {
+    type Item = Profile;
+
+    fn next(&mut self) -> Option<<Self as Iterator>::Item> {
+        unsafe {
+            if (*self.ptr).profile == FF_PROFILE_UNKNOWN {
+                return None;
+            }
+
+            let profile = Profile::from((self.id, (*self.ptr).profile));
+            self.ptr = self.ptr.offset(1);
+
+            Some(profile)
+        }
+    }
+}

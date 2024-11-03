@@ -11,7 +11,12 @@ pub mod subtitle;
 #[cfg(not(feature = "ffmpeg_5_0"))]
 pub mod picture;
 
+pub mod descriptor;
+pub use self::descriptor::CodecDescriptor;
+
 pub mod discard;
+
+pub mod config;
 
 pub mod context;
 pub use self::context::Context;
@@ -20,15 +25,10 @@ pub mod capabilities;
 pub use self::capabilities::Capabilities;
 
 pub mod codec;
+pub use self::codec::{Audio, Codec, Video};
 
 pub mod parameters;
 pub use self::parameters::Parameters;
-
-pub mod video;
-pub use self::video::Video;
-
-pub mod audio;
-pub use self::audio::Audio;
 
 pub mod audio_service;
 pub mod field_order;
@@ -41,6 +41,9 @@ pub use self::debug::Debug;
 
 pub mod profile;
 pub use self::profile::Profile;
+
+pub mod props;
+pub use self::props::CodecProperties;
 
 pub mod threading;
 
