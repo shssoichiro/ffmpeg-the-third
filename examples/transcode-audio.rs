@@ -72,7 +72,7 @@ struct Transcoder {
 fn transcoder<P: AsRef<Path>>(
     ictx: &mut format::context::Input,
     octx: &mut format::context::Output,
-    path: &P,
+    path: P,
     filter_spec: &str,
 ) -> Result<Transcoder, ffmpeg::Error> {
     let input = ictx

@@ -36,11 +36,11 @@ pub fn license() -> &'static str {
 }
 
 // XXX: use to_cstring when stable
-fn from_path<P: AsRef<Path>>(path: &P) -> CString {
+fn from_path<P: AsRef<Path>>(path: P) -> CString {
     CString::new(path.as_ref().as_os_str().to_str().unwrap()).unwrap()
 }
 
-pub fn input<P: AsRef<Path>>(path: &P) -> Result<context::Input, Error> {
+pub fn input<P: AsRef<Path>>(path: P) -> Result<context::Input, Error> {
     unsafe {
         let mut ps = ptr::null_mut();
         let path = from_path(path);
@@ -60,7 +60,7 @@ pub fn input<P: AsRef<Path>>(path: &P) -> Result<context::Input, Error> {
 }
 
 pub fn input_with_dictionary<P: AsRef<Path>>(
-    path: &P,
+    path: P,
     options: Dictionary,
 ) -> Result<context::Input, Error> {
     unsafe {
@@ -85,10 +85,7 @@ pub fn input_with_dictionary<P: AsRef<Path>>(
     }
 }
 
-pub fn input_with_interrupt<P: AsRef<Path>, F>(
-    path: &P,
-    closure: F,
-) -> Result<context::Input, Error>
+pub fn input_with_interrupt<P: AsRef<Path>, F>(path: P, closure: F) -> Result<context::Input, Error>
 where
     F: FnMut() -> bool,
 {
@@ -111,7 +108,7 @@ where
     }
 }
 
-pub fn output<P: AsRef<Path>>(path: &P) -> Result<context::Output, Error> {
+pub fn output<P: AsRef<Path>>(path: P) -> Result<context::Output, Error> {
     unsafe {
         let mut ps = ptr::null_mut();
         let path = from_path(path);
@@ -127,10 +124,7 @@ pub fn output<P: AsRef<Path>>(path: &P) -> Result<context::Output, Error> {
     }
 }
 
-pub fn output_with<P: AsRef<Path>>(
-    path: &P,
-    options: Dictionary,
-) -> Result<context::Output, Error> {
+pub fn output_with<P: AsRef<Path>>(path: P, options: Dictionary) -> Result<context::Output, Error> {
     unsafe {
         let mut ps = ptr::null_mut();
         let path = from_path(path);
@@ -159,7 +153,7 @@ pub fn output_with<P: AsRef<Path>>(
     }
 }
 
-pub fn output_as<P: AsRef<Path>>(path: &P, format: &str) -> Result<context::Output, Error> {
+pub fn output_as<P: AsRef<Path>>(path: P, format: &str) -> Result<context::Output, Error> {
     unsafe {
         let mut ps = ptr::null_mut();
         let path = from_path(path);
@@ -182,7 +176,7 @@ pub fn output_as<P: AsRef<Path>>(path: &P, format: &str) -> Result<context::Outp
 }
 
 pub fn output_as_with<P: AsRef<Path>>(
-    path: &P,
+    path: P,
     format: &str,
     options: Dictionary,
 ) -> Result<context::Output, Error> {
