@@ -23,30 +23,54 @@ env:
 
 jobs:
   build-test-lint-linux:
-    name: Linux - FFmpeg ${{ matrix.ffmpeg_version }} - build, test and lint
+    name: Linux - FFmpeg ${{ matrix.ffmpeg.version }} - build, test and lint
     runs-on: ubuntu-22.04
-    container: jrottenberg/ffmpeg:${{ matrix.ffmpeg_version }}-ubuntu
 
     strategy:
       matrix:
-        ffmpeg_version:
-          - "4.2"
-          - "4.3"
-          - "4.4"
-          - "5.0"
-          - "5.1"
-          - "6.0"
-          - "6.1"
-          - "7.0"
-          - "7.1"
+        ffmpeg:
+          - version: "4.2"
+            file: "ffmpeg-4.2-linux-gcc.tar.xz"
+          - version: "4.3"
+            file: "ffmpeg-4.3-linux-gcc.tar.xz"
+          - version: "4.4"
+            file: "ffmpeg-4.4-linux-clang-default.tar.xz"
+            lib_subdir: "amd64"
+          - version: "5.1"
+            file: "ffmpeg-5.1-linux-clang-default.tar.xz"
+            lib_subdir: "amd64"
+          - version: "6.1"
+            file: "ffmpeg-6.1-linux-clang-default.tar.xz"
+            lib_subdir: "amd64"
+          - version: "7.0"
+            file: "ffmpeg-7.0-linux-clang-default.tar.xz"
+            lib_subdir: "amd64"
+          - version: "7.1"
+            file: "ffmpeg-7.1-linux-clang-default.tar.xz"
+            lib_subdir: "amd64"
       fail-fast: false
 
     steps:
       - uses: actions/checkout@v4
       - name: Install dependencies
         run: |
-          apt-get update
-          apt-get install -y --no-install-recommends clang curl pkg-config
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+                               libva2 libva-drm2 libva-x11-2 libvdpau1 libxv1
+      - name: Download FFmpeg
+        shell: bash
+        run: |
+          mkdir ffmpeg-libs
+          curl -L "https://sourceforge.net/projects/avbuild/files/linux/${{ matrix.ffmpeg.file }}/download" \
+            | tar xJf - --strip 1 -C ffmpeg-libs
+
+          # https://github.com/wang-bin/avbuild/issues/76
+          PC_FILES=(ffmpeg-libs/lib/${{ matrix.ffmpeg.lib_subdir }}/pkgconfig/*.pc)
+          sed -i 's/^prefix=.*$/prefix=${pcfiledir}\/..\/..\/../g' $PC_FILES
+          sed -i 's/^libdir=.*$/libdir=${prefix}\/lib\/${{ matrix.ffmpeg.lib_subdir }}/g' $PC_FILES
+
+          echo "PKG_CONFIG_PATH=$PWD/ffmpeg-libs/lib/${{ matrix.ffmpeg.lib_subdir }}/pkgconfig" >> "$GITHUB_ENV"
+          echo "LD_LIBRARY_PATH=$PWD/ffmpeg-libs/lib/${{ matrix.ffmpeg.lib_subdir }}" >> "$GITHUB_ENV"
       - name: Install Rust stable with clippy and rustfmt
         uses: dtolnay/rust-toolchain@stable
         with:
@@ -55,7 +79,7 @@ jobs:
         with:
           prefix-key: "v3-rust"
           # Only save cache for one FFmpeg version
-          save-if: ${{ matrix.ffmpeg_version == '7.1' }}
+          save-if: ${{ matrix.ffmpeg.version == '7.1' }}
 
       - name: Check format
         run: cargo fmt -- --check
@@ -166,14 +190,23 @@ jobs:
 
   msrv:
     runs-on: ubuntu-22.04
-    container: jrottenberg/ffmpeg:7.0-ubuntu
 
     steps:
       - uses: actions/checkout@v4
-      - name: Install dependencies
+      - name: Download FFmpeg
+        shell: bash
         run: |
-          apt-get update
-          apt-get install -y --no-install-recommends clang curl pkg-config
+          mkdir ffmpeg-libs
+          curl -L "https://sourceforge.net/projects/avbuild/files/linux/ffmpeg-7.1-linux-clang-lite.tar.xz/download" \
+            | tar xJf - --strip 1 -C ffmpeg-libs
+
+          # https://github.com/wang-bin/avbuild/issues/76
+          PC_FILES=(ffmpeg-libs/lib/amd64/pkgconfig/*.pc)
+          sed -i 's/^prefix=.*$/prefix=${pcfiledir}\/..\/..\/../g' $PC_FILES
+          sed -i 's/^libdir=.*$/libdir=${prefix}\/lib\/amd64/g' $PC_FILES
+
+          echo "PKG_CONFIG_PATH=$PWD/ffmpeg-libs/lib/amd64/pkgconfig" >> "$GITHUB_ENV"
+          echo "LD_LIBRARY_PATH=$PWD/ffmpeg-libs" >> "$GITHUB_ENV"
       # rust-version from Cargo.toml
       - name: Install Rust 1.65.0
         uses: dtolnay/rust-toolchain@1.65.0
