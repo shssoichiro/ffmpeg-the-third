@@ -4,19 +4,26 @@
 
 This is a fork of the abandoned [ffmpeg-next](https://crates.io/crates/ffmpeg-next) crate which is a fork of the abandoned [ffmpeg](https://crates.io/crates/ffmpeg) crate.
 
-Currently supported FFmpeg versions: 4.x, 5.x, 6.x.
+Currently supported FFmpeg versions: 4.2 - 7.1.
 
-Build instructions can be found on the [wiki](https://github.com/zmwangx/rust-ffmpeg/wiki/Notes-on-building).
+Versions that are considered [old and unmaintained](https://ffmpeg.org/olddownload.html) by FFmpeg like 5.0 or 6.0 usually work, but are not actively tested during development.
 
-Documentation:
+## Usage
 
-- [docs.rs](https://docs.rs/ffmpeg-the-third/);
-- [FFmpeg user manual](https://ffmpeg.org/ffmpeg-all.html);
-- [FFmpeg Doxygen](https://ffmpeg.org/doxygen/trunk/).
+Build instructions can be found on the [wiki](https://github.com/zmwangx/rust-ffmpeg/wiki/Notes-on-building). API documentation for this crate can be found on [docs.rs](https://docs.rs/ffmpeg-the-third/).
 
-_See [CHANGELOG.md](CHANGELOG.md) for other information on version upgrades._
+_See [CHANGELOG.md](CHANGELOG.md) for information on version upgrades._
 
-**If you have significant, demonstrable experience in Rust and multimedia-related programming, please let me know, I'll be more than happy to invite you as a collaborator.**
+### FFmpeg documentation
+
+- [FFmpeg user manual](https://ffmpeg.org/ffmpeg-all.html)
+- [FFmpeg Doxygen](https://ffmpeg.org/doxygen/trunk/)
+
+## Contributing
+
+Issues and PRs are welcome.
+
+If you have significant, demonstrable experience in Rust and multimedia-related programming, please let me know, I'll be more than happy to invite you as a collaborator.
 
 ## Minimum supported Rust version (MSRV)
 
