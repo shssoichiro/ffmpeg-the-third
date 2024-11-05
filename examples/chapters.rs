@@ -5,7 +5,7 @@ use std::env;
 fn main() {
     ffmpeg::init().unwrap();
 
-    match ffmpeg::format::input(&env::args().nth(1).expect("missing input file name")) {
+    match ffmpeg::format::input(env::args().nth(1).expect("missing input file name")) {
         Ok(ictx) => {
             println!("Nb chapters: {}", ictx.nb_chapters());
 
@@ -20,7 +20,7 @@ fn main() {
                 }
             }
 
-            let mut octx = ffmpeg::format::output(&"test.mkv").expect("Couldn't open test file");
+            let mut octx = ffmpeg::format::output("test.mkv").expect("Couldn't open test file");
 
             for chapter in ictx.chapters() {
                 let title = match chapter.metadata().get("title") {

@@ -5,7 +5,7 @@ use std::env;
 fn main() -> Result<(), ffmpeg::Error> {
     ffmpeg::init().unwrap();
 
-    match ffmpeg::format::input(&env::args().nth(1).expect("missing file")) {
+    match ffmpeg::format::input(env::args().nth(1).expect("missing file")) {
         Ok(context) => {
             for (k, v) in context.metadata().iter() {
                 println!("{k}: {v}");

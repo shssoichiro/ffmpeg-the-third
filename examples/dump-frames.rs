@@ -11,7 +11,7 @@ use std::io::prelude::*;
 fn main() -> Result<(), ffmpeg::Error> {
     ffmpeg::init().unwrap();
 
-    if let Ok(mut ictx) = input(&env::args().nth(1).expect("Cannot open file.")) {
+    if let Ok(mut ictx) = input(env::args().nth(1).expect("Cannot open file.")) {
         let input = ictx
             .streams()
             .best(Type::Video)
