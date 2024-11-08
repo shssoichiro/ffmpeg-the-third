@@ -56,7 +56,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends \
-                               libva2 libva-drm2 libva-x11-2 libvdpau1 libxv1
+                               libc++1 libva2 libva-drm2 libva-x11-2 libvdpau1 libxv1
       - name: Download FFmpeg
         shell: bash
         run: |
