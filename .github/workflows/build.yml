@@ -56,18 +56,13 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends \
-                               libva2 libva-drm2 libva-x11-2 libvdpau1 libxv1
+                               libc++1 libva2 libva-drm2 libva-x11-2 libvdpau1 libxv1
       - name: Download FFmpeg
         shell: bash
         run: |
           mkdir ffmpeg-libs
           curl -L "https://sourceforge.net/projects/avbuild/files/linux/${{ matrix.ffmpeg.file }}/download" \
             | tar xJf - --strip 1 -C ffmpeg-libs
-
-          # https://github.com/wang-bin/avbuild/issues/76
-          PC_FILES=(ffmpeg-libs/lib/${{ matrix.ffmpeg.lib_subdir }}/pkgconfig/*.pc)
-          sed -i 's/^prefix=.*$/prefix=${pcfiledir}\/..\/..\/../g' $PC_FILES
-          sed -i 's/^libdir=.*$/libdir=${prefix}\/lib\/${{ matrix.ffmpeg.lib_subdir }}/g' $PC_FILES
 
           echo "PKG_CONFIG_PATH=$PWD/ffmpeg-libs/lib/${{ matrix.ffmpeg.lib_subdir }}/pkgconfig" >> "$GITHUB_ENV"
           echo "LD_LIBRARY_PATH=$PWD/ffmpeg-libs/lib/${{ matrix.ffmpeg.lib_subdir }}" >> "$GITHUB_ENV"
@@ -199,11 +194,6 @@ jobs:
           mkdir ffmpeg-libs
           curl -L "https://sourceforge.net/projects/avbuild/files/linux/ffmpeg-7.1-linux-clang-lite.tar.xz/download" \
             | tar xJf - --strip 1 -C ffmpeg-libs
-
-          # https://github.com/wang-bin/avbuild/issues/76
-          PC_FILES=(ffmpeg-libs/lib/amd64/pkgconfig/*.pc)
-          sed -i 's/^prefix=.*$/prefix=${pcfiledir}\/..\/..\/../g' $PC_FILES
-          sed -i 's/^libdir=.*$/libdir=${prefix}\/lib\/amd64/g' $PC_FILES
 
           echo "PKG_CONFIG_PATH=$PWD/ffmpeg-libs/lib/amd64/pkgconfig" >> "$GITHUB_ENV"
           echo "LD_LIBRARY_PATH=$PWD/ffmpeg-libs" >> "$GITHUB_ENV"
