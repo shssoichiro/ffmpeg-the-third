@@ -769,17 +769,15 @@ fn check_features(include_paths: &[PathBuf]) {
         }
     }
 
-    let version_check_info = [("avcodec", 57, 62, 0, 101)];
-    for &(lib, begin_version_major, end_version_major, begin_version_minor, end_version_minor) in
-        &version_check_info
-    {
-        let libversion = *versions
-            .get(lib)
-            .expect("Unable to find the version for lib{lib}");
-
+    let begin_version_major = 57;
+    let end_version_major = 62;
+    let begin_version_minor = 0;
+    let end_version_minor = 134;
+    for (lib, version) in &versions {
+        println!("lib{lib} version = {}_{}", (*version).0, (*version).1);
         for version_major in begin_version_major..end_version_major {
             for version_minor in begin_version_minor..end_version_minor {
-                if libversion >= (version_major, version_minor) {
+                if *version >= (version_major, version_minor) {
                     println!(
                         r#"cargo:rustc-cfg=feature="{lib}_version_greater_than_{version_major}_{version_minor}""#
                     );
