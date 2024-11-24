@@ -35,7 +35,7 @@ fn main() {
         // issues when muxing into a different container format. Unfortunately
         // there's no high level API to do this (yet).
         unsafe {
-            (*ost.parameters().as_mut_ptr()).codec_tag = 0;
+            (*ost.parameters_mut().as_mut_ptr()).codec_tag = 0;
         }
     }
 
