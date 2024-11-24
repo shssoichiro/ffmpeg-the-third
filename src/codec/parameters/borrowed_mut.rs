@@ -2,6 +2,7 @@ use std::marker::PhantomData;
 use std::ptr::NonNull;
 
 use crate::ffi::*;
+use crate::{AsMutPtr, AsPtr};
 
 pub struct ParametersMut<'p> {
     ptr: NonNull<AVCodecParameters>,
@@ -22,5 +23,17 @@ impl<'p> ParametersMut<'p> {
 
     pub fn as_mut_ptr(&mut self) -> *mut AVCodecParameters {
         self.ptr.as_ptr()
+    }
+}
+
+impl<'p> AsPtr<AVCodecParameters> for ParametersMut<'p> {
+    fn as_ptr(&self) -> *const AVCodecParameters {
+        self.as_ptr()
+    }
+}
+
+impl<'p> AsMutPtr<AVCodecParameters> for ParametersMut<'p> {
+    fn as_mut_ptr(&mut self) -> *mut AVCodecParameters {
+        self.as_mut_ptr()
     }
 }

@@ -2,6 +2,7 @@ use std::ptr::NonNull;
 
 use crate::codec::Context;
 use crate::ffi::*;
+use crate::{AsMutPtr, AsPtr};
 
 pub struct Parameters {
     ptr: NonNull<AVCodecParameters>,
@@ -59,6 +60,18 @@ impl Clone for Parameters {
         unsafe {
             avcodec_parameters_copy(self.as_mut_ptr(), source.as_ptr());
         }
+    }
+}
+
+impl AsPtr<AVCodecParameters> for Parameters {
+    fn as_ptr(&self) -> *const AVCodecParameters {
+        self.as_ptr()
+    }
+}
+
+impl AsMutPtr<AVCodecParameters> for Parameters {
+    fn as_mut_ptr(&mut self) -> *mut AVCodecParameters {
+        self.as_mut_ptr()
     }
 }
 

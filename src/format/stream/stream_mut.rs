@@ -4,7 +4,8 @@ use std::ops::Deref;
 use super::Stream;
 use crate::ffi::*;
 use crate::format::context::common::Context;
-use crate::{codec, Dictionary, Rational};
+use crate::AsPtr;
+use crate::{Dictionary, Rational};
 
 pub struct StreamMut<'a> {
     context: &'a mut Context,
@@ -47,9 +48,7 @@ impl<'a> StreamMut<'a> {
         }
     }
 
-    pub fn set_parameters<P: Into<codec::Parameters>>(&mut self, parameters: P) {
-        let parameters = parameters.into();
-
+    pub fn set_parameters<P: AsPtr<AVCodecParameters>>(&mut self, parameters: P) {
         unsafe {
             avcodec_parameters_copy((*self.as_mut_ptr()).codecpar, parameters.as_ptr());
         }

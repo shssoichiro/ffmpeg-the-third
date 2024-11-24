@@ -2,6 +2,7 @@ use std::marker::PhantomData;
 use std::ptr::NonNull;
 
 use crate::ffi::*;
+use crate::AsPtr;
 
 pub struct ParametersRef<'p> {
     ptr: NonNull<AVCodecParameters>,
@@ -17,6 +18,12 @@ impl<'p> ParametersRef<'p> {
     }
 
     pub fn as_ptr(&self) -> *const AVCodecParameters {
+        self.ptr.as_ptr()
+    }
+}
+
+impl<'p> AsPtr<AVCodecParameters> for ParametersRef<'p> {
+    fn as_ptr(&self) -> *const AVCodecParameters {
         self.ptr.as_ptr()
     }
 }
