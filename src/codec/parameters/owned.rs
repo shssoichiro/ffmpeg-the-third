@@ -1,38 +1,35 @@
-use std::any::Any;
-use std::rc::Rc;
+use std::ptr::NonNull;
 
-use super::{Context, Id};
+use crate::codec::{Context, Id};
 use crate::ffi::*;
 use crate::media;
 
 pub struct Parameters {
-    ptr: *mut AVCodecParameters,
-    owner: Option<Rc<dyn Any>>,
+    ptr: NonNull<AVCodecParameters>,
 }
 
 unsafe impl Send for Parameters {}
 
 impl Parameters {
-    pub unsafe fn wrap(ptr: *mut AVCodecParameters, owner: Option<Rc<dyn Any>>) -> Self {
-        Parameters { ptr, owner }
+    pub unsafe fn from_raw(ptr: *mut AVCodecParameters) -> Option<Self> {
+        NonNull::new(ptr).map(|ptr| Self { ptr })
     }
 
-    pub unsafe fn as_ptr(&self) -> *const AVCodecParameters {
-        self.ptr as *const _
+    pub fn as_ptr(&self) -> *const AVCodecParameters {
+        self.ptr.as_ptr()
     }
 
-    pub unsafe fn as_mut_ptr(&mut self) -> *mut AVCodecParameters {
-        self.ptr
+    pub fn as_mut_ptr(&mut self) -> *mut AVCodecParameters {
+        self.ptr.as_ptr()
     }
 }
 
 impl Parameters {
     pub fn new() -> Self {
-        unsafe {
-            Parameters {
-                ptr: avcodec_parameters_alloc(),
-                owner: None,
-            }
+        let ptr = unsafe { avcodec_parameters_alloc() };
+
+        Self {
+            ptr: NonNull::new(ptr).expect("can allocate AVCodecParameters"),
         }
     }
 
@@ -54,9 +51,7 @@ impl Default for Parameters {
 impl Drop for Parameters {
     fn drop(&mut self) {
         unsafe {
-            if self.owner.is_none() {
-                avcodec_parameters_free(&mut self.as_mut_ptr());
-            }
+            avcodec_parameters_free(&mut self.as_mut_ptr());
         }
     }
 }

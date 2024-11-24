@@ -28,7 +28,7 @@ pub mod codec;
 pub use self::codec::{Audio, Codec, Video};
 
 pub mod parameters;
-pub use self::parameters::Parameters;
+pub use self::parameters::{Parameters, ParametersMut, ParametersRef};
 
 pub mod audio_service;
 pub mod field_order;

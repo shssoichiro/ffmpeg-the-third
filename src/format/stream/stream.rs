@@ -31,9 +31,9 @@ impl<'a> Stream<'a> {
         unsafe { codec::Context::wrap((*self.as_ptr()).codec, Some(self.context.destructor())) }
     }
 
-    pub fn parameters(&self) -> codec::Parameters {
+    pub fn parameters(&self) -> codec::ParametersRef {
         unsafe {
-            codec::Parameters::wrap((*self.as_ptr()).codecpar, Some(self.context.destructor()))
+            codec::ParametersRef::from_raw((*self.as_ptr()).codecpar).expect("codecpar is non-null")
         }
     }
 
