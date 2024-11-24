@@ -1,9 +1,7 @@
 use std::marker::PhantomData;
 use std::ptr::NonNull;
 
-use crate::codec::Id;
 use crate::ffi::*;
-use crate::media;
 
 pub struct ParametersMut<'p> {
     ptr: NonNull<AVCodecParameters>,
@@ -24,15 +22,5 @@ impl<'p> ParametersMut<'p> {
 
     pub fn as_mut_ptr(&mut self) -> *mut AVCodecParameters {
         self.ptr.as_ptr()
-    }
-}
-
-impl<'p> ParametersMut<'p> {
-    pub fn medium(&self) -> media::Type {
-        unsafe { media::Type::from((*self.as_ptr()).codec_type) }
-    }
-
-    pub fn id(&self) -> Id {
-        unsafe { Id::from((*self.as_ptr()).codec_id) }
     }
 }

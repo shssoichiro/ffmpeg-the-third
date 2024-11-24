@@ -1,8 +1,7 @@
 use std::ptr::NonNull;
 
-use crate::codec::{Context, Id};
+use crate::codec::Context;
 use crate::ffi::*;
-use crate::media;
 
 pub struct Parameters {
     ptr: NonNull<AVCodecParameters>,
@@ -31,14 +30,6 @@ impl Parameters {
         Self {
             ptr: NonNull::new(ptr).expect("can allocate AVCodecParameters"),
         }
-    }
-
-    pub fn medium(&self) -> media::Type {
-        unsafe { media::Type::from((*self.as_ptr()).codec_type) }
-    }
-
-    pub fn id(&self) -> Id {
-        unsafe { Id::from((*self.as_ptr()).codec_id) }
     }
 }
 

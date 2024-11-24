@@ -77,6 +77,7 @@ pub use crate::filter::Filter;
 
 pub mod software;
 
+pub(crate) mod macros;
 pub(crate) mod utils;
 
 fn init_error() {
