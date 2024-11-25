@@ -10,6 +10,12 @@ pub struct ParametersRef<'p> {
 }
 
 impl<'p> ParametersRef<'p> {
+    /// # Safety
+    ///
+    /// Ensure that
+    /// - `ptr` is either null or valid,
+    /// - the shared borrow represented by `ptr` follows Rust borrow rules and
+    /// - the lifetime of the returned struct is correctly bounded.
     pub unsafe fn from_raw(ptr: *const AVCodecParameters) -> Option<Self> {
         NonNull::new(ptr as *mut _).map(|ptr| Self {
             ptr,
@@ -17,6 +23,9 @@ impl<'p> ParametersRef<'p> {
         })
     }
 
+    /// Exposes a pointer to the contained [`AVCodecParameters`] for FFI purposes.
+    ///
+    /// This is guaranteed to be a non-null pointer.
     pub fn as_ptr(&self) -> *const AVCodecParameters {
         self.ptr.as_ptr()
     }

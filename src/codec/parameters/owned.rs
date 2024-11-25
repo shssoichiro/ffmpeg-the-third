@@ -11,20 +11,33 @@ pub struct Parameters {
 unsafe impl Send for Parameters {}
 
 impl Parameters {
+    /// # Safety
+    ///
+    /// Ensure that
+    /// - it is valid for the returned struct to take ownership of the [`AVCodecParameters`]
+    ///   and that
+    /// - `ptr` is not used to break Rust's ownership rules after calling this function.
     pub unsafe fn from_raw(ptr: *mut AVCodecParameters) -> Option<Self> {
         NonNull::new(ptr).map(|ptr| Self { ptr })
     }
 
+    /// Exposes a pointer to the contained [`AVCodecParameters`] for FFI purposes.
+    ///
+    /// This is guaranteed to be a non-null pointer.
     pub fn as_ptr(&self) -> *const AVCodecParameters {
         self.ptr.as_ptr()
     }
 
+    /// Exposes a mutable pointer to the contained [`AVCodecParameters`] for FFI purposes.
+    ///
+    /// This is guaranteed to be a non-null pointer.
     pub fn as_mut_ptr(&mut self) -> *mut AVCodecParameters {
         self.ptr.as_ptr()
     }
 }
 
 impl Parameters {
+    /// Allocates a new set of codec parameters set to default values.
     pub fn new() -> Self {
         let ptr = unsafe { avcodec_parameters_alloc() };
 
