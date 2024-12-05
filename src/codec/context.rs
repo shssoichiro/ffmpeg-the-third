@@ -4,9 +4,10 @@ use std::rc::Rc;
 
 use super::decoder::Decoder;
 use super::encoder::Encoder;
-use super::{threading, Compliance, Debug, Flags, Id, Parameters};
+use super::{threading, Compliance, Debug, Flags, Id};
 use crate::ffi::*;
 use crate::media;
+use crate::AsPtr;
 use crate::{Codec, Error};
 use libc::c_int;
 
@@ -41,8 +42,7 @@ impl Context {
         }
     }
 
-    pub fn from_parameters<P: Into<Parameters>>(parameters: P) -> Result<Self, Error> {
-        let parameters = parameters.into();
+    pub fn from_parameters<P: AsPtr<AVCodecParameters>>(parameters: P) -> Result<Self, Error> {
         let mut context = Self::new();
 
         unsafe {
@@ -113,9 +113,10 @@ impl Context {
         }
     }
 
-    pub fn set_parameters<P: Into<Parameters>>(&mut self, parameters: P) -> Result<(), Error> {
-        let parameters = parameters.into();
-
+    pub fn set_parameters<P: AsPtr<AVCodecParameters>>(
+        &mut self,
+        parameters: P,
+    ) -> Result<(), Error> {
         unsafe {
             match avcodec_parameters_to_context(self.as_mut_ptr(), parameters.as_ptr()) {
                 e if e < 0 => Err(Error::from(e)),

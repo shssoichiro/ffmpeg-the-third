@@ -135,7 +135,7 @@ fn transcoder<P: AsRef<Path>>(
     output.set_time_base((1, decoder.rate() as i32));
 
     let encoder = encoder.open_as(codec)?;
-    output.set_parameters(&encoder);
+    output.copy_parameters_from_context(&encoder);
 
     let filter = filter(filter_spec, &decoder, &encoder)?;
 
