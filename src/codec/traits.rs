@@ -7,7 +7,7 @@ pub trait Decoder<T> {
     fn decoder(self) -> Option<Codec<T>>;
 }
 
-impl<'a> Decoder<UnknownType> for &'a str {
+impl Decoder<UnknownType> for &str {
     fn decoder(self) -> Option<Codec<UnknownType>> {
         decoder::find_by_name(self)
     }
@@ -39,7 +39,7 @@ pub trait Encoder<T> {
     fn encoder(self) -> Option<Codec<T>>;
 }
 
-impl<'a> Encoder<UnknownType> for &'a str {
+impl Encoder<UnknownType> for &str {
     fn encoder(self) -> Option<Codec<UnknownType>> {
         encoder::find_by_name(self)
     }
