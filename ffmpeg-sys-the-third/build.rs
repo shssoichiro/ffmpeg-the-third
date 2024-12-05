@@ -22,6 +22,7 @@ struct Library {
     optional: bool,
     features: &'static [AVFeature],
     headers: &'static [AVHeader],
+    min_major_version: u64,
 }
 
 impl Library {
@@ -29,12 +30,14 @@ impl Library {
         name: &'static str,
         features: &'static [AVFeature],
         headers: &'static [AVHeader],
+        min_version: u64,
     ) -> Self {
         Self {
             name,
             optional: false,
             features,
             headers,
+            min_major_version: min_version,
         }
     }
 
@@ -42,12 +45,14 @@ impl Library {
         name: &'static str,
         features: &'static [AVFeature],
         headers: &'static [AVHeader],
+        min_version: u64,
     ) -> Self {
         Self {
             name,
             optional: true,
             features,
             headers,
+            min_major_version: min_version,
         }
     }
 
@@ -61,14 +66,14 @@ impl Library {
 }
 
 static LIBRARIES: &[Library] = &[
-    Library::required("avutil", AVUTIL_FEATURES, AVUTIL_HEADERS),
-    Library::optional("avcodec", AVCODEC_FEATURES, AVCODEC_HEADERS),
-    Library::optional("avformat", AVFORMAT_FEATURES, AVFORMAT_HEADERS),
-    Library::optional("avdevice", AVDEVICE_FEATURES, AVDEVICE_HEADERS),
-    Library::optional("avfilter", AVFILTER_FEATURES, AVFILTER_HEADERS),
-    Library::optional("swscale", SWSCALE_FEATURES, SWSCALE_HEADERS),
-    Library::optional("swresample", SWRESAMPLE_FEATURES, SWRESAMPLE_HEADERS),
-    Library::optional("postproc", POSTPROC_FEATURES, POSTPROC_HEADERS),
+    Library::required("avutil", AVUTIL_FEATURES, AVUTIL_HEADERS, 50),
+    Library::optional("avcodec", AVCODEC_FEATURES, AVCODEC_HEADERS, 50),
+    Library::optional("avformat", AVFORMAT_FEATURES, AVFORMAT_HEADERS, 50),
+    Library::optional("avdevice", AVDEVICE_FEATURES, AVDEVICE_HEADERS, 50),
+    Library::optional("avfilter", AVFILTER_FEATURES, AVFILTER_HEADERS, 0),
+    Library::optional("swscale", SWSCALE_FEATURES, SWSCALE_HEADERS, 0),
+    Library::optional("swresample", SWRESAMPLE_FEATURES, SWRESAMPLE_HEADERS, 0),
+    Library::optional("postproc", POSTPROC_FEATURES, POSTPROC_HEADERS, 50),
 ];
 
 #[derive(Debug)]
@@ -769,22 +774,22 @@ fn check_features(include_paths: &[PathBuf]) {
         }
     }
 
-    let version_check_info = [("avcodec", 57, 62, 0, 101)];
-    for &(lib, begin_version_major, end_version_major, begin_version_minor, end_version_minor) in
-        &version_check_info
-    {
-        let libversion = *versions
-            .get(lib)
-            .expect("Unable to find the version for lib{lib}");
-
-        for version_major in begin_version_major..end_version_major {
-            for version_minor in begin_version_minor..end_version_minor {
-                if libversion >= (version_major, version_minor) {
+    for lib in enabled_libraries() {
+        let ver = if let Some(v) = versions.get(&lib.name) {
+            v
+        } else {
+            continue;
+        };
+        for major in lib.min_major_version..=(*ver).0 {
+            for minor in 0..=135 {
+                if *ver >= (major, minor) {
                     println!(
-                        r#"cargo:rustc-cfg=feature="{lib}_version_greater_than_{version_major}_{version_minor}""#
+                        r#"cargo:rustc-cfg=feature="{}_version_greater_than_{major}_{minor}""#,
+                        lib.name,
                     );
                     println!(
-                        r#"cargo:{lib}_version_greater_than_{version_major}_{version_minor}=true"#
+                        r#"cargo:{}_version_greater_than_{major}_{minor}=true"#,
+                        lib.name,
                     );
                 }
             }
