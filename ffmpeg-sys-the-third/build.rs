@@ -780,7 +780,7 @@ fn check_features(include_paths: &[PathBuf]) {
         } else {
             continue;
         };
-        for major in lib.min_major_version..=(*ver).0 {
+        for major in lib.min_major_version..=ver.0 {
             for minor in 0..=135 {
                 if *ver >= (major, minor) {
                     println!(

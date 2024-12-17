@@ -1,3 +1,29 @@
+## Version 3.0.0
+
+- [Breaking] remove support for < ffmpeg 4.2
+- [Breaking] Remove avresample
+- [Breaking] Remove old FF*API*-
+- [Breaking] Remove libc error reexports
+- [Breaking] Make `AVOptionType` a bitfield/int wrapper
+- [Feature] ffmpeg 7.1 support
+- [Feature] add API for `av_[de]muxer_iterate`
+- [Feature] Implement most of the chroma location API
+- [Feature] Implement `ChannelLayout::retype`
+- Export all lib features
+- Refactor `codec::Parameters`
+- ci: Remove unnecessary pkgconfig patches
+- Don't pass `AsRef<T>` params by reference
+- Refactor crate::codec
+- Replace util::Range with std::ops::RangeBounds
+- Refactor format::{Input, Output}
+- Add utils for ptr->&str conversion
+- Refactor crate::format
+- Add `rustc-check-cfg` for `ff*api*{...}` features
+- Add `rustc-check-cfg` for `ffmpeg_x_y` features
+- print clang version in build
+- Use libc::c_char over i8
+- Use clang for inspecting macros instead of compiling the binary.
+
 ## Version 2.0.1
 
 - Add Copy, Clone, Eq, Debug to some bitflags types that had lost them
