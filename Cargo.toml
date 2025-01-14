@@ -26,10 +26,10 @@ bitflags = "2.5"
 version = "0.25"
 optional = true
 
-[dependencies.ffmpeg-sys-the-third]
+[dependencies.ffmpeg-sys-third]
 version = "3.0.0"
 default-features = false
-path = "ffmpeg-sys-the-third"
+path = "ffmpeg-sys-third"
 
 [dependencies.serde]
 version = "1.0.152"
@@ -48,88 +48,88 @@ default = [
 ]
 
 serialize = ["serde"]
-static = ["ffmpeg-sys-the-third/static"]
+static = ["ffmpeg-sys-third/static"]
 
 # mark enums in generated bindings as #[non_exhaustive]
-non-exhaustive-enums = ["ffmpeg-sys-the-third/non-exhaustive-enums"]
+non-exhaustive-enums = ["ffmpeg-sys-third/non-exhaustive-enums"]
 
 # components
-codec = ["ffmpeg-sys-the-third/avcodec"]
-device = ["ffmpeg-sys-the-third/avdevice", "format"]
-filter = ["ffmpeg-sys-the-third/avfilter"]
-format = ["ffmpeg-sys-the-third/avformat", "codec"]
-postprocessing = ["ffmpeg-sys-the-third/postproc"]
-software-resampling = ["ffmpeg-sys-the-third/swresample"]
-software-scaling = ["ffmpeg-sys-the-third/swscale", "codec"]
+codec = ["ffmpeg-sys-third/avcodec"]
+device = ["ffmpeg-sys-third/avdevice", "format"]
+filter = ["ffmpeg-sys-third/avfilter"]
+format = ["ffmpeg-sys-third/avformat", "codec"]
+postprocessing = ["ffmpeg-sys-third/postproc"]
+software-resampling = ["ffmpeg-sys-third/swresample"]
+software-scaling = ["ffmpeg-sys-third/swscale", "codec"]
 
 #
 # Build-related features
 #
 
 # build FFmpeg when building this crate
-build = ["static", "ffmpeg-sys-the-third/build"]
+build = ["static", "ffmpeg-sys-third/build"]
 
 # licensing
-build-license-gpl = ["ffmpeg-sys-the-third/build-license-gpl"]
-build-license-nonfree = ["ffmpeg-sys-the-third/build-license-nonfree"]
-build-license-version3 = ["ffmpeg-sys-the-third/build-license-version3"]
+build-license-gpl = ["ffmpeg-sys-third/build-license-gpl"]
+build-license-nonfree = ["ffmpeg-sys-third/build-license-nonfree"]
+build-license-version3 = ["ffmpeg-sys-third/build-license-version3"]
 
 # misc
-build-pic = ["ffmpeg-sys-the-third/build-pic"]
-build-zlib = ["ffmpeg-sys-the-third/build-zlib"]
+build-pic = ["ffmpeg-sys-third/build-pic"]
+build-zlib = ["ffmpeg-sys-third/build-zlib"]
 
 # ssl
-build-lib-gnutls = ["ffmpeg-sys-the-third/build-lib-gnutls"]
-build-lib-openssl = ["ffmpeg-sys-the-third/build-lib-openssl"]
+build-lib-gnutls = ["ffmpeg-sys-third/build-lib-gnutls"]
+build-lib-openssl = ["ffmpeg-sys-third/build-lib-openssl"]
 
 # filters
-build-lib-fontconfig = ["ffmpeg-sys-the-third/build-lib-fontconfig"]
-build-lib-frei0r = ["ffmpeg-sys-the-third/build-lib-frei0r"]
-build-lib-ladspa = ["ffmpeg-sys-the-third/build-lib-ladspa"]
-build-lib-ass = ["ffmpeg-sys-the-third/build-lib-ass"]
-build-lib-freetype = ["ffmpeg-sys-the-third/build-lib-freetype"]
-build-lib-freebidi = ["ffmpeg-sys-the-third/build-lib-freebidi"]
-build-lib-opencv = ["ffmpeg-sys-the-third/build-lib-opencv"]
-build-lib-vmaf = ["ffmpeg-sys-the-third/build-lib-vmaf"]
+build-lib-fontconfig = ["ffmpeg-sys-third/build-lib-fontconfig"]
+build-lib-frei0r = ["ffmpeg-sys-third/build-lib-frei0r"]
+build-lib-ladspa = ["ffmpeg-sys-third/build-lib-ladspa"]
+build-lib-ass = ["ffmpeg-sys-third/build-lib-ass"]
+build-lib-freetype = ["ffmpeg-sys-third/build-lib-freetype"]
+build-lib-freebidi = ["ffmpeg-sys-third/build-lib-freebidi"]
+build-lib-opencv = ["ffmpeg-sys-third/build-lib-opencv"]
+build-lib-vmaf = ["ffmpeg-sys-third/build-lib-vmaf"]
 
 # encoders/decoders
-build-lib-aacplus = ["ffmpeg-sys-the-third/build-lib-aacplus"]
-build-lib-celt = ["ffmpeg-sys-the-third/build-lib-celt"]
-build-lib-dav1d = ["ffmpeg-sys-the-third/build-lib-dav1d"]
-build-lib-dcadec = ["ffmpeg-sys-the-third/build-lib-dcadec"]
-build-lib-faac = ["ffmpeg-sys-the-third/build-lib-faac"]
-build-lib-fdk-aac = ["ffmpeg-sys-the-third/build-lib-fdk-aac"]
-build-lib-gsm = ["ffmpeg-sys-the-third/build-lib-gsm"]
-build-lib-ilbc = ["ffmpeg-sys-the-third/build-lib-ilbc"]
-build-lib-kvazaar = ["ffmpeg-sys-the-third/build-lib-kvazaar"]
-build-lib-mp3lame = ["ffmpeg-sys-the-third/build-lib-mp3lame"]
-build-lib-opencore-amrnb = ["ffmpeg-sys-the-third/build-lib-opencore-amrnb"]
-build-lib-opencore-amrwb = ["ffmpeg-sys-the-third/build-lib-opencore-amrwb"]
-build-lib-openh264 = ["ffmpeg-sys-the-third/build-lib-openh264"]
-build-lib-openjpeg = ["ffmpeg-sys-the-third/build-lib-openjpeg"]
-build-lib-opus = ["ffmpeg-sys-the-third/build-lib-opus"]
-build-lib-schroedinger = ["ffmpeg-sys-the-third/build-lib-schroedinger"]
-build-lib-shine = ["ffmpeg-sys-the-third/build-lib-shine"]
-build-lib-snappy = ["ffmpeg-sys-the-third/build-lib-snappy"]
-build-lib-speex = ["ffmpeg-sys-the-third/build-lib-speex"]
-build-lib-stagefright-h264 = ["ffmpeg-sys-the-third/build-lib-stagefright-h264"]
-build-lib-theora = ["ffmpeg-sys-the-third/build-lib-theora"]
-build-lib-twolame = ["ffmpeg-sys-the-third/build-lib-twolame"]
-build-lib-utvideo = ["ffmpeg-sys-the-third/build-lib-utvideo"]
-build-lib-vo-aacenc = ["ffmpeg-sys-the-third/build-lib-vo-aacenc"]
-build-lib-vo-amrwbenc = ["ffmpeg-sys-the-third/build-lib-vo-amrwbenc"]
-build-lib-vorbis = ["ffmpeg-sys-the-third/build-lib-vorbis"]
-build-lib-vpx = ["ffmpeg-sys-the-third/build-lib-vpx"]
-build-lib-wavpack = ["ffmpeg-sys-the-third/build-lib-wavpack"]
-build-lib-webp = ["ffmpeg-sys-the-third/build-lib-webp"]
-build-lib-x264 = ["ffmpeg-sys-the-third/build-lib-x264"]
-build-lib-x265 = ["ffmpeg-sys-the-third/build-lib-x265"]
-build-lib-avs = ["ffmpeg-sys-the-third/build-lib-avs"]
-build-lib-xvid = ["ffmpeg-sys-the-third/build-lib-xvid"]
+build-lib-aacplus = ["ffmpeg-sys-third/build-lib-aacplus"]
+build-lib-celt = ["ffmpeg-sys-third/build-lib-celt"]
+build-lib-dav1d = ["ffmpeg-sys-third/build-lib-dav1d"]
+build-lib-dcadec = ["ffmpeg-sys-third/build-lib-dcadec"]
+build-lib-faac = ["ffmpeg-sys-third/build-lib-faac"]
+build-lib-fdk-aac = ["ffmpeg-sys-third/build-lib-fdk-aac"]
+build-lib-gsm = ["ffmpeg-sys-third/build-lib-gsm"]
+build-lib-ilbc = ["ffmpeg-sys-third/build-lib-ilbc"]
+build-lib-kvazaar = ["ffmpeg-sys-third/build-lib-kvazaar"]
+build-lib-mp3lame = ["ffmpeg-sys-third/build-lib-mp3lame"]
+build-lib-opencore-amrnb = ["ffmpeg-sys-third/build-lib-opencore-amrnb"]
+build-lib-opencore-amrwb = ["ffmpeg-sys-third/build-lib-opencore-amrwb"]
+build-lib-openh264 = ["ffmpeg-sys-third/build-lib-openh264"]
+build-lib-openjpeg = ["ffmpeg-sys-third/build-lib-openjpeg"]
+build-lib-opus = ["ffmpeg-sys-third/build-lib-opus"]
+build-lib-schroedinger = ["ffmpeg-sys-third/build-lib-schroedinger"]
+build-lib-shine = ["ffmpeg-sys-third/build-lib-shine"]
+build-lib-snappy = ["ffmpeg-sys-third/build-lib-snappy"]
+build-lib-speex = ["ffmpeg-sys-third/build-lib-speex"]
+build-lib-stagefright-h264 = ["ffmpeg-sys-third/build-lib-stagefright-h264"]
+build-lib-theora = ["ffmpeg-sys-third/build-lib-theora"]
+build-lib-twolame = ["ffmpeg-sys-third/build-lib-twolame"]
+build-lib-utvideo = ["ffmpeg-sys-third/build-lib-utvideo"]
+build-lib-vo-aacenc = ["ffmpeg-sys-third/build-lib-vo-aacenc"]
+build-lib-vo-amrwbenc = ["ffmpeg-sys-third/build-lib-vo-amrwbenc"]
+build-lib-vorbis = ["ffmpeg-sys-third/build-lib-vorbis"]
+build-lib-vpx = ["ffmpeg-sys-third/build-lib-vpx"]
+build-lib-wavpack = ["ffmpeg-sys-third/build-lib-wavpack"]
+build-lib-webp = ["ffmpeg-sys-third/build-lib-webp"]
+build-lib-x264 = ["ffmpeg-sys-third/build-lib-x264"]
+build-lib-x265 = ["ffmpeg-sys-third/build-lib-x265"]
+build-lib-avs = ["ffmpeg-sys-third/build-lib-avs"]
+build-lib-xvid = ["ffmpeg-sys-third/build-lib-xvid"]
 
 # protocols
-build-lib-smbclient = ["ffmpeg-sys-the-third/build-lib-smbclient"]
-build-lib-ssh = ["ffmpeg-sys-the-third/build-lib-ssh"]
+build-lib-smbclient = ["ffmpeg-sys-third/build-lib-smbclient"]
+build-lib-ssh = ["ffmpeg-sys-third/build-lib-ssh"]
 
 # platforms
 rpi = []

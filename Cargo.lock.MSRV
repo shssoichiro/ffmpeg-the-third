@@ -295,7 +295,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "ffmpeg-sys-the-third"
+name = "ffmpeg-sys-third"
 version = "3.0.0+ffmpeg-7.1"
 dependencies = [
  "bindgen",
@@ -311,7 +311,7 @@ name = "ffmpeg-the-third"
 version = "3.0.0+ffmpeg-7.1"
 dependencies = [
  "bitflags 2.6.0",
- "ffmpeg-sys-the-third",
+ "ffmpeg-sys-third",
  "image",
  "libc",
  "serde",

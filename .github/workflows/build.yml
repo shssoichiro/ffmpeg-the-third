@@ -85,7 +85,7 @@ jobs:
       - name: Test bindings
         run: >
           cargo test
-          --manifest-path ffmpeg-sys-the-third/Cargo.toml
+          --manifest-path ffmpeg-sys-third/Cargo.toml
           --target-dir target
           $SYS_FEATURES
       - name: Test
@@ -123,7 +123,7 @@ jobs:
       - name: Test bindings
         run: >
           cargo test
-          --manifest-path ffmpeg-sys-the-third/Cargo.toml
+          --manifest-path ffmpeg-sys-third/Cargo.toml
           --target-dir target
           $SYS_FEATURES
       - name: Test
@@ -177,7 +177,7 @@ jobs:
       - name: Test bindings
         run: >
           cargo test
-          --manifest-path ffmpeg-sys-the-third/Cargo.toml
+          --manifest-path ffmpeg-sys-third/Cargo.toml
           --target-dir target
           $SYS_FEATURES
       - name: Test

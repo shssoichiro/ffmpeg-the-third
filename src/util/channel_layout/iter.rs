@@ -1,4 +1,4 @@
-use ffmpeg_sys_the_third::av_channel_layout_standard;
+use ffmpeg_sys_third::av_channel_layout_standard;
 use libc::c_void;
 
 use super::ChannelLayout;
