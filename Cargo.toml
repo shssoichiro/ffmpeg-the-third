@@ -20,7 +20,7 @@ rust-version = "1.65.0"
 
 [dependencies]
 libc = "0.2"
-bitflags = "2.5"
+bitflags = "2.7"
 
 [dependencies.image]
 version = "0.25"
@@ -32,7 +32,7 @@ default-features = false
 path = "ffmpeg-sys-third"
 
 [dependencies.serde]
-version = "1.0.152"
+version = "1.0.217"
 optional = true
 features = ["derive"]
 
