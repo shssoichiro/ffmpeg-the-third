@@ -27,7 +27,7 @@ env:
 jobs:
   build-test-lint-linux:
     name: Linux - FFmpeg ${{ matrix.ffmpeg.version }} - build, test and lint
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
 
     strategy:
       matrix:
@@ -187,7 +187,7 @@ jobs:
         run: cargo test $CARGO_FEATURES
 
   msrv:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
@@ -209,5 +209,13 @@ jobs:
 
       - name: Use predefined lockfile
         run: mv Cargo.lock.MSRV Cargo.lock
+      - name: Debug dependencies
+        run: |
+          echo "=== Cargo Tree Output ==="
+          cargo tree --locked
+          echo "=== Detailed Dependency Resolution ==="
+          cargo metadata --locked --format-version=1 | jq '.resolve.nodes[] | {id: .id, deps: .deps[].name}' || true
+          echo "=== Package Dependencies ==="
+          cargo metadata --locked --format-version=1 | jq '.packages[] | {name: .name, version: .version, dependencies: [.dependencies[].name]}' || true
       - name: Run cargo check
         run: cargo check --locked $CARGO_FEATURES
