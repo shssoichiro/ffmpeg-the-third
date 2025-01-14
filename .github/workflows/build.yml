@@ -80,7 +80,7 @@ jobs:
           save-if: ${{ matrix.ffmpeg.version == '7.1' }}
 
       - name: Check format
-        run: cargo fmt -- --check
+        run: cargo fmt --all -- --check
       - name: Lint
         run: cargo clippy --all-targets $CARGO_FEATURES
       - name: Build
@@ -118,7 +118,7 @@ jobs:
           prefix-key: "v2-rust"
 
       - name: Check format
-        run: cargo fmt -- --check
+        run: cargo fmt --all -- --check
       - name: Lint
         run: cargo clippy --all-targets $CARGO_FEATURES
       - name: Build
@@ -172,7 +172,7 @@ jobs:
           save-if: ${{ matrix.ffmpeg_version == '7.1' }}
 
       - name: Check format
-        run: cargo fmt -- --check
+        run: cargo fmt --all --- --check
       - name: Lint
         run: cargo clippy --all-targets $CARGO_FEATURES
       - name: Build
