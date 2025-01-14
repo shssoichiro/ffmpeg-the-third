@@ -16,7 +16,7 @@ categories = ["multimedia"]
 include = ["LICENSE", "build.rs", "src/"]
 
 # When changing MSRV: Also update build.yml and README.md
-rust-version = "1.70.0"
+rust-version = "1.82.0"
 
 [dependencies]
 libc = "0.2"

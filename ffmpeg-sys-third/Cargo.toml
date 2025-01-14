@@ -19,7 +19,7 @@ keywords = ["audio", "video"]
 categories = ["multimedia", "external-ffi-bindings"]
 
 # When changing MSRV: Also update build.yml and README.md
-rust-version = "1.70.0"
+rust-version = "1.82.0"
 
 [lib]
 # Disable doctests as a workaround for https://github.com/rust-lang/rust-bindgen/issues/1313
