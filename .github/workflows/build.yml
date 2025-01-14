@@ -1,12 +1,15 @@
 name: build
 on:
   push:
+    branches: [ "master" ]
+    paths-ignore:
+      - 'README.md'
   pull_request:
-  schedule:
-    - cron: "20 7 * * 4" # Weekly on thursday 
+    branches: [ "master" ]
 
 env:
   CARGO_INCREMENTAL: 0
+  CARGO_TERM_COLOR: always
   RUSTFLAGS: "-Dwarnings"
 
   # All default features except non-exhaustive-enums,
