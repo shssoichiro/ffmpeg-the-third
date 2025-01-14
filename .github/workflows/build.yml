@@ -201,8 +201,8 @@ jobs:
           echo "PKG_CONFIG_PATH=$PWD/ffmpeg-libs/lib/amd64/pkgconfig" >> "$GITHUB_ENV"
           echo "LD_LIBRARY_PATH=$PWD/ffmpeg-libs" >> "$GITHUB_ENV"
       # rust-version from Cargo.toml
-      - name: Install Rust 1.65.0
-        uses: dtolnay/rust-toolchain@1.65.0
+      - name: Install Rust 1.70.0
+        uses: dtolnay/rust-toolchain@1.70.0
       - uses: Swatinem/rust-cache@v2
         with:
           prefix-key: "v2-rust"
