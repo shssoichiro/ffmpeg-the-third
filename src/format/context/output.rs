@@ -70,9 +70,8 @@ impl Output {
 
     pub fn add_stream<T, E: traits::Encoder<T>>(&mut self, codec: E) -> Result<StreamMut, Error> {
         unsafe {
-            let codec = codec.encoder();
-            let codec = codec.map_or(ptr::null(), |c| c.as_ptr());
-            let ptr = avformat_new_stream(self.as_mut_ptr(), codec);
+            let codec_ptr = codec.encoder().map_or(ptr::null(), |c| c.as_ptr());
+            let ptr = avformat_new_stream(self.as_mut_ptr(), codec_ptr);
 
             if ptr.is_null() {
                 return Err(Error::Unknown);

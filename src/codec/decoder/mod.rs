@@ -29,7 +29,7 @@ use crate::ffi::*;
 use crate::Codec;
 
 pub fn new() -> Decoder {
-    Context::new().decoder()
+    Context::new(None).decoder()
 }
 
 pub fn find(id: Id) -> Option<Codec> {

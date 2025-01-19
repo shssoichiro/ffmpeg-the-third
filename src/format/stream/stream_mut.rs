@@ -61,6 +61,14 @@ impl<'a> StreamMut<'a> {
         }
     }
 
+    pub fn set_parameters_into<P: Into<codec::Parameters>>(&mut self, parameters: P) {
+        let parameters = parameters.into();
+
+        unsafe {
+            avcodec_parameters_copy((*self.as_mut_ptr()).codecpar, parameters.as_ptr());
+        }
+    }
+
     pub fn copy_parameters_from_context(&mut self, ctx: &codec::Context) {
         unsafe {
             avcodec_parameters_from_context((*self.as_mut_ptr()).codecpar, ctx.as_ptr());

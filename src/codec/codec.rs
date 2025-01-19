@@ -17,9 +17,6 @@ pub fn list_descriptors() -> CodecDescriptorIter {
     CodecDescriptorIter::new()
 }
 
-pub type Audio = Codec<AudioType>;
-pub type Video = Codec<VideoType>;
-
 #[derive(PartialEq, Eq, Copy, Clone)]
 pub struct Codec<Type = UnknownType> {
     ptr: NonNull<AVCodec>,
@@ -50,7 +47,7 @@ impl Codec<UnknownType> {
 
 impl<T> Codec<T> {
     pub fn as_ptr(&self) -> *const AVCodec {
-        self.ptr.as_ptr()
+        self.ptr.as_ptr() as *const _
     }
 
     pub fn is_encoder(&self) -> bool {
@@ -81,7 +78,7 @@ impl<T> Codec<T> {
         self.medium() == media::Type::Video
     }
 
-    pub fn video(self) -> Option<Video> {
+    pub fn video(self) -> Option<Codec<VideoType>> {
         if self.medium() == media::Type::Video {
             Some(Codec {
                 ptr: self.ptr,
@@ -96,7 +93,7 @@ impl<T> Codec<T> {
         self.medium() == media::Type::Audio
     }
 
-    pub fn audio(self) -> Option<Audio> {
+    pub fn audio(self) -> Option<Codec<AudioType>> {
         if self.medium() == media::Type::Audio {
             Some(Codec {
                 ptr: self.ptr,

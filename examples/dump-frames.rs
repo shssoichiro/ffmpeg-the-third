@@ -1,6 +1,6 @@
 extern crate ffmpeg_the_third as ffmpeg;
 
-use crate::ffmpeg::format::{input, Pixel};
+use crate::ffmpeg::format::{self, Pixel};
 use crate::ffmpeg::media::Type;
 use crate::ffmpeg::software::scaling::{context::Context, flag::Flags};
 use crate::ffmpeg::util::frame::video::Video;
@@ -11,7 +11,7 @@ use std::io::prelude::*;
 fn main() -> Result<(), ffmpeg::Error> {
     ffmpeg::init().unwrap();
 
-    if let Ok(mut ictx) = input(env::args().nth(1).expect("Cannot open file.")) {
+    if let Ok(mut ictx) = format::input(env::args().nth(1).expect("Cannot open file.")) {
         let input = ictx
             .streams()
             .best(Type::Video)

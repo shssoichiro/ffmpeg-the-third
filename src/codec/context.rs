@@ -33,17 +33,20 @@ impl Context {
 }
 
 impl Context {
-    pub fn new() -> Self {
+    pub fn new(codec: Option<Codec>) -> Self {
         unsafe {
             Context {
-                ptr: avcodec_alloc_context3(ptr::null()),
+                ptr: match codec {
+                    Some(c) => avcodec_alloc_context3(c.as_ptr()),
+                    None => avcodec_alloc_context3(ptr::null()),
+                },
                 owner: None,
             }
         }
     }
 
     pub fn from_parameters<P: AsPtr<AVCodecParameters>>(parameters: P) -> Result<Self, Error> {
-        let mut context = Self::new();
+        let mut context = Self::new(None);
 
         unsafe {
             match avcodec_parameters_to_context(context.as_mut_ptr(), parameters.as_ptr()) {
@@ -128,7 +131,7 @@ impl Context {
 
 impl Default for Context {
     fn default() -> Self {
-        Self::new()
+        Self::new(None)
     }
 }
 
@@ -145,7 +148,7 @@ impl Drop for Context {
 #[cfg(not(feature = "ffmpeg_5_0"))]
 impl Clone for Context {
     fn clone(&self) -> Self {
-        let mut ctx = Context::new();
+        let mut ctx = Context::new(None);
         ctx.clone_from(self);
 
         ctx

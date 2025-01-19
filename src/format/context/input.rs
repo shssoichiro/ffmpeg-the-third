@@ -97,19 +97,19 @@ impl Input {
     }
 
     pub fn seek<R: RangeBounds<i64>>(&mut self, ts: i64, range: R) -> Result<(), Error> {
+        let start = match range.start_bound().cloned() {
+            Bound::Included(i) => i,
+            Bound::Excluded(i) => i.saturating_add(1),
+            Bound::Unbounded => i64::MIN,
+        };
+
+        let end = match range.end_bound().cloned() {
+            Bound::Included(i) => i,
+            Bound::Excluded(i) => i.saturating_sub(1),
+            Bound::Unbounded => i64::MAX,
+        };
+
         unsafe {
-            let start = match range.start_bound().cloned() {
-                Bound::Included(i) => i,
-                Bound::Excluded(i) => i.saturating_add(1),
-                Bound::Unbounded => i64::MIN,
-            };
-
-            let end = match range.end_bound().cloned() {
-                Bound::Included(i) => i,
-                Bound::Excluded(i) => i.saturating_sub(1),
-                Bound::Unbounded => i64::MAX,
-            };
-
             match avformat_seek_file(self.as_mut_ptr(), -1, start, ts, end, 0) {
                 s if s >= 0 => Ok(()),
                 e => Err(Error::from(e)),
