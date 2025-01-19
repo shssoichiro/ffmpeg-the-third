@@ -55,10 +55,7 @@ impl Transcoder {
         let codec = encoder::find(codec::Id::H264);
         let mut ost = octx.add_stream(codec)?;
 
-        let mut encoder =
-            codec::context::Context::new(codec)
-                .encoder()
-                .video()?;
+        let mut encoder = codec::context::Context::new(codec).encoder().video()?;
         ost.set_parameters_into(&encoder);
         encoder.set_height(decoder.height());
         encoder.set_width(decoder.width());
@@ -139,7 +136,7 @@ impl Transcoder {
     fn log_progress(&mut self, timestamp: f64) {
         if !self.logging_enabled
             || (self.frame_count - self.last_log_frame_count < 100
-            && self.last_log_time.elapsed().as_secs_f64() < 1.0)
+                && self.last_log_time.elapsed().as_secs_f64() < 1.0)
         {
             return;
         }

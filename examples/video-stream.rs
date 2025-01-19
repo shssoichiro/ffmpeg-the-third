@@ -1,6 +1,8 @@
 extern crate ffmpeg_the_third as ffmpeg;
 use ffmpeg::ffi::*;
 
+use std::ffi::CString;
+use std::path::Path;
 /// 各参数说明：
 //
 // preset（预设）选项：
@@ -33,10 +35,7 @@ use ffmpeg::ffi::*;
 // 如果是离线编码，可以使用 "medium" 或更慢的 preset
 // 对于网络流，"zerolatency" tune 选项很有用
 // 如果不确定，使用默认的 "medium" preset 和 "high" profile 就可以
-
 use std::ptr;
-use std::path::Path;
-use std::ffi::CString;
 
 // 首先定义必要的类型和 trait
 pub trait CodecType {
@@ -65,7 +64,7 @@ impl<T: CodecType> Codec<T> {
 // 流结构体
 pub struct Stream {
     ptr: *mut AVStream,
-    codec_ctx: *mut AVCodecContext,  // 添加编解码器上下文
+    codec_ctx: *mut AVCodecContext, // 添加编解码器上下文
 }
 
 impl Stream {
@@ -84,24 +83,24 @@ pub struct FormatContext {
 }
 
 impl FormatContext {
-
     /// 创建新的格式上下文用于输出
     pub fn new<P: AsRef<Path>>(filename: P) -> Result<Self, Error> {
         unsafe {
             let mut ctx: *mut AVFormatContext = ptr::null_mut();
 
             // 将文件名转换为 CString
-            let c_filename = match CString::new(filename.as_ref().to_str().ok_or(Error::InvalidFilename)?) {
-                Ok(s) => s,
-                Err(_) => return Err(Error::InvalidFilename),
-            };
+            let c_filename =
+                match CString::new(filename.as_ref().to_str().ok_or(Error::InvalidFilename)?) {
+                    Ok(s) => s,
+                    Err(_) => return Err(Error::InvalidFilename),
+                };
 
             // 创建输出格式上下文
             let ret = avformat_alloc_output_context2(
                 &mut ctx,
                 ptr::null_mut(), // 让 FFmpeg 根据文件名猜测格式
                 ptr::null(),     // 格式名称，null 表示自动检测
-                c_filename.as_ptr()
+                c_filename.as_ptr(),
             );
 
             if ret < 0 || ctx.is_null() {
@@ -109,11 +108,7 @@ impl FormatContext {
             }
 
             // 打开输出文件
-            let ret = avio_open(
-                &mut (*ctx).pb,
-                c_filename.as_ptr(),
-                AVIO_FLAG_WRITE as i32
-            );
+            let ret = avio_open(&mut (*ctx).pb, c_filename.as_ptr(), AVIO_FLAG_WRITE as i32);
 
             if ret < 0 {
                 avformat_free_context(ctx);
@@ -127,7 +122,7 @@ impl FormatContext {
     pub fn add_stream<T: CodecType>(&mut self, codec: &Codec<T>) -> Result<Stream, Error> {
         unsafe {
             // 创建新流
-            let stream_ptr = avformat_new_stream(self.ptr, ptr::null());  // 不传递 codec
+            let stream_ptr = avformat_new_stream(self.ptr, ptr::null()); // 不传递 codec
             if stream_ptr.is_null() {
                 return Err(Error::StreamCreation);
             }
@@ -144,29 +139,32 @@ impl FormatContext {
             (*codec_ctx).time_base = AVRational { num: 1, den: 30 };
             (*codec_ctx).framerate = AVRational { num: 30, den: 1 };
             (*codec_ctx).pix_fmt = AVPixelFormat::AV_PIX_FMT_YUV420P;
-            (*codec_ctx).bit_rate = 400_000;  // 400 kbps
+            (*codec_ctx).bit_rate = 400_000; // 400 kbps
 
             // 创建选项字典
             let mut opts: *mut AVDictionary = ptr::null_mut();
 
             // 设置 x264 参数
-            av_dict_set(&mut opts,
-                        CString::new("preset").unwrap().as_ptr(),
-                        CString::new("medium").unwrap().as_ptr(),
-                        0
+            av_dict_set(
+                &mut opts,
+                CString::new("preset").unwrap().as_ptr(),
+                CString::new("medium").unwrap().as_ptr(),
+                0,
             );
 
             // 修改这里，将 profile 值用引号括起来
-            av_dict_set(&mut opts,
-                        CString::new("profile:v").unwrap().as_ptr(),
-                        CString::new("high").unwrap().as_ptr(),
-                        0
+            av_dict_set(
+                &mut opts,
+                CString::new("profile:v").unwrap().as_ptr(),
+                CString::new("high").unwrap().as_ptr(),
+                0,
             );
 
-            av_dict_set(&mut opts,
-                        CString::new("tune").unwrap().as_ptr(),
-                        CString::new("zerolatency").unwrap().as_ptr(),
-                        0
+            av_dict_set(
+                &mut opts,
+                CString::new("tune").unwrap().as_ptr(),
+                CString::new("zerolatency").unwrap().as_ptr(),
+                0,
             );
 
             // 打开编解码器
@@ -194,10 +192,11 @@ impl FormatContext {
         unsafe {
             let mut ctx: *mut AVFormatContext = ptr::null_mut();
 
-            let c_filename = match CString::new(filename.as_ref().to_str().ok_or(Error::InvalidFilename)?) {
-                Ok(s) => s,
-                Err(_) => return Err(Error::InvalidFilename),
-            };
+            let c_filename =
+                match CString::new(filename.as_ref().to_str().ok_or(Error::InvalidFilename)?) {
+                    Ok(s) => s,
+                    Err(_) => return Err(Error::InvalidFilename),
+                };
 
             let c_format = match CString::new(format_name) {
                 Ok(s) => s,
@@ -209,18 +208,14 @@ impl FormatContext {
                 &mut ctx,
                 ptr::null_mut(),
                 c_format.as_ptr(),
-                c_filename.as_ptr()
+                c_filename.as_ptr(),
             );
 
             if ret < 0 || ctx.is_null() {
                 return Err(Error::FormatContextCreation);
             }
 
-            let ret = avio_open(
-                &mut (*ctx).pb,
-                c_filename.as_ptr(),
-                AVIO_FLAG_WRITE as i32
-            );
+            let ret = avio_open(&mut (*ctx).pb, c_filename.as_ptr(), AVIO_FLAG_WRITE as i32);
 
             if ret < 0 {
                 avformat_free_context(ctx);
@@ -303,14 +298,14 @@ impl<T: CodecType> Codec<T> {
 
 // 使用示例
 fn encode_video(seconds: i32) -> Result<(), Error> {
-    const WIDTH: i32 = 1920;    // 视频宽度
-    const HEIGHT: i32 = 1080;   // 视频高度
-    const FPS: i32 = 30;        // 视频帧率
-    let total_frames: i32 = seconds * FPS;    // 总帧数
+    const WIDTH: i32 = 1920; // 视频宽度
+    const HEIGHT: i32 = 1080; // 视频高度
+    const FPS: i32 = 30; // 视频帧率
+    let total_frames: i32 = seconds * FPS; // 总帧数
 
     // 创建格式上下文
-    let mut format_ctx = FormatContext::new("/tmp/output.mp4")
-        .expect("Failed to create format context");
+    let mut format_ctx =
+        FormatContext::new("/tmp/output.mp4").expect("Failed to create format context");
 
     // 创建视频流
     let codec = Codec::<Video>::find(AVCodecID::AV_CODEC_ID_H264)?;
@@ -335,9 +330,9 @@ fn encode_video(seconds: i32) -> Result<(), Error> {
         (*frame).format = AVPixelFormat::AV_PIX_FMT_YUV420P as i32;
 
         // 使用与流相同的时基
-        (*frame).pts = 0;               // 初始显示时间戳
+        (*frame).pts = 0; // 初始显示时间戳
         (*frame).time_base = AVRational { num: 1, den: FPS };
-        (*frame).duration = 1;          // 在当前时基下的持续时间
+        (*frame).duration = 1; // 在当前时基下的持续时间
 
         let ret = av_frame_get_buffer(frame, 0);
         if ret < 0 {
@@ -369,8 +364,8 @@ fn encode_video(seconds: i32) -> Result<(), Error> {
             let u_ptr = (*frame).data[1];
             let v_ptr = (*frame).data[2];
             let uv_linesize = (*frame).linesize[1];
-            for y in 0..(HEIGHT/2) {
-                for x in 0..(WIDTH/2) {
+            for y in 0..(HEIGHT / 2) {
+                for x in 0..(WIDTH / 2) {
                     *u_ptr.offset((y * uv_linesize + x) as isize) = 128;
                     *v_ptr.offset((y * uv_linesize + x) as isize) = 128;
                 }
@@ -395,11 +390,7 @@ fn encode_video(seconds: i32) -> Result<(), Error> {
                 (*pkt).duration = (*frame).duration;
 
                 // 转换时间戳到流的时基
-                av_packet_rescale_ts(
-                    pkt,
-                    (*frame).time_base,
-                    (*stream.ptr).time_base
-                );
+                av_packet_rescale_ts(pkt, (*frame).time_base, (*stream.ptr).time_base);
 
                 // 写入包
                 av_interleaved_write_frame(format_ctx.as_mut_ptr(), pkt);
@@ -411,11 +402,7 @@ fn encode_video(seconds: i32) -> Result<(), Error> {
         avcodec_send_frame(stream.codec_ctx(), ptr::null());
         while avcodec_receive_packet(stream.codec_ctx(), pkt) >= 0 {
             // 确保最后的包也有正确的时间戳
-            av_packet_rescale_ts(
-                pkt,
-                (*frame).time_base,
-                (*stream.ptr).time_base
-            );
+            av_packet_rescale_ts(pkt, (*frame).time_base, (*stream.ptr).time_base);
 
             av_interleaved_write_frame(format_ctx.as_mut_ptr(), pkt);
             av_packet_unref(pkt);
@@ -446,7 +433,6 @@ pub enum Error {
 
 // 使用示例
 fn main() -> Result<(), Error> {
-
     let _ = encode_video(10);
 
     Ok(())
