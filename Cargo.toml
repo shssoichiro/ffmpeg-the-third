@@ -1,6 +1,6 @@
 [package]
 name = "ffmpeg-the-third"
-version = "3.0.0+ffmpeg-7.1"
+version = "3.0.1+ffmpeg-7.1"
 edition = "2021"
 
 authors = ["meh. <meh@schizofreni.co>", "Zhiming Wang <i@zhimingwang.org>"]
@@ -20,7 +20,7 @@ rust-version = "1.65.0"
 
 [dependencies]
 libc = "0.2"
-bitflags = "2.5"
+bitflags = "2.8"
 
 [dependencies.image]
 version = "0.25"
@@ -47,7 +47,7 @@ default = [
     "non-exhaustive-enums",
 ]
 
-serialize = ["serde"]
+serialize = ["serde", "bitflags/serde"]
 static = ["ffmpeg-sys-the-third/static"]
 
 # mark enums in generated bindings as #[non_exhaustive]

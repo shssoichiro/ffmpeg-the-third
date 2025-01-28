@@ -1,3 +1,7 @@
+## Version 3.0.1
+
+- Fix compilation with `serialize` feature and newest `bitflags` crate
+
 ## Version 3.0.0
 
 - [Breaking] remove support for < ffmpeg 4.2
