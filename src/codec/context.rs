@@ -7,7 +7,8 @@ use super::encoder::Encoder;
 use super::{threading, Compliance, Debug, Flags, Id};
 use crate::ffi::*;
 use crate::media;
-use crate::AsPtr;
+use crate::option;
+use crate::{AsMutPtr, AsPtr};
 use crate::{Codec, Error};
 use libc::c_int;
 
@@ -167,3 +168,18 @@ impl Clone for Context {
         }
     }
 }
+
+/// `AVCodecContext` in `Context` is the target of `option` operations.
+impl AsPtr<AVCodecContext> for Context {
+    fn as_ptr(&self) -> *const AVCodecContext {
+        self.ptr as *const _
+    }
+}
+
+impl AsMutPtr<AVCodecContext> for Context {
+    fn as_mut_ptr(&mut self) -> *mut AVCodecContext {
+        self.ptr as *mut _
+    }
+}
+
+impl option::Settable<AVCodecContext> for Context {}

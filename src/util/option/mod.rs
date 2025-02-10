@@ -1,5 +1,5 @@
 mod traits;
-pub use self::traits::{Gettable, Iterable, Settable, Target};
+pub use self::traits::{Gettable, Iterable, Settable};
 
 use crate::ffi::*;
 use libc::c_uint;
