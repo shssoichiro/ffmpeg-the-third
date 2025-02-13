@@ -3,6 +3,7 @@ extern crate ffmpeg_the_third as ffmpeg;
 use std::env;
 use std::path::Path;
 
+use crate::ffmpeg::codec::Parameters;
 use crate::ffmpeg::{codec, filter, format, frame, media};
 use crate::ffmpeg::{rescale, Rescale};
 
@@ -69,10 +70,10 @@ struct Transcoder {
     out_time_base: ffmpeg::Rational,
 }
 
-fn transcoder<P: AsRef<Path>>(
+fn transcoder<P: AsRef<Path> + ?Sized>(
     ictx: &mut format::context::Input,
     octx: &mut format::context::Output,
-    path: P,
+    path: &P,
     filter_spec: &str,
 ) -> Result<Transcoder, ffmpeg::Error> {
     let input = ictx
@@ -135,7 +136,7 @@ fn transcoder<P: AsRef<Path>>(
     output.set_time_base((1, decoder.rate() as i32));
 
     let encoder = encoder.open_as(codec)?;
-    output.copy_parameters_from_context(&encoder);
+    output.set_parameters(Parameters::from(&encoder));
 
     let filter = filter(filter_spec, &decoder, &encoder)?;
 

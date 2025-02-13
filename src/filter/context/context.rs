@@ -2,8 +2,7 @@ use std::marker::PhantomData;
 
 use super::{Sink, Source};
 use crate::ffi::*;
-use crate::{format, option};
-use libc::c_void;
+use crate::{format, option, AsMutPtr, AsPtr};
 
 #[cfg(feature = "ffmpeg_5_1")]
 use crate::ChannelLayout;
@@ -66,14 +65,16 @@ impl<'a> Context<'a> {
     }
 }
 
-unsafe impl<'a> option::Target for Context<'a> {
-    fn as_ptr(&self) -> *const c_void {
+impl<'a> AsPtr<AVFilterContext> for Context<'a> {
+    fn as_ptr(&self) -> *const AVFilterContext {
         self.ptr as *const _
     }
+}
 
-    fn as_mut_ptr(&mut self) -> *mut c_void {
+impl<'a> AsMutPtr<AVFilterContext> for Context<'a> {
+    fn as_mut_ptr(&mut self) -> *mut AVFilterContext {
         self.ptr as *mut _
     }
 }
 
-impl<'a> option::Settable for Context<'a> {}
+impl<'a> option::Settable<AVFilterContext> for Context<'a> {}

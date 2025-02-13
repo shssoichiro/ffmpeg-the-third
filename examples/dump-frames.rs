@@ -18,7 +18,18 @@ fn main() -> Result<(), ffmpeg::Error> {
             .ok_or(ffmpeg::Error::StreamNotFound)?;
         let video_stream_index = input.index();
 
-        let context_decoder = ffmpeg::codec::context::Context::from_parameters(input.parameters())?;
+        let mut context_decoder =
+            ffmpeg::codec::context::Context::from_parameters(input.parameters())?;
+
+        if let Ok(parallelism) = std::thread::available_parallelism() {
+            context_decoder.set_threading(ffmpeg::threading::Config {
+                kind: ffmpeg::threading::Type::Frame,
+                count: parallelism.get(),
+                #[cfg(not(feature = "ffmpeg_6_0"))]
+                safe: false,
+            });
+        }
+
         let mut decoder = context_decoder.decoder().video()?;
 
         let mut scaler = Context::get(
