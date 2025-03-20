@@ -200,6 +200,9 @@ pub fn build(libraries: &[Library], out_dir: &Path) -> io::Result<PathBuf> {
     // do not build programs since we don't need them
     configure.arg("--disable-programs");
 
+    // do not build documentation
+    configure.arg("--disable-doc");
+
     // the binary using ffmpeg-sys must comply with GPL
     configure.switch("BUILD_LICENSE_GPL", "gpl");
 
