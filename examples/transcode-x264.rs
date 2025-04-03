@@ -144,7 +144,7 @@ impl Transcoder {
             return;
         }
         eprintln!(
-            "time elpased: \t{:8.2}\tframe count: {:8}\ttimestamp: {:8.2}",
+            "time elapsed: \t{:8.2}\tframe count: {:8}\ttimestamp: {:8.2}",
             self.starting_time.elapsed().as_secs_f64(),
             self.frame_count,
             timestamp

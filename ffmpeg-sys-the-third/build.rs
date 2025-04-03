@@ -898,7 +898,7 @@ fn main() {
                 println!("cargo:rustc-link-lib=ws2_32");
             }
 
-            // avutil depdendencies
+            // avutil dependencies
             println!("cargo:rustc-link-lib=bcrypt");
             println!("cargo:rustc-link-lib=user32");
         }
