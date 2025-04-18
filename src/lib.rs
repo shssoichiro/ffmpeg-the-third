@@ -7,8 +7,6 @@
 // This lint sometimes suggests worse code. See rust-lang/rust-clippy#13514
 #![allow(clippy::needless_lifetimes)]
 
-#[macro_use]
-extern crate bitflags;
 pub extern crate ffmpeg_sys_the_third as sys;
 #[cfg(feature = "image")]
 extern crate image;

@@ -1,7 +1,7 @@
 use crate::ffi::*;
 use libc::c_uint;
 
-bitflags! {
+bitflags::bitflags! {
     #[derive(Debug, Clone, Copy, Eq, PartialEq)]
     pub struct Capabilities: c_uint {
         const DRAW_HORIZ_BAND     = AV_CODEC_CAP_DRAW_HORIZ_BAND;

@@ -1,7 +1,7 @@
 use crate::ffi::*;
 use libc::c_int;
 
-bitflags! {
+bitflags::bitflags! {
     pub struct Flags: c_int {
         const FAST_BILINEAR        = SWS_FAST_BILINEAR;
         const BILINEAR             = SWS_BILINEAR;

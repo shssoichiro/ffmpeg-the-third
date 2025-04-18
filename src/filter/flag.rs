@@ -1,7 +1,7 @@
 use crate::ffi::*;
 use libc::c_int;
 
-bitflags! {
+bitflags::bitflags! {
     pub struct Flags: c_int {
         const DYNAMIC_INPUTS            = AVFILTER_FLAG_DYNAMIC_INPUTS;
         const DYNAMIC_OUTPUTS           = AVFILTER_FLAG_DYNAMIC_OUTPUTS;

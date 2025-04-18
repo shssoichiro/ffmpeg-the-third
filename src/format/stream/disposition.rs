@@ -1,7 +1,7 @@
 use crate::ffi::*;
 use libc::c_int;
 
-bitflags! {
+bitflags::bitflags! {
     #[derive(Debug, Clone, Copy, Eq, PartialEq)]
     pub struct Disposition: c_int {
         const DEFAULT          = AV_DISPOSITION_DEFAULT;
