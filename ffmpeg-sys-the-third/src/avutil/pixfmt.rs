@@ -1,7 +1,7 @@
 use libc::c_int;
 
-use crate::{AVChromaLocation, AVPixelFormat};
 use crate::AVPixelFormat::*;
+use crate::{AVChromaLocation, AVPixelFormat};
 
 impl AVChromaLocation {
     pub fn from_c_int(n: c_int) -> Option<Self> {
