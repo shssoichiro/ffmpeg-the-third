@@ -1,7 +1,6 @@
 #![allow(non_camel_case_types)]
 #![allow(clippy::missing_safety_doc)]
 #![allow(clippy::module_inception)]
-#![allow(clippy::too_many_arguments)]
 // FFI Types may differ across platforms, making casts necessary
 #![allow(clippy::unnecessary_cast)]
 // This lint sometimes suggests worse code. See rust-lang/rust-clippy#13514
