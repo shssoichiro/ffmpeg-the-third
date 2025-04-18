@@ -629,7 +629,7 @@ fn rustc_link_extralibs(source_dir: &Path) {
         .map(|line| line.unwrap())
         .unwrap();
 
-    let linker_args = extra_libs.split('=').last().unwrap().split(' ');
+    let linker_args = extra_libs.split('=').next_back().unwrap().split(' ');
     let include_libs = linker_args
         .filter(|v| v.starts_with("-l"))
         .map(|flag| &flag[2..]);
