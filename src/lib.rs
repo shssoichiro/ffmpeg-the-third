@@ -1,10 +1,11 @@
 #![allow(non_camel_case_types)]
-#![allow(clippy::missing_safety_doc)]
 #![allow(clippy::module_inception)]
 // FFI Types may differ across platforms, making casts necessary
 #![allow(clippy::unnecessary_cast)]
 // This lint sometimes suggests worse code. See rust-lang/rust-clippy#13514
 #![allow(clippy::needless_lifetimes)]
+// TODO: Add safety docs and remove this #[allow]
+#![allow(clippy::missing_safety_doc)]
 
 pub use ffmpeg_sys_the_third as sys;
 pub use ffmpeg_sys_the_third as ffi;
