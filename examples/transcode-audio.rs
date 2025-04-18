@@ -1,4 +1,4 @@
-extern crate ffmpeg_the_third as ffmpeg;
+use ffmpeg_the_third as ffmpeg;
 
 use std::env;
 use std::path::Path;
