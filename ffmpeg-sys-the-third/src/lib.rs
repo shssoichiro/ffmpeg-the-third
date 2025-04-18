@@ -7,8 +7,6 @@
 #![allow(clippy::too_many_arguments)]
 #![allow(clippy::type_complexity)]
 
-extern crate libc;
-
 include!(concat!(env!("OUT_DIR"), "/bindings.rs"));
 
 mod avutil;

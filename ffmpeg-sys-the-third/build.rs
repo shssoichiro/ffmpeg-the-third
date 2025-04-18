@@ -1,8 +1,3 @@
-extern crate bindgen;
-extern crate cc;
-extern crate clang;
-extern crate pkg_config;
-
 use std::collections::HashMap;
 use std::env;
 use std::fmt::Write as FmtWrite;

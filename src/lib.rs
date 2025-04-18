@@ -7,14 +7,8 @@
 // This lint sometimes suggests worse code. See rust-lang/rust-clippy#13514
 #![allow(clippy::needless_lifetimes)]
 
-pub extern crate ffmpeg_sys_the_third as sys;
-#[cfg(feature = "image")]
-extern crate image;
-extern crate libc;
-#[cfg(feature = "serialize")]
-extern crate serde;
-
-pub use crate::sys as ffi;
+pub use ffmpeg_sys_the_third as sys;
+pub use ffmpeg_sys_the_third as ffi;
 
 #[macro_use]
 pub mod util;
