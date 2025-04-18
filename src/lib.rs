@@ -10,7 +10,6 @@
 pub use ffmpeg_sys_the_third as sys;
 pub use ffmpeg_sys_the_third as ffi;
 
-#[macro_use]
 pub mod util;
 pub use crate::util::channel_layout::{self, ChannelLayoutMask};
 #[cfg(feature = "ffmpeg_5_1")]

@@ -1,4 +1,3 @@
-#[macro_use]
 pub mod dictionary;
 pub mod channel_layout;
 pub mod chroma;
