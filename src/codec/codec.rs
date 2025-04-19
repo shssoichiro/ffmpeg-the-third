@@ -19,6 +19,9 @@ pub fn list_descriptors() -> CodecDescriptorIter {
 
 pub type Audio = Codec<AudioType>;
 pub type Video = Codec<VideoType>;
+pub type Data = Codec<DataType>;
+pub type Subtitle = Codec<SubtitleType>;
+pub type Attachment = Codec<AttachmentType>;
 
 #[derive(PartialEq, Eq, Copy, Clone)]
 pub struct Codec<Type = UnknownType> {
@@ -29,9 +32,15 @@ pub struct Codec<Type = UnknownType> {
 #[derive(PartialEq, Eq, Copy, Clone)]
 pub struct UnknownType;
 #[derive(PartialEq, Eq, Copy, Clone)]
+pub struct VideoType;
+#[derive(PartialEq, Eq, Copy, Clone)]
 pub struct AudioType;
 #[derive(PartialEq, Eq, Copy, Clone)]
-pub struct VideoType;
+pub struct DataType;
+#[derive(PartialEq, Eq, Copy, Clone)]
+pub struct SubtitleType;
+#[derive(PartialEq, Eq, Copy, Clone)]
+pub struct AttachmentType;
 
 unsafe impl<T> Send for Codec<T> {}
 unsafe impl<T> Sync for Codec<T> {}
