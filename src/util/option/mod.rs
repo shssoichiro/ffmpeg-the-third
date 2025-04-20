@@ -6,7 +6,7 @@ use libc::c_uint;
 #[cfg(feature = "serialize")]
 use serde::{Deserialize, Serialize};
 
-bitflags! {
+bitflags::bitflags! {
     #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
     #[cfg_attr(feature = "serialize", derive(Serialize, Deserialize))]
     pub struct Type: c_uint {

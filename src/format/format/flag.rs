@@ -1,7 +1,7 @@
 use crate::ffi::*;
 use libc::c_int;
 
-bitflags! {
+bitflags::bitflags! {
     pub struct Flags: c_int {
         const NO_FILE       = AVFMT_NOFILE;
         const NEED_NUMBER   = AVFMT_NEEDNUMBER;

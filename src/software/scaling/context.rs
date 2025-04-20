@@ -78,6 +78,7 @@ impl Context {
         }
     }
 
+    #[allow(clippy::too_many_arguments)]
     pub fn cached(
         &mut self,
         src_format: format::Pixel,

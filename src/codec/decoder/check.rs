@@ -1,7 +1,7 @@
 use crate::ffi::*;
 use libc::c_int;
 
-bitflags! {
+bitflags::bitflags! {
     pub struct Check: c_int {
         const CRC      = AV_EF_CRCCHECK;
         const BITSTREAM = AV_EF_BITSTREAM;

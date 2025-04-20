@@ -1,7 +1,7 @@
 use crate::ffi::*;
 use libc::c_int;
 
-bitflags! {
+bitflags::bitflags! {
     #[derive(Debug, Clone, Copy, Eq, PartialEq)]
     pub struct CodecProperties: c_int {
         const INTRA_ONLY = AV_CODEC_PROP_INTRA_ONLY;
