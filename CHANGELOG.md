@@ -1,3 +1,10 @@
+# Changelog
+
+## Version 3.0.2
+
+- Add new codec media types
+- Misc code modernizations
+
 ## Version 3.0.1
 
 - Fix compilation with `serialize` feature and newest `bitflags` crate
