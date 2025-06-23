@@ -26,6 +26,7 @@ pub use self::decision::Decision;
 
 use std::ffi::CString;
 
+use crate::codec::codec::UnknownEncoder;
 use crate::codec::Context;
 use crate::codec::Id;
 use crate::ffi::*;
@@ -35,14 +36,14 @@ pub fn new() -> Encoder {
     Context::new().encoder()
 }
 
-pub fn find(id: Id) -> Option<Codec> {
+pub fn find(id: Id) -> Option<UnknownEncoder> {
     unsafe {
         let ptr = avcodec_find_encoder(id.into());
         Codec::from_raw(ptr)
     }
 }
 
-pub fn find_by_name(name: &str) -> Option<Codec> {
+pub fn find_by_name(name: &str) -> Option<UnknownEncoder> {
     unsafe {
         let name = CString::new(name).unwrap();
         let ptr = avcodec_find_encoder_by_name(name.as_ptr());

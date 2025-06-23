@@ -29,7 +29,9 @@ fn main() {
         stream_mapping[ist_index] = ost_index;
         ist_time_bases[ist_index] = ist.time_base();
         ost_index += 1;
-        let mut ost = octx.add_stream(encoder::find(codec::Id::None)).unwrap();
+        let mut ost = octx
+            .add_stream(encoder::find(codec::Id::None).expect("ID_NONE encoder exists"))
+            .unwrap();
         ost.set_parameters(ist.parameters());
         // We need to set codec_tag to 0 lest we run into incompatible codec tag
         // issues when muxing into a different container format. Unfortunately

@@ -5,6 +5,7 @@ use std::rc::Rc;
 use super::decoder::Decoder;
 use super::encoder::Encoder;
 use super::{threading, Compliance, Debug, Flags, Id};
+use crate::codec::codec::{UnknownAction, UnknownType};
 use crate::ffi::*;
 use crate::media;
 use crate::option;
@@ -43,7 +44,7 @@ impl Context {
         }
     }
 
-    pub fn new_with_codec(codec: Codec) -> Self {
+    pub fn new_with_codec<A, T>(codec: Codec<A, T>) -> Self {
         unsafe {
             Context {
                 ptr: avcodec_alloc_context3(codec.as_ptr()),
@@ -71,7 +72,7 @@ impl Context {
         Encoder(self)
     }
 
-    pub fn codec(&self) -> Option<Codec> {
+    pub fn codec(&self) -> Option<Codec<UnknownAction, UnknownType>> {
         unsafe { Codec::from_raw((*self.as_ptr()).codec) }
     }
 
