@@ -1,13 +1,12 @@
 use std::marker::PhantomData;
 use std::ptr::NonNull;
 
-use super::config::{
-    FrameRateIter, PixelFormatIter, SampleFormatIter, SampleRateIter, TerminatedPtrIter,
-};
+use super::config::{FrameRateIter, PixelFormatIter, SampleFormatIter, SampleRateIter};
 use super::descriptor::{CodecDescriptor, CodecDescriptorIter};
 use super::profile::ProfileIter;
 use super::{Capabilities, Id};
 use crate::ffi::*;
+use crate::iters::TerminatedPtrIter;
 use crate::{media, utils};
 
 #[cfg(feature = "ffmpeg_7_1")]

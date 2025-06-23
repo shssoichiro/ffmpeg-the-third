@@ -68,6 +68,7 @@ pub mod software;
 mod as_ptr;
 pub use as_ptr::{AsMutPtr, AsPtr};
 
+pub(crate) mod iters;
 pub(crate) mod macros;
 pub(crate) mod utils;
 
