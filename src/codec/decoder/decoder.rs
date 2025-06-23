@@ -2,8 +2,10 @@ use std::ops::{Deref, DerefMut};
 use std::ptr;
 
 use super::{Audio, Check, Conceal, Opened, Subtitle, Video};
-use crate::codec::{traits, Context};
+use crate::codec::codec;
+use crate::codec::Context;
 use crate::ffi::*;
+use crate::AsPtr;
 use crate::{Dictionary, Discard, Error, Rational};
 
 pub struct Decoder(pub Context);
@@ -18,37 +20,29 @@ impl Decoder {
         }
     }
 
-    pub fn open_as<T, D: traits::Decoder<T>>(mut self, codec: D) -> Result<Opened, Error> {
+    pub fn open_as<T>(mut self, codec: codec::Decoder<T>) -> Result<Opened, Error> {
         unsafe {
-            if let Some(codec) = codec.decoder() {
-                match avcodec_open2(self.as_mut_ptr(), codec.as_ptr(), ptr::null_mut()) {
-                    0 => Ok(Opened(self)),
-                    e => Err(Error::from(e)),
-                }
-            } else {
-                Err(Error::DecoderNotFound)
+            match avcodec_open2(self.as_mut_ptr(), codec.as_ptr(), ptr::null_mut()) {
+                0 => Ok(Opened(self)),
+                e => Err(Error::from(e)),
             }
         }
     }
 
-    pub fn open_as_with<T, D: traits::Decoder<T>>(
+    pub fn open_as_with<T>(
         mut self,
-        codec: D,
+        codec: codec::Decoder<T>,
         options: Dictionary,
     ) -> Result<Opened, Error> {
         unsafe {
-            if let Some(codec) = codec.decoder() {
-                let mut opts = options.disown();
-                let res = avcodec_open2(self.as_mut_ptr(), codec.as_ptr(), &mut opts);
+            let mut opts = options.disown();
+            let res = avcodec_open2(self.as_mut_ptr(), codec.as_ptr(), &mut opts);
 
-                Dictionary::own(opts);
+            Dictionary::own(opts);
 
-                match res {
-                    0 => Ok(Opened(self)),
-                    e => Err(Error::from(e)),
-                }
-            } else {
-                Err(Error::DecoderNotFound)
+            match res {
+                0 => Ok(Opened(self)),
+                e => Err(Error::from(e)),
             }
         }
     }
