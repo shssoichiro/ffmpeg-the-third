@@ -11,6 +11,9 @@ use bindgen::callbacks::{
     EnumVariantCustomBehavior, EnumVariantValue, IntKind, MacroParsingBehavior, ParseCallbacks,
 };
 
+// The highest version supported by clang-sys
+const MAX_CLANG_VERSION: u32 = 19;
+
 #[derive(Debug)]
 struct Library {
     name: &'static str,
@@ -677,6 +680,79 @@ fn add_pkg_config_path() {
 #[cfg(not(target_os = "macos"))]
 fn add_pkg_config_path() {}
 
+fn find_clang_versions() -> Vec<(u32, PathBuf)> {
+    // Use glob to find all llvm installations and pick the newest version <18
+    let llvm_paths = [
+        "/usr/lib/llvm-*/lib/libclang-*.so*", // make sure llvm dir include libclang
+        "/usr/lib/x86_64-linux-gnu/libclang-*.so*",
+        "/opt/homebrew/opt/llvm@*/lib/libclang.dylib", // macOS homebrew
+        "/usr/local/opt/llvm@*/lib/libclang.dylib",    // macOS homebrew
+    ];
+
+    let mut found_versions: Vec<(u32, PathBuf)> = Vec::new();
+
+    for pattern in &llvm_paths {
+        if let Ok(entries) = glob::glob(pattern) {
+            for entry in entries.flatten() {
+                let path_str = entry.to_string_lossy();
+
+                // Extract version number from path
+                if let Some(version) = extract_clang_version(&path_str) {
+                    found_versions.push((version, entry.parent().unwrap().to_path_buf()));
+                }
+            }
+        }
+    }
+    found_versions
+}
+
+/// Find a compatible clang version
+fn pick_clang_version() {
+    // if already set return
+    if env::var("LIBCLANG_PATH").is_ok() {
+        return;
+    }
+
+    let mut versions: Vec<(u32, PathBuf)> = find_clang_versions()
+        .into_iter()
+        .filter(|v| v.0 <= MAX_CLANG_VERSION)
+        .collect();
+
+    // Sort by version and pick the highest one
+    versions.sort_by(|a, b| b.0.cmp(&a.0));
+
+    if let Some((version, path)) = versions.first() {
+        unsafe {
+            env::set_var("LIBCLANG_PATH", path);
+        }
+        println!(
+            "cargo:warning=Set LIBCLANG_PATH to {} (version {})",
+            path.display(),
+            version
+        );
+    } else {
+        println!("cargo:error=Could not find compatible clang version (<18)");
+    }
+}
+
+fn extract_clang_version(path: &str) -> Option<u32> {
+    // Extract version from paths like:
+    // /usr/lib/llvm-17 -> 17
+    // /usr/lib/x86_64-linux-gnu/libclang-15.so.1 -> 15
+    // /opt/homebrew/opt/llvm@16/lib/libclang.dylib -> 16
+
+    if let Some(captures) = regex::Regex::new(r"llvm-?@?(\d+)").ok()?.captures(path) {
+        captures.get(1)?.as_str().parse().ok()
+    } else if let Some(captures) = regex::Regex::new(r"libclang-(\d+)\.so")
+        .ok()?
+        .captures(path)
+    {
+        captures.get(1)?.as_str().parse().ok()
+    } else {
+        None
+    }
+}
+
 fn check_features(include_paths: &[PathBuf]) {
     let clang = clang::Clang::new().expect("Cannot find clang");
     let index = clang::Index::new(&clang, false, false);
@@ -861,6 +937,9 @@ fn main() {
     let statik = cargo_feature_enabled("static");
     let ffmpeg_version = ffmpeg_version();
     let ffmpeg_major_version: u32 = get_major_version(&ffmpeg_version);
+
+    // Pick compatible clang version
+    pick_clang_version();
 
     let include_paths: Vec<PathBuf> = if cargo_feature_enabled("build") {
         let install_dir = build(&out_dir, &ffmpeg_version).unwrap();
