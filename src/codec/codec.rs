@@ -195,7 +195,7 @@ impl Codec<AudioType> {
         supported_sample_rates(self, None).expect("audio codec returns supported sample rates")
     }
 
-    pub fn rates(&self) -> Option<SampleRateIter> {
+    pub fn rates(&self) -> Option<SampleRateIter<'_>> {
         unsafe { SampleRateIter::from_raw((*self.as_ptr()).supported_samplerates) }
     }
 
@@ -212,7 +212,7 @@ impl Codec<AudioType> {
         supported_sample_formats(self, None).expect("audio codec returns supported sample formats")
     }
 
-    pub fn formats(&self) -> Option<SampleFormatIter> {
+    pub fn formats(&self) -> Option<SampleFormatIter<'_>> {
         unsafe { SampleFormatIter::from_raw((*self.as_ptr()).sample_fmts) }
     }
 
@@ -222,7 +222,7 @@ impl Codec<AudioType> {
     }
 
     #[cfg(feature = "ffmpeg_5_1")]
-    pub fn ch_layouts(&self) -> Option<ChannelLayoutIter> {
+    pub fn ch_layouts(&self) -> Option<ChannelLayoutIter<'_>> {
         unsafe { ChannelLayoutIter::from_raw((*self.as_ptr()).ch_layouts) }
     }
 }
@@ -241,7 +241,7 @@ impl Codec<VideoType> {
         supported_frame_rates(self, None).expect("video codec returns supported frame rates")
     }
 
-    pub fn rates(&self) -> Option<FrameRateIter> {
+    pub fn rates(&self) -> Option<FrameRateIter<'_>> {
         unsafe { FrameRateIter::from_raw((*self.as_ptr()).supported_framerates) }
     }
 
@@ -258,7 +258,7 @@ impl Codec<VideoType> {
         supported_pixel_formats(self, None).expect("video codec returns supported pixel formats")
     }
 
-    pub fn formats(&self) -> Option<PixelFormatIter> {
+    pub fn formats(&self) -> Option<PixelFormatIter<'_>> {
         unsafe { PixelFormatIter::from_raw((*self.as_ptr()).pix_fmts) }
     }
 

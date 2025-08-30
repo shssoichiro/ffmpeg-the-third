@@ -139,7 +139,7 @@ macro_rules! impl_config_iter_fn {
         pub fn $fn_name<T>(
             codec: Codec<T>,
             ctx: Option<&Context>,
-        ) -> Result<Supported<$iter>, Error> {
+        ) -> Result<Supported<$iter<'_>>, Error> {
             supported(codec, ctx, $codec_cfg)
         }
     };
