@@ -7,6 +7,9 @@
 #![allow(clippy::too_many_arguments)]
 #![allow(clippy::type_complexity)]
 
+// see rust-lang/rust-bindgen#3241
+#![allow(unnecessary_transmutes)]
+
 include!(concat!(env!("OUT_DIR"), "/bindings.rs"));
 
 mod avutil;
