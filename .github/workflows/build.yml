@@ -186,6 +186,11 @@ jobs:
   msrv:
     runs-on: ubuntu-22.04
 
+    env:
+      # Sometimes we allow lints on newer compiler versions
+      # Without -Aunknown-lints, this would error out
+      RUSTFLAGS: "-Dwarnings -Aunknown-lints"
+
     steps:
       - uses: actions/checkout@v4
       - name: Download FFmpeg
