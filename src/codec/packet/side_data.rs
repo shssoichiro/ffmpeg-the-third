@@ -68,6 +68,11 @@ pub enum Type {
     FrameCropping,
     #[cfg(feature = "ffmpeg_7_1")]
     LCEVC,
+
+    #[cfg(feature = "ffmpeg_8_0")]
+    _3DReferenceDisplays,
+    #[cfg(feature = "ffmpeg_8_0")]
+    RTCP_SR,
 }
 
 impl From<AVPacketSideDataType> for Type {
@@ -131,6 +136,11 @@ impl From<AVPacketSideDataType> for Type {
             AV_PKT_DATA_FRAME_CROPPING => Type::FrameCropping,
             #[cfg(feature = "ffmpeg_7_1")]
             AV_PKT_DATA_LCEVC => Type::LCEVC,
+
+            #[cfg(feature = "ffmpeg_8_0")]
+            AV_PKT_DATA_3D_REFERENCE_DISPLAYS => Type::_3DReferenceDisplays,
+            #[cfg(feature = "ffmpeg_8_0")]
+            AV_PKT_DATA_RTCP_SR => Type::RTCP_SR,
 
             #[cfg(feature = "non-exhaustive-enums")]
             _ => unimplemented!(),
@@ -199,6 +209,11 @@ impl From<Type> for AVPacketSideDataType {
             Type::FrameCropping => AV_PKT_DATA_FRAME_CROPPING,
             #[cfg(feature = "ffmpeg_7_1")]
             Type::LCEVC => AV_PKT_DATA_LCEVC,
+
+            #[cfg(feature = "ffmpeg_8_0")]
+            Type::_3DReferenceDisplays => AV_PKT_DATA_3D_REFERENCE_DISPLAYS,
+            #[cfg(feature = "ffmpeg_8_0")]
+            Type::RTCP_SR => AV_PKT_DATA_RTCP_SR,
         }
     }
 }

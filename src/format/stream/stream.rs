@@ -1,8 +1,12 @@
 use super::Disposition;
-use crate::codec::{self, packet};
+use crate::codec;
 use crate::ffi::*;
 use crate::format::context::common::Context;
 use crate::{DictionaryRef, Discard, Rational};
+
+#[cfg(not(feature = "ffmpeg_8_0"))]
+use crate::codec::packet;
+#[cfg(not(feature = "ffmpeg_8_0"))]
 use libc::c_int;
 
 #[derive(Debug)]
@@ -65,6 +69,7 @@ impl<'a> Stream<'a> {
         unsafe { Discard::from((*self.as_ptr()).discard) }
     }
 
+    #[cfg(not(feature = "ffmpeg_8_0"))]
     pub fn side_data(&self) -> SideDataIter<'_> {
         SideDataIter::new(self)
     }
@@ -90,17 +95,20 @@ impl<'a> PartialEq for Stream<'a> {
 
 impl<'a> Eq for Stream<'a> {}
 
+#[cfg(not(feature = "ffmpeg_8_0"))]
 pub struct SideDataIter<'a> {
     stream: &'a Stream<'a>,
     current: c_int,
 }
 
+#[cfg(not(feature = "ffmpeg_8_0"))]
 impl<'a> SideDataIter<'a> {
     pub fn new<'sd, 's: 'sd>(stream: &'s Stream) -> SideDataIter<'sd> {
         SideDataIter { stream, current: 0 }
     }
 }
 
+#[cfg(not(feature = "ffmpeg_8_0"))]
 impl<'a> Iterator for SideDataIter<'a> {
     type Item = packet::SideData<'a>;
 
@@ -132,4 +140,5 @@ impl<'a> Iterator for SideDataIter<'a> {
     }
 }
 
+#[cfg(not(feature = "ffmpeg_8_0"))]
 impl<'a> ExactSizeIterator for SideDataIter<'a> {}

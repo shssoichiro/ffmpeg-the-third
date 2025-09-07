@@ -78,16 +78,19 @@ impl Video {
         }
     }
 
+    #[cfg(not(feature = "ffmpeg_8_0"))]
     #[inline]
     pub fn is_interlaced(&self) -> bool {
         unsafe { (*self.as_ptr()).interlaced_frame != 0 }
     }
 
+    #[cfg(not(feature = "ffmpeg_8_0"))]
     #[inline]
     pub fn is_top_first(&self) -> bool {
         unsafe { (*self.as_ptr()).top_field_first != 0 }
     }
 
+    #[cfg(not(feature = "ffmpeg_8_0"))]
     #[inline]
     pub fn has_palette_changed(&self) -> bool {
         unsafe { (*self.as_ptr()).palette_has_changed != 0 }
