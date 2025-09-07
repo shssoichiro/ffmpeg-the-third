@@ -452,6 +452,7 @@ static EXTERNAL_BUILD_LIBS: &[(&str, &str)] = &[
     ("LC3", "liblc3"),
     ("LCEVC_DEC", "liblcevc-dec"),
     ("MP3LAME", "libmp3lame"),
+    ("OAPV", "liboapv"),
     ("OPENCORE_AMRNB", "libopencore-amrnb"),
     ("OPENCORE_AMRWB", "libopencore-amrwb"),
     ("OPENH264", "libopenh264"),
