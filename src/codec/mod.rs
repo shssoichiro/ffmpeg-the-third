@@ -39,6 +39,13 @@ pub use self::compliance::Compliance;
 pub mod debug;
 pub use self::debug::Debug;
 
+#[cfg(not(feature = "ffmpeg_6_1"))]
+#[doc(hidden)]
+pub mod profile_old;
+#[cfg(not(feature = "ffmpeg_6_1"))]
+#[doc(inline)]
+pub use profile_old as profile;
+#[cfg(feature = "ffmpeg_6_1")]
 pub mod profile;
 pub use self::profile::Profile;
 

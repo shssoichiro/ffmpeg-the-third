@@ -646,6 +646,27 @@ pub enum Id {
     SMPTE_2038,
     #[cfg(feature = "ffmpeg_7_1")]
     LCEVC,
+
+    #[cfg(feature = "ffmpeg_8_0")]
+    DNXUC,
+    #[cfg(feature = "ffmpeg_8_0")]
+    RV60,
+    #[cfg(feature = "ffmpeg_8_0")]
+    JPEGXL_ANIM,
+    #[cfg(feature = "ffmpeg_8_0")]
+    APV,
+    #[cfg(feature = "ffmpeg_8_0")]
+    PRORES_RAW,
+    #[cfg(feature = "ffmpeg_8_0")]
+    ADPCM_IMA_XBOX,
+    #[cfg(feature = "ffmpeg_8_0")]
+    ADPCM_SANYO,
+    #[cfg(feature = "ffmpeg_8_0")]
+    G728,
+    #[cfg(feature = "ffmpeg_8_0")]
+    IVTV_VBI,
+    #[cfg(feature = "ffmpeg_8_0")]
+    SMPTE_436M_ANC,
 }
 
 impl Id {
@@ -1296,6 +1317,27 @@ impl From<AVCodecID> for Id {
             #[cfg(feature = "ffmpeg_7_1")]
             AV_CODEC_ID_LCEVC => Id::LCEVC,
 
+            #[cfg(feature = "ffmpeg_8_0")]
+            AV_CODEC_ID_DNXUC => Id::DNXUC,
+            #[cfg(feature = "ffmpeg_8_0")]
+            AV_CODEC_ID_RV60 => Id::RV60,
+            #[cfg(feature = "ffmpeg_8_0")]
+            AV_CODEC_ID_JPEGXL_ANIM => Id::JPEGXL_ANIM,
+            #[cfg(feature = "ffmpeg_8_0")]
+            AV_CODEC_ID_APV => Id::APV,
+            #[cfg(feature = "ffmpeg_8_0")]
+            AV_CODEC_ID_PRORES_RAW => Id::PRORES_RAW,
+            #[cfg(feature = "ffmpeg_8_0")]
+            AV_CODEC_ID_ADPCM_IMA_XBOX => Id::ADPCM_IMA_XBOX,
+            #[cfg(feature = "ffmpeg_8_0")]
+            AV_CODEC_ID_ADPCM_SANYO => Id::ADPCM_SANYO,
+            #[cfg(feature = "ffmpeg_8_0")]
+            AV_CODEC_ID_G728 => Id::G728,
+            #[cfg(feature = "ffmpeg_8_0")]
+            AV_CODEC_ID_IVTV_VBI => Id::IVTV_VBI,
+            #[cfg(feature = "ffmpeg_8_0")]
+            AV_CODEC_ID_SMPTE_436M_ANC => Id::SMPTE_436M_ANC,
+
             #[cfg(feature = "non-exhaustive-enums")]
             _ => unimplemented!(),
         }
@@ -1941,6 +1983,27 @@ impl From<Id> for AVCodecID {
             Id::SMPTE_2038 => AV_CODEC_ID_SMPTE_2038,
             #[cfg(feature = "ffmpeg_7_1")]
             Id::LCEVC => AV_CODEC_ID_LCEVC,
+
+            #[cfg(feature = "ffmpeg_8_0")]
+            Id::DNXUC => AV_CODEC_ID_DNXUC,
+            #[cfg(feature = "ffmpeg_8_0")]
+            Id::RV60 => AV_CODEC_ID_RV60,
+            #[cfg(feature = "ffmpeg_8_0")]
+            Id::JPEGXL_ANIM => AV_CODEC_ID_JPEGXL_ANIM,
+            #[cfg(feature = "ffmpeg_8_0")]
+            Id::APV => AV_CODEC_ID_APV,
+            #[cfg(feature = "ffmpeg_8_0")]
+            Id::PRORES_RAW => AV_CODEC_ID_PRORES_RAW,
+            #[cfg(feature = "ffmpeg_8_0")]
+            Id::ADPCM_IMA_XBOX => AV_CODEC_ID_ADPCM_IMA_XBOX,
+            #[cfg(feature = "ffmpeg_8_0")]
+            Id::ADPCM_SANYO => AV_CODEC_ID_ADPCM_SANYO,
+            #[cfg(feature = "ffmpeg_8_0")]
+            Id::G728 => AV_CODEC_ID_G728,
+            #[cfg(feature = "ffmpeg_8_0")]
+            Id::IVTV_VBI => AV_CODEC_ID_IVTV_VBI,
+            #[cfg(feature = "ffmpeg_8_0")]
+            Id::SMPTE_436M_ANC => AV_CODEC_ID_SMPTE_436M_ANC,
         }
     }
 }
