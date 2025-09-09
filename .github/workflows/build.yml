@@ -51,7 +51,7 @@ jobs:
       fail-fast: false
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Install dependencies
         run: |
           sudo apt-get update
@@ -103,7 +103,7 @@ jobs:
       PKG_CONFIG_PATH: /opt/homebrew/opt/ffmpeg@${{ matrix.ffmpeg_version }}/lib/pkgconfig
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Install dependencies
         run: brew install ffmpeg@${{ matrix.ffmpeg_version }}
       - name: Install Rust stable with clippy and rustfmt
@@ -143,7 +143,7 @@ jobs:
       FFMPEG_INSTALL_PATH: "C:/ffmpeg"
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Set libclang path
         run: |
           $VCINSTALLDIR = $(& "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe" -latest -property installationPath)
@@ -192,7 +192,7 @@ jobs:
       RUSTFLAGS: "-Dwarnings -Aunknown-lints"
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Download FFmpeg
         shell: bash
         run: |
