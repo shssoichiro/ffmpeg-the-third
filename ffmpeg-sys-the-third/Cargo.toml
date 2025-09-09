@@ -1,6 +1,6 @@
 [package]
 name = "ffmpeg-sys-the-third"
-version = "3.0.1+ffmpeg-7.1"
+version = "4.0.0+ffmpeg-8.0"
 links = "ffmpeg"
 edition = "2021"
 

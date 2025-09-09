@@ -1,6 +1,6 @@
 [package]
 name = "ffmpeg-the-third"
-version = "3.0.2+ffmpeg-7.1"
+version = "4.0.0+ffmpeg-8.0"
 edition = "2021"
 
 authors = ["meh. <meh@schizofreni.co>", "Zhiming Wang <i@zhimingwang.org>"]
@@ -27,7 +27,7 @@ version = "0.25"
 optional = true
 
 [dependencies.ffmpeg-sys-the-third]
-version = "3.0.1"
+version = "4"
 default-features = false
 path = "ffmpeg-sys-the-third"
 
