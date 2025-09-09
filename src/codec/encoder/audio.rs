@@ -124,7 +124,7 @@ impl Audio {
     }
 
     #[cfg(feature = "ffmpeg_5_1")]
-    pub fn ch_layout(&self) -> ChannelLayout {
+    pub fn ch_layout(&self) -> ChannelLayout<'_> {
         unsafe { ChannelLayout::from(&self.as_ptr().as_ref().unwrap().ch_layout) }
     }
 

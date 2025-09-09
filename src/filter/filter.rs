@@ -31,7 +31,7 @@ impl Filter {
         unsafe { utils::optional_str_from_c_ptr((*self.as_ptr()).description) }
     }
 
-    pub fn inputs(&self) -> Option<PadIter> {
+    pub fn inputs(&self) -> Option<PadIter<'_>> {
         unsafe {
             let ptr = (*self.as_ptr()).inputs;
 
@@ -48,7 +48,7 @@ impl Filter {
         }
     }
 
-    pub fn outputs(&self) -> Option<PadIter> {
+    pub fn outputs(&self) -> Option<PadIter<'_>> {
         unsafe {
             let ptr = (*self.as_ptr()).outputs;
 

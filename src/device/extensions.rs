@@ -8,7 +8,7 @@ use crate::Error;
 use libc::c_int;
 
 impl Context {
-    pub fn devices(&self) -> Result<DeviceIter, Error> {
+    pub fn devices(&self) -> Result<DeviceIter<'_>, Error> {
         unsafe { DeviceIter::wrap(self.as_ptr()) }
     }
 }

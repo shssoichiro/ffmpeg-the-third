@@ -11,7 +11,7 @@ pub struct Chapter<'a> {
 }
 
 impl<'a> Chapter<'a> {
-    pub unsafe fn wrap(context: &Context, index: usize) -> Chapter {
+    pub unsafe fn wrap(context: &Context, index: usize) -> Chapter<'_> {
         Chapter { context, index }
     }
 
@@ -41,7 +41,7 @@ impl<'a> Chapter<'a> {
         unsafe { (*self.as_ptr()).end }
     }
 
-    pub fn metadata(&self) -> DictionaryRef {
+    pub fn metadata(&self) -> DictionaryRef<'_> {
         unsafe { DictionaryRef::wrap((*self.as_ptr()).metadata) }
     }
 }

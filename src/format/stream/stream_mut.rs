@@ -15,7 +15,7 @@ pub struct StreamMut<'a> {
 }
 
 impl<'a> StreamMut<'a> {
-    pub unsafe fn wrap(context: &mut Context, index: usize) -> StreamMut {
+    pub unsafe fn wrap(context: &mut Context, index: usize) -> StreamMut<'_> {
         StreamMut {
             context: mem::transmute_copy(&context),
             index,
@@ -48,7 +48,7 @@ impl<'a> StreamMut<'a> {
         }
     }
 
-    pub fn parameters_mut(&mut self) -> codec::ParametersMut {
+    pub fn parameters_mut(&mut self) -> codec::ParametersMut<'_> {
         unsafe {
             codec::ParametersMut::from_raw((*self.as_mut_ptr()).codecpar)
                 .expect("codecpar is non-null")
