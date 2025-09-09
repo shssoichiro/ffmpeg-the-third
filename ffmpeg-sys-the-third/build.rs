@@ -291,13 +291,14 @@ static AVUTIL_HEADERS: &[AVHeader] = &[
     AVHeader::new("time.h"),
     AVHeader::new("timecode.h"),
     AVHeader::new("twofish.h"),
+    // AVHeader::new("tx.h"),
     AVHeader::new("avutil.h"),
     AVHeader::new("xtea.h"),
 ];
 static AVCODEC_HEADERS: &[AVHeader] = &[
     AVHeader::new("avcodec.h"),
     AVHeader::new("dv_profile.h"),
-    AVHeader::new("avfft.h"),
+    // AVHeader::new("avfft.h"), TODO: Make these things version-aware
     AVHeader::new("vorbis_parser.h"),
 ];
 static AVFORMAT_HEADERS: &[AVHeader] = &[AVHeader::new("avformat.h"), AVHeader::new("avio.h")];
@@ -686,7 +687,7 @@ fn add_pkg_config_path() {
 #[cfg(not(target_os = "macos"))]
 fn add_pkg_config_path() {}
 
-fn check_features(include_paths: &[PathBuf]) {
+fn check_features(include_paths: &[PathBuf]) -> u64 {
     let clang = clang::Clang::new().expect("Cannot find clang");
     let index = clang::Index::new(&clang, false, false);
 
@@ -835,6 +836,9 @@ fn check_features(include_paths: &[PathBuf]) {
             println!(r#"cargo:{}=true"#, ffmpeg_version_flag);
         }
     }
+
+    // FIXME: Remove this hack and make Library version-aware
+    lavc_version.0
 }
 
 fn search_include(include_paths: &[PathBuf], header: &str) -> String {
@@ -946,7 +950,7 @@ fn main() {
         }
     }
 
-    check_features(&include_paths);
+    let lavc_major_ver = check_features(&include_paths);
 
     let clang_includes = include_paths
         .iter()
@@ -994,6 +998,13 @@ fn main() {
                 &include_paths,
                 &format!("lib{}/{}", lib.name, header.name),
             ));
+        }
+
+        // HACK: if pre-8.0
+        if lavc_major_ver < 62 {
+            builder = builder.header(search_include(&include_paths, "libavcodec/avfft.h"));
+        } else {
+            builder = builder.header(search_include(&include_paths, "libavutil/tx.h"));
         }
     }
 
