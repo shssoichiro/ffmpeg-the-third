@@ -53,10 +53,10 @@ impl Transcoder {
             .decoder()
             .video()?;
 
-        let codec = encoder::find(codec::Id::H264);
+        let codec = encoder::find(codec::Id::H264).ok_or(ffmpeg::Error::EncoderNotFound)?;
         let mut ost = octx.add_stream(codec)?;
 
-        let mut encoder = codec::context::Context::new_with_codec(codec.unwrap())
+        let mut encoder = codec::context::Context::new_with_codec(codec)
             .encoder()
             .video()?;
         ost.set_parameters(Parameters::from(&encoder));
@@ -221,7 +221,9 @@ fn main() {
             );
         } else {
             // Set up for stream copy for non-video stream.
-            let mut ost = octx.add_stream(encoder::find(codec::Id::None)).unwrap();
+            let mut ost = octx
+                .add_stream(encoder::find(codec::Id::None).expect("ID_NONE encoder exists"))
+                .unwrap();
             ost.set_parameters(ist.parameters());
             // We need to set codec_tag to 0 lest we run into incompatible codec tag
             // issues when muxing into a different container format. Unfortunately
