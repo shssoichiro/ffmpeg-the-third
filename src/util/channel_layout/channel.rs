@@ -49,6 +49,11 @@ pub enum Channel {
     #[cfg(feature = "ffmpeg_7_1")]
     TopSurroundRight,
 
+    #[cfg(feature = "ffmpeg_8_0")]
+    BinauralLeft,
+    #[cfg(feature = "ffmpeg_8_0")]
+    BinauralRight,
+
     /// Channel is empty and can be safely skipped.
     Unused,
 
@@ -161,6 +166,11 @@ impl From<AVChannel> for Channel {
             #[cfg(feature = "ffmpeg_7_1")]
             AV_CHAN_TOP_SURROUND_RIGHT => TopSurroundRight,
 
+            #[cfg(feature = "ffmpeg_8_0")]
+            AV_CHAN_BINAURAL_LEFT => BinauralLeft,
+            #[cfg(feature = "ffmpeg_8_0")]
+            AV_CHAN_BINAURAL_RIGHT => BinauralRight,
+
             AV_CHAN_UNUSED => Unused,
             AV_CHAN_UNKNOWN => Unknown,
             AV_CHAN_AMBISONIC_BASE => AmbisonicBase,
@@ -218,6 +228,11 @@ impl From<Channel> for AVChannel {
             TopSurroundLeft => AV_CHAN_TOP_SURROUND_LEFT,
             #[cfg(feature = "ffmpeg_7_1")]
             TopSurroundRight => AV_CHAN_TOP_SURROUND_RIGHT,
+
+            #[cfg(feature = "ffmpeg_8_0")]
+            BinauralLeft => AV_CHAN_BINAURAL_LEFT,
+            #[cfg(feature = "ffmpeg_8_0")]
+            BinauralRight => AV_CHAN_BINAURAL_RIGHT,
 
             Unused => AV_CHAN_UNUSED,
             Unknown => AV_CHAN_UNKNOWN,

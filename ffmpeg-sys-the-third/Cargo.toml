@@ -1,6 +1,6 @@
 [package]
 name = "ffmpeg-sys-the-third"
-version = "3.0.1+ffmpeg-7.1"
+version = "4.0.0+ffmpeg-8.0"
 links = "ffmpeg"
 edition = "2021"
 
@@ -110,6 +110,7 @@ build-lib-kvazaar = ["build"]
 build-lib-lc3 = ["build"]
 build-lib-lcevc-dec = ["build"]
 build-lib-mp3lame = ["build"]
+build-lib-oapv = ["build"]
 build-lib-opencore-amrnb = ["build"]
 build-lib-opencore-amrwb = ["build"]
 build-lib-openh264 = ["build"]

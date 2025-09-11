@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 4.0.0
+
+- [Feature] FFmpeg 8.0 support
+
 ## Version 3.0.2
 
 - Add new codec media types

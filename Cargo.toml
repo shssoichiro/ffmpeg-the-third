@@ -1,6 +1,6 @@
 [package]
 name = "ffmpeg-the-third"
-version = "3.0.2+ffmpeg-7.1"
+version = "4.0.0+ffmpeg-8.0"
 edition = "2021"
 
 authors = ["meh. <meh@schizofreni.co>", "Zhiming Wang <i@zhimingwang.org>"]
@@ -27,7 +27,7 @@ version = "0.25"
 optional = true
 
 [dependencies.ffmpeg-sys-the-third]
-version = "3.0.1"
+version = "4"
 default-features = false
 path = "ffmpeg-sys-the-third"
 
@@ -103,6 +103,7 @@ build-lib-gsm = ["ffmpeg-sys-the-third/build-lib-gsm"]
 build-lib-ilbc = ["ffmpeg-sys-the-third/build-lib-ilbc"]
 build-lib-kvazaar = ["ffmpeg-sys-the-third/build-lib-kvazaar"]
 build-lib-mp3lame = ["ffmpeg-sys-the-third/build-lib-mp3lame"]
+build-lib-oapv = ["ffmpeg-sys-the-third/build-lib-oapv"]
 build-lib-opencore-amrnb = ["ffmpeg-sys-the-third/build-lib-opencore-amrnb"]
 build-lib-opencore-amrwb = ["ffmpeg-sys-the-third/build-lib-opencore-amrwb"]
 build-lib-openh264 = ["ffmpeg-sys-the-third/build-lib-openh264"]

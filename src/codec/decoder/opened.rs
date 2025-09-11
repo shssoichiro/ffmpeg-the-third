@@ -96,7 +96,7 @@ impl Opened {
 impl Drop for Opened {
     fn drop(&mut self) {
         unsafe {
-            avcodec_close(self.as_mut_ptr());
+            avcodec_free_context(&mut self.as_mut_ptr());
         }
     }
 }

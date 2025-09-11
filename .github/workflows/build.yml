@@ -48,6 +48,9 @@ jobs:
           - version: "7.1"
             file: "ffmpeg-7.1-linux-clang-default.tar.xz"
             lib_subdir: "amd64"
+          - version: "8.0"
+            file: "ffmpeg-8.0-linux-clang-default.tar.xz"
+            lib_subdir: "amd64"
       fail-fast: false
 
     steps:
@@ -72,9 +75,9 @@ jobs:
           components: rustfmt, clippy
       - uses: Swatinem/rust-cache@v2
         with:
-          prefix-key: "v3-rust"
+          prefix-key: "v4-rust"
           # Only save cache for one FFmpeg version
-          save-if: ${{ matrix.ffmpeg.version == '7.1' }}
+          save-if: ${{ matrix.ffmpeg.version == '8.0' }}
 
       - name: Check format
         run: cargo fmt -- --check
@@ -96,7 +99,7 @@ jobs:
     runs-on: macos-latest
     strategy:
       matrix:
-        ffmpeg_version: ["4", "5", "6", "7"]
+        ffmpeg_version: ["4", "5", "6", "7", "8"]
       fail-fast: false
 
     env:
@@ -112,7 +115,7 @@ jobs:
           components: rustfmt, clippy
       - uses: Swatinem/rust-cache@v2
         with:
-          prefix-key: "v2-rust"
+          prefix-key: "v4-rust"
 
       - name: Check format
         run: cargo fmt -- --check
@@ -135,7 +138,7 @@ jobs:
     strategy:
       matrix:
         # GyanD builds don't go as far back as the Ubuntu builds
-        ffmpeg_version: ["4.4", "5.0", "5.1", "6.0", "6.1", "7.0", "7.1"]
+        ffmpeg_version: ["4.4", "5.0", "5.1", "6.0", "6.1", "7.0", "7.1", "8.0"]
       fail-fast: false
 
     env:
@@ -165,8 +168,8 @@ jobs:
           components: rustfmt, clippy
       - uses: Swatinem/rust-cache@v2
         with:
-          prefix-key: "v3-rust"
-          save-if: ${{ matrix.ffmpeg_version == '7.1' }}
+          prefix-key: "v4-rust"
+          save-if: ${{ matrix.ffmpeg_version == '8.0' }}
 
       - name: Check format
         run: cargo fmt -- --check

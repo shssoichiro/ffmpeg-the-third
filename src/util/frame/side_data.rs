@@ -68,6 +68,9 @@ pub enum Type {
     LCEVC,
     #[cfg(feature = "ffmpeg_7_1")]
     ViewId,
+
+    #[cfg(feature = "ffmpeg_8_0")]
+    _3DReferenceDisplays,
 }
 
 impl Type {
@@ -137,6 +140,9 @@ impl From<AVFrameSideDataType> for Type {
             #[cfg(feature = "ffmpeg_7_1")]
             AV_FRAME_DATA_VIEW_ID => Type::ViewId,
 
+            #[cfg(feature = "ffmpeg_8_0")]
+            AV_FRAME_DATA_3D_REFERENCE_DISPLAYS => Type::_3DReferenceDisplays,
+
             #[cfg(feature = "non-exhaustive-enums")]
             _ => unimplemented!(),
         }
@@ -202,6 +208,9 @@ impl From<Type> for AVFrameSideDataType {
             Type::LCEVC => AV_FRAME_DATA_LCEVC,
             #[cfg(feature = "ffmpeg_7_1")]
             Type::ViewId => AV_FRAME_DATA_VIEW_ID,
+
+            #[cfg(feature = "ffmpeg_8_0")]
+            Type::_3DReferenceDisplays => AV_FRAME_DATA_3D_REFERENCE_DISPLAYS,
         }
     }
 }

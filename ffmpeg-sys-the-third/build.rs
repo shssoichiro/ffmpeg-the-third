@@ -110,9 +110,12 @@ static AVUTIL_FEATURES: &[AVFeature] = &[
     AVFeature::new("PALETTE_HAS_CHANGED"),
     AVFeature::new("VULKAN_CONTIGUOUS_MEMORY"),
     AVFeature::new("H274_FILM_GRAIN_VCS"),
+    // before 9.0 (< v61)
     AVFeature::new("MOD_UINTP2"),
     AVFeature::new("RISCV_FD_ZBA"),
     AVFeature::new("VULKAN_FIXED_QUEUES"),
+    AVFeature::new("OPT_INT_LIST"),
+    AVFeature::new("OPT_PTR"),
 ];
 
 static AVCODEC_FEATURES: &[AVFeature] = &[
@@ -157,15 +160,15 @@ static AVCODEC_FEATURES: &[AVFeature] = &[
     AVFeature::new("BUFFER_MIN_SIZE"),
     AVFeature::new("VDPAU_ALLOC_GET_SET"),
     AVFeature::new("QUALITY_FACTOR"),
+    // before 9.0 (< v63)
     AVFeature::new("INIT_PACKET"),
-    AVFeature::new("TICKS_PER_FRAME"),
-    AVFeature::new("DROPCHANGED"),
-    AVFeature::new("AVFFT"),
-    AVFeature::new("FF_PROFILE_LEVEL"),
-    AVFeature::new("AVCODEC_CLOSE"),
-    AVFeature::new("BUFFER_MIN_SIZE"),
-    AVFeature::new("VDPAU_ALLOC_GET_SET"),
-    AVFeature::new("QUALITY_FACTOR"),
+    AVFeature::new("V408_CODECID"),
+    AVFeature::new("CODEC_PROPS"),
+    AVFeature::new("EXR_GAMMA"),
+    AVFeature::new("NVDEC_OLD_PIX_FMTS"),
+    AVFeature::new("OMX"),
+    AVFeature::new("SONIC_ENC"),
+    AVFeature::new("SONIC_DEC"),
 ];
 
 static AVFORMAT_FEATURES: &[AVFeature] = &[
@@ -181,12 +184,15 @@ static AVFORMAT_FEATURES: &[AVFeature] = &[
     AVFeature::new("AVFORMAT_IO_CLOSE"),
     AVFeature::new("AVIO_WRITE_NONCONST"),
     // before 8.0 (< v62)
-    AVFeature::new("COMPUTE_PKT_FIELDS2"),
     AVFeature::new("LAVF_SHORTEST"),
     AVFeature::new("ALLOW_FLUSH"),
     AVFeature::new("AVSTREAM_SIDE_DATA"),
     AVFeature::new("GET_DUR_ESTIMATE_METHOD"),
+    // before 9.0 (< v63)
+    AVFeature::new("COMPUTE_PKT_FIELDS2"),
     AVFeature::new("INTERNAL_TIMING"),
+    AVFeature::new("NO_DEFAULT_TLS_VERIFY"),
+
     // after 5.0 (> v59)
     AVFeature::new("AVSTREAM_CLASS"),
     // for all eternity
@@ -200,6 +206,8 @@ static AVDEVICE_FEATURES: &[AVFeature] = &[
     AVFeature::new("BKTR_DEVICE"),
     AVFeature::new("OPENGL_DEVICE"),
     AVFeature::new("SDL2_DEVICE"),
+    // before 9.0 (< v63)
+    AVFeature::new("ALSA_CHANNELS"),
 ];
 
 static AVFILTER_FEATURES: &[AVFeature] = &[
@@ -283,13 +291,14 @@ static AVUTIL_HEADERS: &[AVHeader] = &[
     AVHeader::new("time.h"),
     AVHeader::new("timecode.h"),
     AVHeader::new("twofish.h"),
+    // AVHeader::new("tx.h"),
     AVHeader::new("avutil.h"),
     AVHeader::new("xtea.h"),
 ];
 static AVCODEC_HEADERS: &[AVHeader] = &[
     AVHeader::new("avcodec.h"),
     AVHeader::new("dv_profile.h"),
-    AVHeader::new("avfft.h"),
+    // AVHeader::new("avfft.h"), TODO: Make these things version-aware
     AVHeader::new("vorbis_parser.h"),
 ];
 static AVFORMAT_HEADERS: &[AVHeader] = &[AVHeader::new("avformat.h"), AVHeader::new("avio.h")];
@@ -452,6 +461,7 @@ static EXTERNAL_BUILD_LIBS: &[(&str, &str)] = &[
     ("LC3", "liblc3"),
     ("LCEVC_DEC", "liblcevc-dec"),
     ("MP3LAME", "libmp3lame"),
+    ("OAPV", "liboapv"),
     ("OPENCORE_AMRNB", "libopencore-amrnb"),
     ("OPENCORE_AMRWB", "libopencore-amrwb"),
     ("OPENH264", "libopenh264"),
@@ -677,7 +687,7 @@ fn add_pkg_config_path() {
 #[cfg(not(target_os = "macos"))]
 fn add_pkg_config_path() {}
 
-fn check_features(include_paths: &[PathBuf]) {
+fn check_features(include_paths: &[PathBuf]) -> u64 {
     let clang = clang::Clang::new().expect("Cannot find clang");
     let index = clang::Index::new(&clang, false, false);
 
@@ -800,11 +810,12 @@ fn check_features(include_paths: &[PathBuf]) {
         ("ffmpeg_6_1", 60, 31),
         ("ffmpeg_7_0", 61, 3),
         ("ffmpeg_7_1", 61, 19),
+        ("ffmpeg_8_0", 62, 11),
     ];
 
     let lavc_version = *versions
         .get("avcodec")
-        .expect("Unable to find the version for lib{lib}");
+        .expect("Unable to find the version for libavcodec");
 
     // This allows removing a lot of #[cfg] attributes.
     assert!(
@@ -825,6 +836,9 @@ fn check_features(include_paths: &[PathBuf]) {
             println!(r#"cargo:{}=true"#, ffmpeg_version_flag);
         }
     }
+
+    // FIXME: Remove this hack and make Library version-aware
+    lavc_version.0
 }
 
 fn search_include(include_paths: &[PathBuf], header: &str) -> String {
@@ -936,7 +950,7 @@ fn main() {
         }
     }
 
-    check_features(&include_paths);
+    let lavc_major_ver = check_features(&include_paths);
 
     let clang_includes = include_paths
         .iter()
@@ -984,6 +998,13 @@ fn main() {
                 &include_paths,
                 &format!("lib{}/{}", lib.name, header.name),
             ));
+        }
+
+        // HACK: if pre-8.0
+        if lavc_major_ver < 62 {
+            builder = builder.header(search_include(&include_paths, "libavcodec/avfft.h"));
+        } else {
+            builder = builder.header(search_include(&include_paths, "libavutil/tx.h"));
         }
     }
 
