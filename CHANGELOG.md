@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 4.0.1
+
+- Fix a segfault which was caused by a double free
+
 ## Version 4.0.0
 
 - [Feature] FFmpeg 8.0 support

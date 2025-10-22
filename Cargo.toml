@@ -1,6 +1,6 @@
 [package]
 name = "ffmpeg-the-third"
-version = "4.0.0+ffmpeg-8.0"
+version = "4.0.1+ffmpeg-8.0"
 edition = "2021"
 
 authors = ["meh. <meh@schizofreni.co>", "Zhiming Wang <i@zhimingwang.org>"]
