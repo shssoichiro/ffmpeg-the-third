@@ -146,7 +146,7 @@ impl Drop for Context {
     fn drop(&mut self) {
         unsafe {
             if self.owner.is_none() {
-                avcodec_free_context(&mut self.as_mut_ptr());
+                avcodec_free_context(&mut self.ptr);
             }
         }
     }
@@ -183,3 +183,23 @@ impl AsMutPtr<AVCodecContext> for Context {
 }
 
 impl option::Settable<AVCodecContext> for Context {}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::codec::{decoder, Id};
+
+    // This test exercises opening a decoder and dropping it.
+    // It should not segfault when the `Context` and `Opened` wrappers are dropped.
+    #[test]
+    fn open_and_drop_pgs_decoder_does_not_segfault() {
+        // Find the PGS subtitle decoder and open it using a fresh context.
+        let pgs = decoder::find(Id::HDMV_PGS_SUBTITLE)
+            .expect("PGS decoder must be available in linked FFmpeg");
+
+        let ctx = Context::new();
+        let _opened = ctx.decoder().open_as(pgs).expect("can open PGS decoder");
+
+        // Drop occurs at end of scope; success is lack of crash.
+    }
+}

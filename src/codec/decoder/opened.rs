@@ -93,13 +93,7 @@ impl Opened {
     }
 }
 
-impl Drop for Opened {
-    fn drop(&mut self) {
-        unsafe {
-            avcodec_free_context(&mut self.as_mut_ptr());
-        }
-    }
-}
+// Intentionally no Drop impl; the underlying codec::Context frees itself.
 
 impl Deref for Opened {
     type Target = Decoder;
