@@ -68,7 +68,6 @@ static LIBRARIES: &[Library] = &[
     Library::optional("avfilter", AVFILTER_FEATURES, AVFILTER_HEADERS, 0),
     Library::optional("swscale", SWSCALE_FEATURES, SWSCALE_HEADERS, 0),
     Library::optional("swresample", SWRESAMPLE_FEATURES, SWRESAMPLE_HEADERS, 0),
-    Library::optional("postproc", POSTPROC_FEATURES, POSTPROC_HEADERS, 50),
 ];
 
 #[derive(Debug)]
@@ -227,8 +226,6 @@ static SWSCALE_FEATURES: &[AVFeature] = &[];
 
 static SWRESAMPLE_FEATURES: &[AVFeature] = &[];
 
-static POSTPROC_FEATURES: &[AVFeature] = &[];
-
 #[derive(Debug)]
 struct AVHeader {
     name: &'static str,
@@ -310,7 +307,6 @@ static AVFILTER_HEADERS: &[AVHeader] = &[
 ];
 static SWSCALE_HEADERS: &[AVHeader] = &[AVHeader::new("swscale.h")];
 static SWRESAMPLE_HEADERS: &[AVHeader] = &[AVHeader::new("swresample.h")];
-static POSTPROC_HEADERS: &[AVHeader] = &[AVHeader::new("postprocess.h")];
 
 #[derive(Debug)]
 struct Callbacks;
@@ -977,7 +973,6 @@ fn main() {
         .allowlist_file(r#".*[/\\]libavfilter[/\\].*"#)
         .allowlist_file(r#".*[/\\]libswscale[/\\].*"#)
         .allowlist_file(r#".*[/\\]libswresample[/\\].*"#)
-        .allowlist_file(r#".*[/\\]libpostproc[/\\].*"#)
         .opaque_type("__mingw_ldbl_type_t")
         .prepend_enum_name(false)
         .derive_eq(true)
