@@ -19,7 +19,7 @@ keywords = ["audio", "video"]
 categories = ["multimedia", "external-ffi-bindings"]
 
 # When changing MSRV: Also update build.yml and README.md
-rust-version = "1.65.0"
+rust-version = "1.70.0"
 
 [lib]
 # Disable doctests as a workaround for https://github.com/rust-lang/rust-bindgen/issues/1313
@@ -31,7 +31,7 @@ libc = "0.2.173"
 [build-dependencies]
 cc = "1.0"
 pkg-config = "0.3"
-bindgen = { version = "0.69", default-features = false, features = ["runtime"] }
+bindgen = { version = "0.72", default-features = false, features = ["runtime"] }
 clang = { version = "2.0.0", features = ["clang_3_9", "runtime"] }
 
 [target.'cfg(target_env = "msvc")'.build-dependencies]
