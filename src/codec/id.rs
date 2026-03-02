@@ -14,8 +14,6 @@ pub enum Id {
     // video codecs
     MPEG1VIDEO,
     MPEG2VIDEO,
-    #[cfg(all(feature = "ff_api_xvmc", not(feature = "ffmpeg_5_0")))]
-    MPEG2VIDEO_XVMC,
     H261,
     H263,
     RV10,
@@ -541,11 +539,8 @@ pub enum Id {
     ADPCM_IMA_MOFLEX,
     FASTAUDIO,
 
-    #[cfg(feature = "ffmpeg_5_0")]
     GEM,
-    #[cfg(feature = "ffmpeg_5_0")]
     ADPCM_IMA_ACORN,
-    #[cfg(feature = "ffmpeg_5_0")]
     MSNSIREN,
 
     #[cfg(feature = "ffmpeg_5_1")]
@@ -653,8 +648,6 @@ impl From<AVCodecID> for Id {
             /* video codecs */
             AV_CODEC_ID_MPEG1VIDEO => Id::MPEG1VIDEO,
             AV_CODEC_ID_MPEG2VIDEO => Id::MPEG2VIDEO,
-            #[cfg(all(feature = "ff_api_xvmc", not(feature = "ffmpeg_5_0")))]
-            AV_CODEC_ID_MPEG2VIDEO_XVMC => Id::MPEG2VIDEO_XVMC,
             AV_CODEC_ID_H261 => Id::H261,
             AV_CODEC_ID_H263 => Id::H263,
             AV_CODEC_ID_RV10 => Id::RV10,
@@ -1177,11 +1170,8 @@ impl From<AVCodecID> for Id {
             AV_CODEC_ID_ADPCM_IMA_MOFLEX => Id::ADPCM_IMA_MOFLEX,
             AV_CODEC_ID_FASTAUDIO => Id::FASTAUDIO,
 
-            #[cfg(feature = "ffmpeg_5_0")]
             AV_CODEC_ID_GEM => Id::GEM,
-            #[cfg(feature = "ffmpeg_5_0")]
             AV_CODEC_ID_ADPCM_IMA_ACORN => Id::ADPCM_IMA_ACORN,
-            #[cfg(feature = "ffmpeg_5_0")]
             AV_CODEC_ID_MSNSIREN => Id::MSNSIREN,
 
             #[cfg(feature = "ffmpeg_5_1")]
@@ -1284,8 +1274,6 @@ impl From<Id> for AVCodecID {
             /* video codecs */
             Id::MPEG1VIDEO => AV_CODEC_ID_MPEG1VIDEO,
             Id::MPEG2VIDEO => AV_CODEC_ID_MPEG2VIDEO,
-            #[cfg(all(feature = "ff_api_xvmc", not(feature = "ffmpeg_5_0")))]
-            Id::MPEG2VIDEO_XVMC => AV_CODEC_ID_MPEG2VIDEO_XVMC,
             Id::H261 => AV_CODEC_ID_H261,
             Id::H263 => AV_CODEC_ID_H263,
             Id::RV10 => AV_CODEC_ID_RV10,
@@ -1811,11 +1799,8 @@ impl From<Id> for AVCodecID {
             Id::ADPCM_IMA_MOFLEX => AV_CODEC_ID_ADPCM_IMA_MOFLEX,
             Id::FASTAUDIO => AV_CODEC_ID_FASTAUDIO,
 
-            #[cfg(feature = "ffmpeg_5_0")]
             Id::GEM => AV_CODEC_ID_GEM,
-            #[cfg(feature = "ffmpeg_5_0")]
             Id::ADPCM_IMA_ACORN => AV_CODEC_ID_ADPCM_IMA_ACORN,
-            #[cfg(feature = "ffmpeg_5_0")]
             Id::MSNSIREN => AV_CODEC_ID_MSNSIREN,
 
             #[cfg(feature = "ffmpeg_5_1")]

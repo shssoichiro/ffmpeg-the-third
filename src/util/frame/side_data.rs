@@ -30,11 +30,6 @@ pub enum Type {
     ContentLightLevel,
     IccProfile,
 
-    #[cfg(not(feature = "ffmpeg_5_0"))]
-    QPTableProperties,
-    #[cfg(not(feature = "ffmpeg_5_0"))]
-    QPTableData,
-
     S12M_TIMECODE,
 
     DYNAMIC_HDR_PLUS,
@@ -45,11 +40,8 @@ pub enum Type {
     SEI_UNREGISTERED,
     FILM_GRAIN_PARAMS,
 
-    #[cfg(feature = "ffmpeg_5_0")]
     DETECTION_BBOXES,
-    #[cfg(feature = "ffmpeg_5_0")]
     DOVI_RPU_BUFFER,
-    #[cfg(feature = "ffmpeg_5_0")]
     DOVI_METADATA,
 
     #[cfg(feature = "ffmpeg_5_1")]
@@ -99,10 +91,6 @@ impl From<AVFrameSideDataType> for Type {
             AV_FRAME_DATA_CONTENT_LIGHT_LEVEL => Type::ContentLightLevel,
             AV_FRAME_DATA_ICC_PROFILE => Type::IccProfile,
 
-            #[cfg(not(feature = "ffmpeg_5_0"))]
-            AV_FRAME_DATA_QP_TABLE_PROPERTIES => Type::QPTableProperties,
-            #[cfg(not(feature = "ffmpeg_5_0"))]
-            AV_FRAME_DATA_QP_TABLE_DATA => Type::QPTableData,
             AV_FRAME_DATA_S12M_TIMECODE => Type::S12M_TIMECODE,
 
             AV_FRAME_DATA_DYNAMIC_HDR_PLUS => Type::DYNAMIC_HDR_PLUS,
@@ -113,11 +101,8 @@ impl From<AVFrameSideDataType> for Type {
             AV_FRAME_DATA_SEI_UNREGISTERED => Type::SEI_UNREGISTERED,
             AV_FRAME_DATA_FILM_GRAIN_PARAMS => Type::FILM_GRAIN_PARAMS,
 
-            #[cfg(feature = "ffmpeg_5_0")]
             AV_FRAME_DATA_DETECTION_BBOXES => Type::DETECTION_BBOXES,
-            #[cfg(feature = "ffmpeg_5_0")]
             AV_FRAME_DATA_DOVI_RPU_BUFFER => Type::DOVI_RPU_BUFFER,
-            #[cfg(feature = "ffmpeg_5_0")]
             AV_FRAME_DATA_DOVI_METADATA => Type::DOVI_METADATA,
 
             #[cfg(feature = "ffmpeg_5_1")]
@@ -165,10 +150,6 @@ impl From<Type> for AVFrameSideDataType {
             Type::ContentLightLevel => AV_FRAME_DATA_CONTENT_LIGHT_LEVEL,
             Type::IccProfile => AV_FRAME_DATA_ICC_PROFILE,
 
-            #[cfg(not(feature = "ffmpeg_5_0"))]
-            Type::QPTableProperties => AV_FRAME_DATA_QP_TABLE_PROPERTIES,
-            #[cfg(not(feature = "ffmpeg_5_0"))]
-            Type::QPTableData => AV_FRAME_DATA_QP_TABLE_DATA,
             Type::S12M_TIMECODE => AV_FRAME_DATA_S12M_TIMECODE,
 
             Type::DYNAMIC_HDR_PLUS => AV_FRAME_DATA_DYNAMIC_HDR_PLUS,
@@ -179,11 +160,8 @@ impl From<Type> for AVFrameSideDataType {
             Type::SEI_UNREGISTERED => AV_FRAME_DATA_SEI_UNREGISTERED,
             Type::FILM_GRAIN_PARAMS => AV_FRAME_DATA_FILM_GRAIN_PARAMS,
 
-            #[cfg(feature = "ffmpeg_5_0")]
             Type::DETECTION_BBOXES => AV_FRAME_DATA_DETECTION_BBOXES,
-            #[cfg(feature = "ffmpeg_5_0")]
             Type::DOVI_RPU_BUFFER => AV_FRAME_DATA_DOVI_RPU_BUFFER,
-            #[cfg(feature = "ffmpeg_5_0")]
             Type::DOVI_METADATA => AV_FRAME_DATA_DOVI_METADATA,
 
             #[cfg(feature = "ffmpeg_5_1")]

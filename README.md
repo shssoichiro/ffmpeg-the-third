@@ -4,9 +4,9 @@
 
 This is a fork of the abandoned [ffmpeg-next](https://crates.io/crates/ffmpeg-next) crate which is a fork of the abandoned [ffmpeg](https://crates.io/crates/ffmpeg) crate.
 
-Currently supported FFmpeg versions: 4.4 - 8.0.
+Currently supported FFmpeg versions: 5.0 - 8.0.
 
-Versions that are considered [old and unmaintained](https://ffmpeg.org/olddownload.html) by FFmpeg like 5.0 or 6.0 usually work, but are not actively tested during development.
+Versions that are considered [old and unmaintained](https://ffmpeg.org/olddownload.html) by FFmpeg usually work, but are not actively tested during development.
 
 ## Usage
 

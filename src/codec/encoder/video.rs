@@ -6,12 +6,8 @@ use libc::{c_float, c_int};
 
 use super::Encoder as Super;
 use super::{Comparison, Decision};
-#[cfg(not(feature = "ffmpeg_5_0"))]
-use super::{MotionEstimation, Prediction};
 use crate::codec::{traits, Context};
 use crate::{color, format, Dictionary, Error, Rational};
-#[cfg(not(feature = "ffmpeg_5_0"))]
-use crate::{frame, packet};
 
 pub struct Video(pub Super);
 
@@ -192,14 +188,6 @@ impl Video {
     }
 
     #[inline]
-    #[cfg(not(feature = "ffmpeg_5_0"))]
-    pub fn set_prediction(&mut self, value: Prediction) {
-        unsafe {
-            (*self.as_mut_ptr()).prediction_method = value.into();
-        }
-    }
-
-    #[inline]
     pub fn set_aspect_ratio<R: Into<Rational>>(&mut self, value: R) {
         unsafe {
             (*self.as_mut_ptr()).sample_aspect_ratio = value.into().into();
@@ -245,14 +233,6 @@ impl Video {
     pub fn set_last_predictors(&mut self, value: usize) {
         unsafe {
             (*self.as_mut_ptr()).last_predictor_count = value as c_int;
-        }
-    }
-
-    #[inline]
-    #[cfg(not(feature = "ffmpeg_5_0"))]
-    pub fn set_pre_me(&mut self, value: MotionEstimation) {
-        unsafe {
-            (*self.as_mut_ptr()).pre_me = value.into();
         }
     }
 
@@ -389,63 +369,6 @@ impl AsMut<Context> for Video {
 pub struct Encoder(pub Video);
 
 impl Encoder {
-    #[deprecated(
-        since = "4.4.0",
-        note = "Underlying API avcodec_encode_video2 has been deprecated since FFmpeg 3.1; \
-        consider switching to send_frame() and receive_packet()"
-    )]
-    #[inline]
-    #[cfg(not(feature = "ffmpeg_5_0"))]
-    pub fn encode<P: packet::Mut>(
-        &mut self,
-        frame: &frame::Video,
-        out: &mut P,
-    ) -> Result<bool, Error> {
-        unsafe {
-            if self.format() != frame.format()
-                || self.width() != frame.width()
-                || self.height() != frame.height()
-            {
-                return Err(Error::InvalidData);
-            }
-
-            let mut got: c_int = 0;
-
-            match avcodec_encode_video2(
-                self.0.as_mut_ptr(),
-                out.as_mut_ptr(),
-                frame.as_ptr(),
-                &mut got,
-            ) {
-                e if e < 0 => Err(Error::from(e)),
-                _ => Ok(got != 0),
-            }
-        }
-    }
-
-    #[deprecated(
-        since = "4.4.0",
-        note = "Underlying API avcodec_encode_video2 has been deprecated since FFmpeg 3.1; \
-        consider switching to send_frame() and receive_packet()"
-    )]
-    #[inline]
-    #[cfg(not(feature = "ffmpeg_5_0"))]
-    pub fn flush<P: packet::Mut>(&mut self, out: &mut P) -> Result<bool, Error> {
-        unsafe {
-            let mut got: c_int = 0;
-
-            match avcodec_encode_video2(
-                self.0.as_mut_ptr(),
-                out.as_mut_ptr(),
-                ptr::null(),
-                &mut got,
-            ) {
-                e if e < 0 => Err(Error::from(e)),
-                _ => Ok(got != 0),
-            }
-        }
-    }
-
     #[inline]
     pub fn frame_size(&self) -> u32 {
         unsafe { (*self.as_ptr()).frame_size as u32 }

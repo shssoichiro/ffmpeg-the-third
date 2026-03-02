@@ -5,8 +5,6 @@ use std::ops::{Bound, Deref, DerefMut, RangeBounds};
 use super::common::Context;
 use super::destructor;
 use crate::ffi::*;
-#[cfg(not(feature = "ffmpeg_5_0"))]
-use crate::Codec;
 use crate::{format, Error, Packet, Stream};
 
 pub struct Input {
@@ -36,38 +34,6 @@ impl Input {
 impl Input {
     pub fn format(&self) -> format::Input {
         unsafe { format::Input::from_raw((*self.as_ptr()).iformat).expect("iformat is non-null") }
-    }
-
-    #[cfg(not(feature = "ffmpeg_5_0"))]
-    pub fn video_codec(&self) -> Option<Codec> {
-        unsafe {
-            let ptr = (*self.as_ptr()).video_codec;
-            Codec::from_raw(ptr)
-        }
-    }
-
-    #[cfg(not(feature = "ffmpeg_5_0"))]
-    pub fn audio_codec(&self) -> Option<Codec> {
-        unsafe {
-            let ptr = (*self.as_ptr()).audio_codec;
-            Codec::from_raw(ptr)
-        }
-    }
-
-    #[cfg(not(feature = "ffmpeg_5_0"))]
-    pub fn subtitle_codec(&self) -> Option<Codec> {
-        unsafe {
-            let ptr = (*self.as_ptr()).subtitle_codec;
-            Codec::from_raw(ptr)
-        }
-    }
-
-    #[cfg(not(feature = "ffmpeg_5_0"))]
-    pub fn data_codec(&self) -> Option<Codec> {
-        unsafe {
-            let ptr = (*self.as_ptr()).data_codec;
-            Codec::from_raw(ptr)
-        }
     }
 
     pub fn probe_score(&self) -> i32 {

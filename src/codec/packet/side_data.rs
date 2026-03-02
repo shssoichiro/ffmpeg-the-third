@@ -48,7 +48,6 @@ pub enum Type {
 
     S12M_TIMECODE,
 
-    #[cfg(feature = "ffmpeg_5_0")]
     DYNAMIC_HDR10_PLUS,
 
     #[cfg(feature = "ffmpeg_7_0")]
@@ -112,7 +111,6 @@ impl From<AVPacketSideDataType> for Type {
 
             AV_PKT_DATA_S12M_TIMECODE => Type::S12M_TIMECODE,
 
-            #[cfg(feature = "ffmpeg_5_0")]
             AV_PKT_DATA_DYNAMIC_HDR10_PLUS => Type::DYNAMIC_HDR10_PLUS,
 
             #[cfg(feature = "ffmpeg_7_0")]
@@ -181,7 +179,6 @@ impl From<Type> for AVPacketSideDataType {
 
             Type::S12M_TIMECODE => AV_PKT_DATA_S12M_TIMECODE,
 
-            #[cfg(feature = "ffmpeg_5_0")]
             Type::DYNAMIC_HDR10_PLUS => AV_PKT_DATA_DYNAMIC_HDR10_PLUS,
 
             #[cfg(feature = "ffmpeg_7_0")]

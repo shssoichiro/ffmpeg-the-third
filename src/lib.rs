@@ -40,8 +40,6 @@ pub use crate::format::{
 
 #[cfg(feature = "codec")]
 pub mod codec;
-#[cfg(all(feature = "codec", not(feature = "ffmpeg_5_0")))]
-pub use crate::codec::picture::Picture;
 #[cfg(feature = "codec")]
 pub use crate::codec::{
     audio_service::AudioService,
@@ -87,19 +85,12 @@ fn init_device() {
 #[cfg(not(feature = "device"))]
 fn init_device() {}
 
-#[cfg(all(feature = "filter", not(feature = "ffmpeg_5_0")))]
-fn init_filter() {
-    filter::register_all();
-}
-
 #[cfg(not(feature = "filter"))]
 fn init_filter() {}
 
 pub fn init() -> Result<(), Error> {
     init_error();
     init_device();
-    #[cfg(not(feature = "ffmpeg_5_0"))]
-    init_filter();
 
     Ok(())
 }

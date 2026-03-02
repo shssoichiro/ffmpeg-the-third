@@ -1,18 +1,9 @@
 use std::ops::{Deref, DerefMut};
 
-#[cfg(not(feature = "ffmpeg_5_0"))]
-use crate::ffi::*;
-#[cfg(not(feature = "ffmpeg_5_0"))]
-use libc::c_int;
-
 use super::Opened;
 use crate::codec::Context;
-#[cfg(not(feature = "ffmpeg_5_0"))]
-use crate::frame;
 use crate::util::format;
 use crate::AudioService;
-#[cfg(not(feature = "ffmpeg_5_0"))]
-use crate::{packet, Error};
 
 #[cfg(feature = "ffmpeg_5_1")]
 use crate::ChannelLayout;
@@ -23,32 +14,6 @@ use crate::ChannelLayoutMask;
 pub struct Audio(pub Opened);
 
 impl Audio {
-    #[deprecated(
-        since = "4.4.0",
-        note = "Underlying API avcodec_decode_audio4 has been deprecated since FFmpeg 3.1; \
-        consider switching to send_packet() and receive_frame()"
-    )]
-    #[cfg(not(feature = "ffmpeg_5_0"))]
-    pub fn decode<P: packet::Ref>(
-        &mut self,
-        packet: &P,
-        out: &mut frame::Audio,
-    ) -> Result<bool, Error> {
-        unsafe {
-            let mut got: c_int = 0;
-
-            match avcodec_decode_audio4(
-                self.as_mut_ptr(),
-                out.as_mut_ptr(),
-                &mut got,
-                packet.as_ptr(),
-            ) {
-                e if e < 0 => Err(Error::from(e)),
-                _ => Ok(got != 0),
-            }
-        }
-    }
-
     pub fn rate(&self) -> u32 {
         unsafe { (*self.as_ptr()).sample_rate as u32 }
     }
@@ -118,18 +83,6 @@ impl Audio {
 
     pub fn frame_size(&self) -> u32 {
         unsafe { (*self.as_ptr()).frame_size as u32 }
-    }
-
-    #[cfg(not(feature = "ffmpeg_5_0"))]
-    pub fn frame_start(&self) -> Option<usize> {
-        unsafe {
-            // Removed in ffmpeg >= 5.0 in favor of using encoder
-            // private options.
-            match (*self.as_ptr()).timecode_frame_start {
-                -1 => None,
-                n => Some(n as usize),
-            }
-        }
     }
 }
 

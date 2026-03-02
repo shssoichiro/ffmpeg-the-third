@@ -30,11 +30,6 @@ impl<'a> Stream<'a> {
         unsafe { (*self.as_ptr()).id }
     }
 
-    #[cfg(not(feature = "ffmpeg_5_0"))]
-    pub fn codec(&self) -> codec::Context {
-        unsafe { codec::Context::wrap((*self.as_ptr()).codec, Some(self.context.destructor())) }
-    }
-
     pub fn parameters(&self) -> codec::ParametersRef<'_> {
         unsafe {
             codec::ParametersRef::from_raw((*self.as_ptr()).codecpar).expect("codecpar is non-null")

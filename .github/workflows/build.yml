@@ -29,9 +29,6 @@ jobs:
     strategy:
       matrix:
         ffmpeg:
-          - version: "4.4"
-            file: "ffmpeg-4.4-linux-clang-default.tar.xz"
-            lib_subdir: "amd64"
           - version: "5.1"
             file: "ffmpeg-5.1-linux-clang-default.tar.xz"
             lib_subdir: "amd64"
@@ -95,7 +92,7 @@ jobs:
     runs-on: macos-latest
     strategy:
       matrix:
-        ffmpeg_version: ["4", "5", "6", "7", "8"]
+        ffmpeg_version: ["5", "6", "7", "8"]
       fail-fast: false
 
     env:
@@ -134,7 +131,7 @@ jobs:
     strategy:
       matrix:
         # GyanD builds don't go as far back as the Ubuntu builds
-        ffmpeg_version: ["4.4", "5.0", "5.1", "6.0", "6.1", "7.0", "7.1", "8.0"]
+        ffmpeg_version: ["5.0", "5.1", "6.0", "6.1", "7.0", "7.1", "8.0"]
       fail-fast: false
 
     env:

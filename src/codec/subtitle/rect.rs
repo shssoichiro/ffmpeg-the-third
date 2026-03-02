@@ -3,8 +3,6 @@ use std::marker::PhantomData;
 use super::{Flags, Type};
 use crate::ffi::*;
 use crate::utils;
-#[cfg(not(feature = "ffmpeg_5_0"))]
-use crate::{format, Picture};
 
 pub enum Rect<'a> {
     None(*const AVSubtitleRect),
@@ -84,19 +82,6 @@ impl<'a> Bitmap<'a> {
 
     pub fn colors(&self) -> usize {
         unsafe { (*self.as_ptr()).nb_colors as usize }
-    }
-
-    // XXX: must split Picture and PictureMut
-    #[cfg(not(feature = "ffmpeg_5_0"))]
-    pub fn picture(&self, format: format::Pixel) -> Picture<'a> {
-        unsafe {
-            Picture::wrap(
-                &(*self.as_ptr()).pict as *const _ as *mut _,
-                format,
-                (*self.as_ptr()).w as u32,
-                (*self.as_ptr()).h as u32,
-            )
-        }
     }
 }
 

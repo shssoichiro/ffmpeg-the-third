@@ -155,23 +155,6 @@ impl Drop for Context {
     }
 }
 
-#[cfg(not(feature = "ffmpeg_5_0"))]
-impl Clone for Context {
-    fn clone(&self) -> Self {
-        let mut ctx = Context::new();
-        ctx.clone_from(self);
-
-        ctx
-    }
-
-    fn clone_from(&mut self, source: &Self) {
-        unsafe {
-            // Removed in ffmpeg >= 5.0.
-            avcodec_copy_context(self.as_mut_ptr(), source.as_ptr());
-        }
-    }
-}
-
 /// `AVCodecContext` in `Context` is the target of `option` operations.
 impl AsPtr<AVCodecContext> for Context {
     fn as_ptr(&self) -> *const AVCodecContext {
