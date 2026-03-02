@@ -85,6 +85,10 @@ impl<'a> Stream<'a> {
     pub fn metadata(&self) -> DictionaryRef<'_> {
         unsafe { DictionaryRef::wrap((*self.as_ptr()).metadata) }
     }
+
+    pub fn sample_aspect_ratio(&self) -> Rational {
+        unsafe { Rational::from((*self.as_ptr()).sample_aspect_ratio) }
+    }
 }
 
 impl<'a> PartialEq for Stream<'a> {

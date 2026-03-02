@@ -73,6 +73,12 @@ impl<'a> StreamMut<'a> {
             (*self.as_mut_ptr()).metadata = metadata;
         }
     }
+
+    pub fn set_sample_aspect_ratio(&mut self, sar: Rational) {
+        unsafe {
+            (*self.as_mut_ptr()).sample_aspect_ratio = sar.into();
+        }
+    }
 }
 
 impl<'a> Deref for StreamMut<'a> {
