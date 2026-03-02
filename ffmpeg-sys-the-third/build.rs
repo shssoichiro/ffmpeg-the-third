@@ -61,13 +61,13 @@ impl Library {
 }
 
 static LIBRARIES: &[Library] = &[
-    Library::required("avutil", AVUTIL_FEATURES, AVUTIL_HEADERS, 50),
-    Library::optional("avcodec", AVCODEC_FEATURES, AVCODEC_HEADERS, 50),
-    Library::optional("avformat", AVFORMAT_FEATURES, AVFORMAT_HEADERS, 50),
-    Library::optional("avdevice", AVDEVICE_FEATURES, AVDEVICE_HEADERS, 50),
-    Library::optional("avfilter", AVFILTER_FEATURES, AVFILTER_HEADERS, 0),
-    Library::optional("swscale", SWSCALE_FEATURES, SWSCALE_HEADERS, 0),
-    Library::optional("swresample", SWRESAMPLE_FEATURES, SWRESAMPLE_HEADERS, 0),
+    Library::required("avutil", AVUTIL_FEATURES, AVUTIL_HEADERS, 56),
+    Library::optional("avcodec", AVCODEC_FEATURES, AVCODEC_HEADERS, 58),
+    Library::optional("avformat", AVFORMAT_FEATURES, AVFORMAT_HEADERS, 58),
+    Library::optional("avdevice", AVDEVICE_FEATURES, AVDEVICE_HEADERS, 58),
+    Library::optional("avfilter", AVFILTER_FEATURES, AVFILTER_HEADERS, 7),
+    Library::optional("swscale", SWSCALE_FEATURES, SWSCALE_HEADERS, 5),
+    Library::optional("swresample", SWRESAMPLE_FEATURES, SWRESAMPLE_HEADERS, 3),
 ];
 
 #[derive(Debug)]
@@ -798,7 +798,6 @@ fn check_features(include_paths: &[PathBuf]) -> u64 {
     }
 
     let ffmpeg_lavc_versions = [
-        ("ffmpeg_4_3", 58, 91),
         ("ffmpeg_4_4", 58, 100),
         ("ffmpeg_5_0", 59, 18),
         ("ffmpeg_5_1", 59, 37),
@@ -815,8 +814,8 @@ fn check_features(include_paths: &[PathBuf]) -> u64 {
 
     // This allows removing a lot of #[cfg] attributes.
     assert!(
-        lavc_version >= (58, 54),
-        "FFmpeg 4.2 or higher is required, but found avcodec version {lavc_version:?}"
+        lavc_version >= (58, 91),
+        "FFmpeg 4.3 or higher is required, but found avcodec version {lavc_version:?}"
     );
 
     for &(ffmpeg_version_flag, lavc_version_major, lavc_version_minor) in &ffmpeg_lavc_versions {

@@ -42,11 +42,8 @@ pub enum Type {
 
     AFD,
 
-    #[cfg(feature = "ffmpeg_4_3")]
     PRFT,
-    #[cfg(feature = "ffmpeg_4_3")]
     ICC_PROFILE,
-    #[cfg(feature = "ffmpeg_4_3")]
     DOVI_CONF,
 
     #[cfg(feature = "ffmpeg_4_4")]
@@ -110,11 +107,8 @@ impl From<AVPacketSideDataType> for Type {
 
             AV_PKT_DATA_AFD => Type::AFD,
 
-            #[cfg(feature = "ffmpeg_4_3")]
             AV_PKT_DATA_PRFT => Type::PRFT,
-            #[cfg(feature = "ffmpeg_4_3")]
             AV_PKT_DATA_ICC_PROFILE => Type::ICC_PROFILE,
-            #[cfg(feature = "ffmpeg_4_3")]
             AV_PKT_DATA_DOVI_CONF => Type::DOVI_CONF,
 
             #[cfg(feature = "ffmpeg_4_4")]
@@ -183,11 +177,8 @@ impl From<Type> for AVPacketSideDataType {
 
             Type::AFD => AV_PKT_DATA_AFD,
 
-            #[cfg(feature = "ffmpeg_4_3")]
             Type::PRFT => AV_PKT_DATA_PRFT,
-            #[cfg(feature = "ffmpeg_4_3")]
             Type::ICC_PROFILE => AV_PKT_DATA_ICC_PROFILE,
-            #[cfg(feature = "ffmpeg_4_3")]
             Type::DOVI_CONF => AV_PKT_DATA_DOVI_CONF,
 
             #[cfg(feature = "ffmpeg_4_4")]

@@ -5,7 +5,7 @@ This is a fork of the abandoned [ffmpeg-sys](https://github.com/meh/rust-ffmpeg-
 
 This crate contains low level bindings to FFmpeg. You're probably interested in the high level bindings instead: [ffmpeg-next](https://github.com/shssoichiro/ffmpeg-the-third).
 
-A word on versioning: The crate version includes the **maximum supported** FFmpeg version for each release. E.g. `ffmpeg-sys-the-third@2.0.0+ffmpeg-7.0` supports *up to* FFmpeg 7.0. The minimum supported FFmpeg version at the moment is 4.2.
+A word on versioning: The crate version includes the **maximum supported** FFmpeg version for each release. E.g. `ffmpeg-sys-the-third@2.0.0+ffmpeg-7.0` supports *up to* FFmpeg 7.0. The minimum supported FFmpeg version at the moment is 4.3.
 
 ## Feature flags
 
@@ -13,7 +13,6 @@ In addition to feature flags declared in `Cargo.toml`, this crate performs vario
 
 - `ffmpeg_<x>_<y>` flags, e.g. `ffmpeg_4_4`, indicating the FFmpeg installation being compiled against is at least version `<x>.<y>`. Currently available:
 
-  - "ffmpeg_4_3"
   - "ffmpeg_4_4"
   - "ffmpeg_5_0"
   - "ffmpeg_5_1"

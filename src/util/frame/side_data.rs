@@ -40,7 +40,6 @@ pub enum Type {
     DYNAMIC_HDR_PLUS,
     REGIONS_OF_INTEREST,
 
-    #[cfg(feature = "ffmpeg_4_3")]
     VIDEO_ENC_PARAMS,
 
     #[cfg(feature = "ffmpeg_4_4")]
@@ -111,7 +110,6 @@ impl From<AVFrameSideDataType> for Type {
             AV_FRAME_DATA_DYNAMIC_HDR_PLUS => Type::DYNAMIC_HDR_PLUS,
             AV_FRAME_DATA_REGIONS_OF_INTEREST => Type::REGIONS_OF_INTEREST,
 
-            #[cfg(feature = "ffmpeg_4_3")]
             AV_FRAME_DATA_VIDEO_ENC_PARAMS => Type::VIDEO_ENC_PARAMS,
 
             #[cfg(feature = "ffmpeg_4_4")]
@@ -180,7 +178,6 @@ impl From<Type> for AVFrameSideDataType {
             Type::DYNAMIC_HDR_PLUS => AV_FRAME_DATA_DYNAMIC_HDR_PLUS,
             Type::REGIONS_OF_INTEREST => AV_FRAME_DATA_REGIONS_OF_INTEREST,
 
-            #[cfg(feature = "ffmpeg_4_3")]
             Type::VIDEO_ENC_PARAMS => AV_FRAME_DATA_VIDEO_ENC_PARAMS,
 
             #[cfg(feature = "ffmpeg_4_4")]

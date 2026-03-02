@@ -28,7 +28,6 @@ pub enum Profile {
     SBC_MSBC,
     ProRes(ProRes),
     ARIB(ARIB),
-    #[cfg(feature = "ffmpeg_4_3")]
     KLVA(KLVA),
 }
 
@@ -227,7 +226,6 @@ pub enum ARIB {
     ProfileC,
 }
 
-#[cfg(feature = "ffmpeg_4_3")]
 #[allow(non_camel_case_types)]
 #[derive(Eq, PartialEq, Clone, Copy, Debug)]
 #[cfg_attr(feature = "serialize", derive(Serialize, Deserialize))]
@@ -463,7 +461,6 @@ impl From<(Id, c_int)> for Profile {
                 _ => return Profile::Unknown,
             }),
 
-            #[cfg(feature = "ffmpeg_4_3")]
             Id::SMPTE_KLV => Profile::KLVA(match value {
                 FF_PROFILE_KLVA_SYNC => KLVA::Sync,
                 FF_PROFILE_KLVA_ASYNC => KLVA::Async,
@@ -634,9 +631,7 @@ impl From<Profile> for c_int {
             Profile::ARIB(ARIB::ProfileA) => FF_PROFILE_ARIB_PROFILE_A,
             Profile::ARIB(ARIB::ProfileC) => FF_PROFILE_ARIB_PROFILE_C,
 
-            #[cfg(feature = "ffmpeg_4_3")]
             Profile::KLVA(KLVA::Sync) => FF_PROFILE_KLVA_SYNC,
-            #[cfg(feature = "ffmpeg_4_3")]
             Profile::KLVA(KLVA::Async) => FF_PROFILE_KLVA_ASYNC,
 
             #[cfg(feature = "ffmpeg_6_1")]

@@ -29,8 +29,6 @@ jobs:
     strategy:
       matrix:
         ffmpeg:
-          - version: "4.2"
-            file: "ffmpeg-4.2-linux-gcc.tar.xz"
           - version: "4.3"
             file: "ffmpeg-4.3-linux-gcc.tar.xz"
           - version: "4.4"
