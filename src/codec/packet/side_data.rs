@@ -46,7 +46,6 @@ pub enum Type {
     ICC_PROFILE,
     DOVI_CONF,
 
-    #[cfg(feature = "ffmpeg_4_4")]
     S12M_TIMECODE,
 
     #[cfg(feature = "ffmpeg_5_0")]
@@ -111,7 +110,6 @@ impl From<AVPacketSideDataType> for Type {
             AV_PKT_DATA_ICC_PROFILE => Type::ICC_PROFILE,
             AV_PKT_DATA_DOVI_CONF => Type::DOVI_CONF,
 
-            #[cfg(feature = "ffmpeg_4_4")]
             AV_PKT_DATA_S12M_TIMECODE => Type::S12M_TIMECODE,
 
             #[cfg(feature = "ffmpeg_5_0")]
@@ -181,7 +179,6 @@ impl From<Type> for AVPacketSideDataType {
             Type::ICC_PROFILE => AV_PKT_DATA_ICC_PROFILE,
             Type::DOVI_CONF => AV_PKT_DATA_DOVI_CONF,
 
-            #[cfg(feature = "ffmpeg_4_4")]
             Type::S12M_TIMECODE => AV_PKT_DATA_S12M_TIMECODE,
 
             #[cfg(feature = "ffmpeg_5_0")]

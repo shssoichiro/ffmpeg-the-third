@@ -21,7 +21,6 @@ pub enum Profile {
     JPEG2000(JPEG2000),
     HEVC(HEVC),
     VP9(VP9),
-    #[cfg(feature = "ffmpeg_4_4")]
     VVC(VVC),
     AV1(AV1),
     MJPEG(MJPEG),
@@ -168,7 +167,6 @@ pub enum HEVC {
     Rext,
 }
 
-#[cfg(feature = "ffmpeg_4_4")]
 #[allow(non_camel_case_types)]
 #[derive(Eq, PartialEq, Clone, Copy, Debug)]
 #[cfg_attr(feature = "serialize", derive(Serialize, Deserialize))]
@@ -407,7 +405,6 @@ impl From<(Id, c_int)> for Profile {
                 _ => Profile::Unknown,
             },
 
-            #[cfg(feature = "ffmpeg_4_4")]
             Id::VVC => Profile::VVC(match value {
                 FF_PROFILE_VVC_MAIN_10 => VVC::Main10,
                 FF_PROFILE_VVC_MAIN_10_444 => VVC::Main10_444,
@@ -595,9 +592,7 @@ impl From<Profile> for c_int {
             Profile::HEVC(HEVC::MainStillPicture) => FF_PROFILE_HEVC_MAIN_STILL_PICTURE,
             Profile::HEVC(HEVC::Rext) => FF_PROFILE_HEVC_REXT,
 
-            #[cfg(feature = "ffmpeg_4_4")]
             Profile::VVC(VVC::Main10) => FF_PROFILE_VVC_MAIN_10,
-            #[cfg(feature = "ffmpeg_4_4")]
             Profile::VVC(VVC::Main10_444) => FF_PROFILE_VVC_MAIN_10_444,
 
             Profile::AV1(AV1::Main) => FF_PROFILE_AV1_MAIN,

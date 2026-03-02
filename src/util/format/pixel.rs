@@ -315,9 +315,7 @@ pub enum Pixel {
     Y210BE,
     Y210LE,
 
-    #[cfg(feature = "ffmpeg_4_4")]
     X2RGB10LE,
-    #[cfg(feature = "ffmpeg_4_4")]
     X2RGB10BE,
 
     #[cfg(feature = "ffmpeg_5_0")]
@@ -791,9 +789,7 @@ impl From<AVPixelFormat> for Pixel {
             AV_PIX_FMT_Y210BE => Pixel::Y210BE,
             AV_PIX_FMT_Y210LE => Pixel::Y210LE,
 
-            #[cfg(feature = "ffmpeg_4_4")]
             AV_PIX_FMT_X2RGB10LE => Pixel::X2RGB10LE,
-            #[cfg(feature = "ffmpeg_4_4")]
             AV_PIX_FMT_X2RGB10BE => Pixel::X2RGB10BE,
 
             #[cfg(feature = "ffmpeg_5_0")]
@@ -1288,9 +1284,7 @@ impl From<Pixel> for AVPixelFormat {
             Pixel::Y210BE => AV_PIX_FMT_Y210BE,
             Pixel::Y210LE => AV_PIX_FMT_Y210LE,
 
-            #[cfg(feature = "ffmpeg_4_4")]
             Pixel::X2RGB10LE => AV_PIX_FMT_X2RGB10LE,
-            #[cfg(feature = "ffmpeg_4_4")]
             Pixel::X2RGB10BE => AV_PIX_FMT_X2RGB10BE,
 
             #[cfg(feature = "ffmpeg_5_0")]
