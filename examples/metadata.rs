@@ -75,13 +75,7 @@ fn main() -> Result<(), ffmpeg::Error> {
                         println!("\taudio.rate: {}", audio.rate());
                         println!("\taudio.format: {:?}", audio.format());
                         println!("\taudio.align: {}", audio.align());
-                        #[cfg(feature = "ffmpeg_5_1")]
                         println!("\taudio.ch_layout: {:?}", audio.ch_layout());
-
-                        #[cfg(not(feature = "ffmpeg_5_1"))]
-                        println!("\taudio.channels: {}", audio.channels());
-                        #[cfg(not(feature = "ffmpeg_5_1"))]
-                        println!("\taudio.channel_layout: {:?}", audio.channel_layout());
                     }
                 }
             }

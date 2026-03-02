@@ -8,7 +8,6 @@ use crate::{frame, ChannelLayoutMask, Error};
 use libc::c_int;
 use std::ffi::c_void;
 
-#[cfg(feature = "ffmpeg_5_1")]
 use crate::ChannelLayout;
 
 #[derive(Eq, PartialEq, Copy, Clone)]
@@ -120,7 +119,6 @@ impl Context {
     }
 
     /// Create a resampler with the given definitions.
-    #[cfg(feature = "ffmpeg_5_1")]
     pub fn get2(
         src_format: format::Sample,
         src_channel_layout: ChannelLayout,
@@ -141,7 +139,6 @@ impl Context {
     }
 
     /// Create a resampler with the given definitions and custom options dictionary.
-    #[cfg(feature = "ffmpeg_5_1")]
     pub fn get_with2(
         src_format: format::Sample,
         src_channel_layout: ChannelLayout,

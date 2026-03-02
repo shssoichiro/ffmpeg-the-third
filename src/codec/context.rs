@@ -10,9 +10,6 @@ use crate::{AsMutPtr, AsPtr};
 use crate::{Codec, Error};
 use libc::c_int;
 
-#[cfg(not(feature = "ffmpeg_5_0"))]
-type OwnerHolder = std::sync::Arc<dyn std::any::Any>;
-#[cfg(feature = "ffmpeg_5_0")]
 type OwnerHolder = ();
 
 pub struct Context {

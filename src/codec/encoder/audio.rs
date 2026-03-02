@@ -8,7 +8,6 @@ use crate::codec::{traits, Context};
 use crate::util::format;
 use crate::{Dictionary, Error};
 
-#[cfg(feature = "ffmpeg_5_1")]
 use crate::ChannelLayout;
 
 #[cfg(not(feature = "ffmpeg_7_0"))]
@@ -119,12 +118,10 @@ impl Audio {
         unsafe { (*self.as_ptr()).channels as u16 }
     }
 
-    #[cfg(feature = "ffmpeg_5_1")]
     pub fn ch_layout(&self) -> ChannelLayout<'_> {
         unsafe { ChannelLayout::from(&self.as_ptr().as_ref().unwrap().ch_layout) }
     }
 
-    #[cfg(feature = "ffmpeg_5_1")]
     pub fn set_ch_layout(&mut self, value: ChannelLayout) {
         unsafe {
             self.as_mut_ptr().as_mut().unwrap().ch_layout = value.into_owned();

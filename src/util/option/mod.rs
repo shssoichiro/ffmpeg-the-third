@@ -32,7 +32,6 @@ bitflags::bitflags! {
         const COLOR             = AVOptionType::AV_OPT_TYPE_COLOR.0 as c_uint;
         #[cfg(not(feature = "ffmpeg_7_0"))]
         const CHANNEL_LAYOUT    = AVOptionType::AV_OPT_TYPE_CHANNEL_LAYOUT.0 as c_uint;
-        #[cfg(feature = "ffmpeg_5_1")]
         const CHLAYOUT          = AVOptionType::AV_OPT_TYPE_CHLAYOUT.0 as c_uint;
         const C_ULONG           = AVOptionType::AV_OPT_TYPE_UINT64.0 as c_uint;
         const BOOL              = AVOptionType::AV_OPT_TYPE_BOOL.0 as c_uint;

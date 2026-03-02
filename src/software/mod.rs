@@ -46,7 +46,7 @@ pub fn resampler(
     )
 }
 
-#[cfg(all(feature = "software-resampling", feature = "ffmpeg_5_1"))]
+#[cfg(feature = "software-resampling")]
 #[inline]
 pub fn resampler2(
     (in_format, in_layout, in_rate): (crate::format::Sample, crate::ChannelLayout, u32),

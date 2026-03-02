@@ -131,7 +131,7 @@ jobs:
     strategy:
       matrix:
         # GyanD builds don't go as far back as the Ubuntu builds
-        ffmpeg_version: ["5.0", "5.1", "6.0", "6.1", "7.0", "7.1", "8.0"]
+        ffmpeg_version: ["5.1", "6.0", "6.1", "7.0", "7.1", "8.0"]
       fail-fast: false
 
     env:
