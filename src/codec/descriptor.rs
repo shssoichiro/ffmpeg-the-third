@@ -1,9 +1,8 @@
-use std::ffi::CStr;
 use std::ptr::NonNull;
-use std::str::from_utf8_unchecked;
 
 use crate::ffi::*;
 use crate::media;
+use crate::utils;
 
 use super::profile::ProfileIter;
 use super::{CodecProperties, Id};
@@ -31,18 +30,11 @@ impl CodecDescriptor {
     }
 
     pub fn name(self) -> &'static str {
-        unsafe { from_utf8_unchecked(CStr::from_ptr((*self.as_ptr()).name).to_bytes()) }
+        unsafe { utils::str_from_c_ptr((*self.as_ptr()).name) }
     }
 
     pub fn description(self) -> Option<&'static str> {
-        unsafe {
-            let long_name = (*self.as_ptr()).long_name;
-            if long_name.is_null() {
-                None
-            } else {
-                Some(from_utf8_unchecked(CStr::from_ptr(long_name).to_bytes()))
-            }
-        }
+        unsafe { utils::optional_str_from_c_ptr((*self.as_ptr()).long_name) }
     }
 
     pub fn props(self) -> CodecProperties {
@@ -119,7 +111,7 @@ impl Iterator for MimeTypeIter {
             }
 
             self.ptr = NonNull::new_unchecked(self.ptr.as_ptr().add(1));
-            Some(from_utf8_unchecked(CStr::from_ptr(next).to_bytes()))
+            Some(utils::str_from_c_ptr(next))
         }
     }
 }
