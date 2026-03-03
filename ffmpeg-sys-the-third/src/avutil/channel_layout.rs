@@ -356,12 +356,11 @@ mod test {
         layout
     };
 
-    // TODO: Replace with cstr literals when MSRV is 1.77
-    const fn c_string<const N: usize, const K: usize>(byte_str: &[u8; N]) -> [c_char; K] {
+    const fn c_string<const N: usize>(byte_str: &[u8; N]) -> [c_char; 16] {
         // Need at least one NUL byte at the end
-        assert!(N < K, "input string is too long (max 15 char)");
+        assert!(N < 16, "input string is too long (max 15 char)");
 
-        let mut result = [0; K];
+        let mut result = [0; 16];
         let mut i = 0;
 
         while i < N {
