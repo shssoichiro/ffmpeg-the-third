@@ -27,6 +27,6 @@ If you have significant, demonstrable experience in Rust and multimedia-related 
 
 ## Minimum supported Rust version (MSRV)
 
-Both `ffmpeg-the-third` and `ffmpeg-sys-the-third` currently require a Rust version of 1.71.0 or higher. Increases in MSRV will result in a semver MINOR version increase.
+Both `ffmpeg-the-third` and `ffmpeg-sys-the-third` currently require a Rust version of 1.80.0 or higher. Increases in MSRV will result in a semver MINOR version increase.
 
 Note that Rust versions 1.84 and newer will automatically resolve dependencies to versions that are compatible with the `rust-version` in `Cargo.toml`.
