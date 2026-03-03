@@ -268,7 +268,7 @@ impl Video {
         unsafe {
             slice::from_raw_parts(
                 (*self.as_ptr()).data[index] as *const T,
-                self.stride(index) * self.plane_height(index) as usize / mem::size_of::<T>(),
+                self.stride(index) * self.plane_height(index) as usize / size_of::<T>(),
             )
         }
     }
@@ -286,7 +286,7 @@ impl Video {
         unsafe {
             slice::from_raw_parts_mut(
                 (*self.as_mut_ptr()).data[index] as *mut T,
-                self.stride(index) * self.plane_height(index) as usize / mem::size_of::<T>(),
+                self.stride(index) * self.plane_height(index) as usize / size_of::<T>(),
             )
         }
     }
