@@ -325,10 +325,8 @@ impl Iterator for ChannelLayoutMaskIter {
                 return None;
             }
 
-            let layout = ChannelLayoutMask::from_bits_truncate(*ptr);
-            self.ptr = NonNull::new_unchecked(ptr.add(1));
-
-            Some(layout)
+            self.ptr = self.ptr.add(1);
+            Some(ChannelLayoutMask::from_bits_truncate(*ptr))
         }
     }
 }

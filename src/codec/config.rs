@@ -177,10 +177,7 @@ macro_rules! impl_config_iter_traits {
                         return None;
                     }
 
-                    // TODO: Replace with the following if MSRV >= 1.80:
-                    // self.next = NonNull::from(self.next).add(1).as_ref();
-                    self.next = std::ptr::NonNull::new_unchecked(curr.add(1));
-
+                    self.next = self.next.add(1);
                     Some((*curr).into())
                 }
             }

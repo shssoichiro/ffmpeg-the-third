@@ -110,7 +110,7 @@ impl Iterator for MimeTypeIter {
                 return None;
             }
 
-            self.ptr = NonNull::new_unchecked(self.ptr.as_ptr().add(1));
+            self.ptr = self.ptr.add(1);
             Some(utils::str_from_c_ptr(next))
         }
     }
