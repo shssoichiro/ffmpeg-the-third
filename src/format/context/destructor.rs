@@ -20,6 +20,9 @@ impl Destructor {
     }
 }
 
+unsafe impl Send for Destructor {}
+unsafe impl Sync for Destructor {}
+
 impl Drop for Destructor {
     fn drop(&mut self) {
         unsafe {

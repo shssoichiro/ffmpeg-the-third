@@ -1,16 +1,20 @@
 use std::fmt;
 use std::mem;
 use std::ptr;
-use std::rc::Rc;
 
 use super::destructor::{self, Destructor};
 use crate::ffi::*;
 use crate::{media, Chapter, ChapterMut, DictionaryRef, Stream, StreamMut};
 use libc::{c_int, c_uint};
 
+#[cfg(not(feature = "ffmpeg_5_0"))]
+type DtorHolder = std::sync::Arc<Destructor>;
+#[cfg(feature = "ffmpeg_5_0")]
+type DtorHolder = Destructor;
+
 pub struct Context {
     ptr: *mut AVFormatContext,
-    dtor: Rc<Destructor>,
+    _dtor: DtorHolder,
 }
 
 unsafe impl Send for Context {}
@@ -19,7 +23,7 @@ impl Context {
     pub unsafe fn wrap(ptr: *mut AVFormatContext, mode: destructor::Mode) -> Self {
         Context {
             ptr,
-            dtor: Rc::new(Destructor::new(ptr, mode)),
+            _dtor: Self::new_destructor_holder(ptr, mode),
         }
     }
 
@@ -31,8 +35,25 @@ impl Context {
         self.ptr
     }
 
-    pub unsafe fn destructor(&self) -> Rc<Destructor> {
-        Rc::clone(&self.dtor)
+    #[cfg(not(feature = "ffmpeg_5_0"))]
+    pub unsafe fn destructor(&self) -> std::sync::Arc<Destructor> {
+        self._dtor.clone()
+    }
+
+    #[cfg(not(feature = "ffmpeg_5_0"))]
+    unsafe fn new_destructor_holder(
+        ptr: *mut AVFormatContext,
+        mode: destructor::Mode,
+    ) -> DtorHolder {
+        std::sync::Arc::new(Destructor::new(ptr, mode))
+    }
+
+    #[cfg(feature = "ffmpeg_5_0")]
+    unsafe fn new_destructor_holder(
+        ptr: *mut AVFormatContext,
+        mode: destructor::Mode,
+    ) -> DtorHolder {
+        Destructor::new(ptr, mode)
     }
 }
 
