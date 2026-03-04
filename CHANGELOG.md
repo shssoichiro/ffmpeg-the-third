@@ -1,5 +1,12 @@
 # Changelog
 
+## Version 4.1.0
+
+- [Feature] Add Stream{,Mut}::sample_aspect_ratio
+- [MSRV] Bump minimum rust version to 1.71
+- Bump bindgen to 0.72
+- fix(ffmpeg-8): unable to build because of missing libpostproc
+
 ## Version 4.0.1
 
 - Fix a segfault which was caused by a double free

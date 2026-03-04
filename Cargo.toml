@@ -1,6 +1,6 @@
 [package]
 name = "ffmpeg-the-third"
-version = "4.0.1+ffmpeg-8.0"
+version = "4.1.0+ffmpeg-8.0"
 edition = "2021"
 
 authors = ["meh. <meh@schizofreni.co>", "Zhiming Wang <i@zhimingwang.org>"]
@@ -16,7 +16,7 @@ categories = ["multimedia"]
 include = ["LICENSE", "build.rs", "src/"]
 
 # When changing MSRV: Also update build.yml and README.md
-rust-version = "1.70.0"
+rust-version = "1.71.0"
 
 [dependencies]
 libc = "0.2"

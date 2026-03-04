@@ -5,12 +5,14 @@ This file contains the work needed when upstream FFmpeg releases a new major or 
 ## Preparation
 
 Do this on the `master` branch:
+
 1. Ensure CI passes before the update
 2. `cargo clean && cargo build`, go into `target/debug/build/ffmpeg-sys-.../out/` and copy the `bindings.rs` -> `./old-bindings.rs`.
 
 ### Compiling FFmpeg
 
 Download FFmpeg itself and build the new version:
+
 1. `git checkout n8.0`
 2. `./configure --prefix=<somepath>` (remember this path for later)
 3. `make -j install`
@@ -18,12 +20,14 @@ Download FFmpeg itself and build the new version:
 ## Update ffmpeg-sys-the-third
 
 First, prepare your development environment:
+
 1. `export FFMPEG_DIR=<somepath>` (point to the FFmpeg you just built)
 2. `cargo clean`
 
 The build script inside `ffmpeg-sys` needs to be updated. This means:
+
 1. Go through `libavutil/version.h` and `libav*/version_major.h` and note the API feature changes (`FF_API_*`). In `build.rs`, add a new divider per library ("before 9.0") and add all existing API features below it. Move old features into the new version.
-2. Check the FFmpeg `configure` script for new features and libraries. Add them to `build.rs` and *both* `Cargo.toml` files (-sys and main crate).
+2. Check the FFmpeg `configure` script for new features and libraries. Add them to `build.rs` and _both_ `Cargo.toml` files (-sys and main crate).
 3. Check `libavcodec/version_major.h` for the new major and minor versions. Add them to `ffmpeg_lavc_versions` in `build.rs`.
 
 There is a bug in bindgen which means we have to add the channel layout values manually. So go into the FFmpeg source code directory and run
@@ -47,7 +51,7 @@ It is helpful to have FFmpeg's `doc/APIchanges` open in a separate window. `git 
 Run `diff old-bindings.rs new-bindings.rs` and go through all changes. This can mean:
 
 - Adding new enum variants (including `#[cfg(feature = "ffmpeg_8_0")]`)
-    - also update the related `From<AVEnum> for Enum` and `From<Enum> for AVEnum` implementations
+  - also update the related `From<AVEnum> for Enum` and `From<Enum> for AVEnum` implementations
 - Marking removed enum variants with a cfg gate (`#[cfg(not(feature = "ffmpeg_8_0"))]`)
 - Updating getter/setter functions for added/removed struct fields
 - Updating/adding/removing calls to FFmpeg API functions (read the docs)
@@ -61,6 +65,7 @@ If you see something completely new, it is not necessary to add a new wrapper / 
 When the crate compiles on your local machine, the crate manifest can be updated to reflect support for a new FFmpeg version. This usually requires a major version bump:
 
 Cargo.toml:
+
 ```diff
 [package]
 name = "ffmpeg-the-third"
@@ -70,18 +75,12 @@ name = "ffmpeg-the-third"
 
 Do this for both crates.
 
-Update the MSRV lockfile:
-
-```sh
-CARGO_RESOLVER_INCOMPATIBLE_RUST_VERSION=fallback cargo update
-cp Cargo.lock Cargo.lock.MSRV
-```
-
 ### CI
 
 Update the CI workflows for all 3 tested OSs in `.github/workflows/build.yml` to include the new FFmpeg version:
+
 1. Add matrix entries for the new FFmpeg version (Linux, macOS and Windows).
-    - If new versions aren't available yet for some OS, prioritize Linux, Windows, macOS in that order. **Make sure to update the CI workflow ASAP if you need to exclude any OS for the initial update.**
+   - If new versions aren't available yet for some OS, prioritize Linux, Windows, macOS in that order. **Make sure to update the CI workflow ASAP if you need to exclude any OS for the initial update.**
 2. Update the `save-if` keys for the rust-cache to the new FFmpeg version
 3. Bump the `prefix-key` for rust-cache.
 
