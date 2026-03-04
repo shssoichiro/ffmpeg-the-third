@@ -212,4 +212,4 @@ jobs:
         with:
           prefix-key: "v2-rust"
       - name: Run cargo check
-        run: cargo check --locked $CARGO_FEATURES
+        run: cargo check $CARGO_FEATURES
