@@ -2,11 +2,12 @@ use std::ops::{Deref, DerefMut};
 use std::ptr;
 
 use crate::ffi::*;
+use crate::AsPtr;
 #[cfg(not(feature = "ffmpeg_5_0"))]
 use libc::c_int;
 
 use super::Encoder as Super;
-use crate::codec::{traits, Context};
+use crate::codec::{codec, Context};
 use crate::util::format;
 #[cfg(not(feature = "ffmpeg_5_0"))]
 use crate::{frame, packet};
@@ -30,15 +31,11 @@ impl Audio {
         }
     }
 
-    pub fn open_as<T, E: traits::Encoder<T>>(mut self, codec: E) -> Result<Encoder, Error> {
+    pub fn open_as<T>(mut self, codec: codec::Encoder<T>) -> Result<Encoder, Error> {
         unsafe {
-            if let Some(codec) = codec.encoder() {
-                match avcodec_open2(self.as_mut_ptr(), codec.as_ptr(), ptr::null_mut()) {
-                    0 => Ok(Encoder(self)),
-                    e => Err(Error::from(e)),
-                }
-            } else {
-                Err(Error::EncoderNotFound)
+            match avcodec_open2(self.as_mut_ptr(), codec.as_ptr(), ptr::null_mut()) {
+                0 => Ok(Encoder(self)),
+                e => Err(Error::from(e)),
             }
         }
     }
@@ -57,24 +54,20 @@ impl Audio {
         }
     }
 
-    pub fn open_as_with<T, E: traits::Encoder<T>>(
+    pub fn open_as_with<T>(
         mut self,
-        codec: E,
+        codec: codec::Encoder<T>,
         options: Dictionary,
     ) -> Result<Encoder, Error> {
         unsafe {
-            if let Some(codec) = codec.encoder() {
-                let mut opts = options.disown();
-                let res = avcodec_open2(self.as_mut_ptr(), codec.as_ptr(), &mut opts);
+            let mut opts = options.disown();
+            let res = avcodec_open2(self.as_mut_ptr(), codec.as_ptr(), &mut opts);
 
-                Dictionary::own(opts);
+            Dictionary::own(opts);
 
-                match res {
-                    0 => Ok(Encoder(self)),
-                    e => Err(Error::from(e)),
-                }
-            } else {
-                Err(Error::EncoderNotFound)
+            match res {
+                0 => Ok(Encoder(self)),
+                e => Err(Error::from(e)),
             }
         }
     }
