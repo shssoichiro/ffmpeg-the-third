@@ -7,7 +7,6 @@
 #![allow(clippy::redundant_static_lifetimes)]
 #![allow(clippy::too_many_arguments)]
 #![allow(clippy::type_complexity)]
-
 // see rust-lang/rust-bindgen#3241
 #![allow(unnecessary_transmutes)]
 

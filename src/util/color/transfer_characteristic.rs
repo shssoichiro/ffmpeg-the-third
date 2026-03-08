@@ -1,4 +1,3 @@
-use crate::ffi::AVColorTransferCharacteristic::*;
 use crate::ffi::*;
 use crate::utils;
 #[cfg(feature = "serialize")]
@@ -42,29 +41,30 @@ impl TransferCharacteristic {
 
 impl From<AVColorTransferCharacteristic> for TransferCharacteristic {
     fn from(value: AVColorTransferCharacteristic) -> TransferCharacteristic {
-        match value {
-            AVCOL_TRC_RESERVED0 => TransferCharacteristic::Reserved0,
-            AVCOL_TRC_BT709 => TransferCharacteristic::BT709,
-            AVCOL_TRC_UNSPECIFIED => TransferCharacteristic::Unspecified,
-            AVCOL_TRC_RESERVED => TransferCharacteristic::Reserved,
-            AVCOL_TRC_GAMMA22 => TransferCharacteristic::GAMMA22,
-            AVCOL_TRC_GAMMA28 => TransferCharacteristic::GAMMA28,
-            AVCOL_TRC_SMPTE170M => TransferCharacteristic::SMPTE170M,
-            AVCOL_TRC_SMPTE240M => TransferCharacteristic::SMPTE240M,
-            AVCOL_TRC_LINEAR => TransferCharacteristic::Linear,
-            AVCOL_TRC_LOG => TransferCharacteristic::Log,
-            AVCOL_TRC_LOG_SQRT => TransferCharacteristic::LogSqrt,
-            AVCOL_TRC_IEC61966_2_4 => TransferCharacteristic::IEC61966_2_4,
-            AVCOL_TRC_BT1361_ECG => TransferCharacteristic::BT1361_ECG,
-            AVCOL_TRC_IEC61966_2_1 => TransferCharacteristic::IEC61966_2_1,
-            AVCOL_TRC_BT2020_10 => TransferCharacteristic::BT2020_10,
-            AVCOL_TRC_BT2020_12 => TransferCharacteristic::BT2020_12,
-            AVCOL_TRC_NB => TransferCharacteristic::Reserved0,
-            AVCOL_TRC_SMPTE2084 => TransferCharacteristic::SMPTE2084,
-            AVCOL_TRC_SMPTE428 => TransferCharacteristic::SMPTE428,
-            AVCOL_TRC_ARIB_STD_B67 => TransferCharacteristic::ARIB_STD_B67,
+        use AVColorTransferCharacteristic as AV;
 
-            #[cfg(feature = "non-exhaustive-enums")]
+        match value {
+            AV::RESERVED0 => TransferCharacteristic::Reserved0,
+            AV::BT709 => TransferCharacteristic::BT709,
+            AV::UNSPECIFIED => TransferCharacteristic::Unspecified,
+            AV::RESERVED => TransferCharacteristic::Reserved,
+            AV::GAMMA22 => TransferCharacteristic::GAMMA22,
+            AV::GAMMA28 => TransferCharacteristic::GAMMA28,
+            AV::SMPTE170M => TransferCharacteristic::SMPTE170M,
+            AV::SMPTE240M => TransferCharacteristic::SMPTE240M,
+            AV::LINEAR => TransferCharacteristic::Linear,
+            AV::LOG => TransferCharacteristic::Log,
+            AV::LOG_SQRT => TransferCharacteristic::LogSqrt,
+            AV::IEC61966_2_4 => TransferCharacteristic::IEC61966_2_4,
+            AV::BT1361_ECG => TransferCharacteristic::BT1361_ECG,
+            AV::IEC61966_2_1 => TransferCharacteristic::IEC61966_2_1,
+            AV::BT2020_10 => TransferCharacteristic::BT2020_10,
+            AV::BT2020_12 => TransferCharacteristic::BT2020_12,
+            AV::NB => TransferCharacteristic::Reserved0,
+            AV::SMPTE2084 => TransferCharacteristic::SMPTE2084,
+            AV::SMPTE428 => TransferCharacteristic::SMPTE428,
+            AV::ARIB_STD_B67 => TransferCharacteristic::ARIB_STD_B67,
+
             _ => unimplemented!(),
         }
     }
@@ -72,26 +72,28 @@ impl From<AVColorTransferCharacteristic> for TransferCharacteristic {
 
 impl From<TransferCharacteristic> for AVColorTransferCharacteristic {
     fn from(value: TransferCharacteristic) -> AVColorTransferCharacteristic {
+        use AVColorTransferCharacteristic as AV;
+
         match value {
-            TransferCharacteristic::Reserved0 => AVCOL_TRC_RESERVED0,
-            TransferCharacteristic::BT709 => AVCOL_TRC_BT709,
-            TransferCharacteristic::Unspecified => AVCOL_TRC_UNSPECIFIED,
-            TransferCharacteristic::Reserved => AVCOL_TRC_RESERVED,
-            TransferCharacteristic::GAMMA22 => AVCOL_TRC_GAMMA22,
-            TransferCharacteristic::GAMMA28 => AVCOL_TRC_GAMMA28,
-            TransferCharacteristic::SMPTE170M => AVCOL_TRC_SMPTE170M,
-            TransferCharacteristic::SMPTE240M => AVCOL_TRC_SMPTE240M,
-            TransferCharacteristic::Linear => AVCOL_TRC_LINEAR,
-            TransferCharacteristic::Log => AVCOL_TRC_LOG,
-            TransferCharacteristic::LogSqrt => AVCOL_TRC_LOG_SQRT,
-            TransferCharacteristic::IEC61966_2_4 => AVCOL_TRC_IEC61966_2_4,
-            TransferCharacteristic::BT1361_ECG => AVCOL_TRC_BT1361_ECG,
-            TransferCharacteristic::IEC61966_2_1 => AVCOL_TRC_IEC61966_2_1,
-            TransferCharacteristic::BT2020_10 => AVCOL_TRC_BT2020_10,
-            TransferCharacteristic::BT2020_12 => AVCOL_TRC_BT2020_12,
-            TransferCharacteristic::SMPTE2084 => AVCOL_TRC_SMPTE2084,
-            TransferCharacteristic::SMPTE428 => AVCOL_TRC_SMPTE428,
-            TransferCharacteristic::ARIB_STD_B67 => AVCOL_TRC_ARIB_STD_B67,
+            TransferCharacteristic::Reserved0 => AV::RESERVED0,
+            TransferCharacteristic::BT709 => AV::BT709,
+            TransferCharacteristic::Unspecified => AV::UNSPECIFIED,
+            TransferCharacteristic::Reserved => AV::RESERVED,
+            TransferCharacteristic::GAMMA22 => AV::GAMMA22,
+            TransferCharacteristic::GAMMA28 => AV::GAMMA28,
+            TransferCharacteristic::SMPTE170M => AV::SMPTE170M,
+            TransferCharacteristic::SMPTE240M => AV::SMPTE240M,
+            TransferCharacteristic::Linear => AV::LINEAR,
+            TransferCharacteristic::Log => AV::LOG,
+            TransferCharacteristic::LogSqrt => AV::LOG_SQRT,
+            TransferCharacteristic::IEC61966_2_4 => AV::IEC61966_2_4,
+            TransferCharacteristic::BT1361_ECG => AV::BT1361_ECG,
+            TransferCharacteristic::IEC61966_2_1 => AV::IEC61966_2_1,
+            TransferCharacteristic::BT2020_10 => AV::BT2020_10,
+            TransferCharacteristic::BT2020_12 => AV::BT2020_12,
+            TransferCharacteristic::SMPTE2084 => AV::SMPTE2084,
+            TransferCharacteristic::SMPTE428 => AV::SMPTE428,
+            TransferCharacteristic::ARIB_STD_B67 => AV::ARIB_STD_B67,
         }
     }
 }

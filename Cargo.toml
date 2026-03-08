@@ -44,14 +44,10 @@ default = [
     "format",
     "software-resampling",
     "software-scaling",
-    "non-exhaustive-enums",
 ]
 
 serialize = ["serde", "bitflags/serde"]
 static = ["ffmpeg-sys-the-third/static"]
-
-# mark enums in generated bindings as #[non_exhaustive]
-non-exhaustive-enums = ["ffmpeg-sys-the-third/non-exhaustive-enums"]
 
 # components
 codec = ["ffmpeg-sys-the-third/avcodec"]

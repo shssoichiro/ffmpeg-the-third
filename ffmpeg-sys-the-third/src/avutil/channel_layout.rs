@@ -1,8 +1,7 @@
 use libc::c_int;
 
-use crate::AVChannel::*;
 use crate::*;
-use crate::{AVChannelLayout, AVChannelOrder};
+use crate::{AVChannel as AVC, AVChannelLayout, AVChannelOrder};
 
 use std::fmt;
 use std::mem::{align_of, size_of};
@@ -12,7 +11,7 @@ impl AVChannelLayout {
     #[inline]
     pub const fn empty() -> Self {
         Self {
-            order: AVChannelOrder::AV_CHANNEL_ORDER_UNSPEC,
+            order: AVChannelOrder::UNSPEC,
             nb_channels: 0,
             u: AVChannelLayout__bindgen_ty_1 { mask: 0 },
             opaque: null_mut(),
@@ -67,20 +66,19 @@ impl fmt::Debug for AVChannelLayout {
 
         unsafe {
             match self.order {
-                AVChannelOrder::AV_CHANNEL_ORDER_UNSPEC => {} // no other valid fields
-                AVChannelOrder::AV_CHANNEL_ORDER_NATIVE
-                | AVChannelOrder::AV_CHANNEL_ORDER_AMBISONIC => {
+                AVChannelOrder::UNSPEC => {} // no other valid fields
+                AVChannelOrder::NATIVE | AVChannelOrder::AMBISONIC => {
                     dbg.field("mask", &format_args!("0x{:X}", self.u.mask));
                 }
-                AVChannelOrder::AV_CHANNEL_ORDER_CUSTOM => {
+                AVChannelOrder::CUSTOM => {
                     dbg.field(
                         "map",
                         &std::slice::from_raw_parts(self.u.map, self.nb_channels as usize),
                     );
                 }
-                // Not part of public API, but we have to exhaustively match
                 #[cfg(feature = "ffmpeg_7_0")]
-                AVChannelOrder::FF_CHANNEL_ORDER_NB => {}
+                AVChannelOrder::NB => {} // marker value, just here for exhaustive matching
+                _ => unimplemented!(),
             }
         }
 
@@ -100,56 +98,54 @@ impl fmt::Debug for AVChannelCustom {
     }
 }
 
-// Here until https://github.com/rust-lang/rust-bindgen/issues/2192 /
-// https://github.com/rust-lang/rust-bindgen/issues/258 is fixed.
-
+// Here until https://github.com/rust-lang/rust-bindgen/issues/258 is fixed.
 // The constants here should be kept up to date with libavutil/channel_layout.h.
 
 // Audio channel masks
-pub const AV_CH_FRONT_LEFT: u64 = 1 << (AV_CHAN_FRONT_LEFT as i32);
-pub const AV_CH_FRONT_RIGHT: u64 = 1 << (AV_CHAN_FRONT_RIGHT as i32);
-pub const AV_CH_FRONT_CENTER: u64 = 1 << (AV_CHAN_FRONT_CENTER as i32);
-pub const AV_CH_LOW_FREQUENCY: u64 = 1 << (AV_CHAN_LOW_FREQUENCY as i32);
-pub const AV_CH_BACK_LEFT: u64 = 1 << (AV_CHAN_BACK_LEFT as i32);
-pub const AV_CH_BACK_RIGHT: u64 = 1 << (AV_CHAN_BACK_RIGHT as i32);
-pub const AV_CH_FRONT_LEFT_OF_CENTER: u64 = 1 << (AV_CHAN_FRONT_LEFT_OF_CENTER as i32);
-pub const AV_CH_FRONT_RIGHT_OF_CENTER: u64 = 1 << (AV_CHAN_FRONT_RIGHT_OF_CENTER as i32);
-pub const AV_CH_BACK_CENTER: u64 = 1 << (AV_CHAN_BACK_CENTER as i32);
-pub const AV_CH_SIDE_LEFT: u64 = 1 << (AV_CHAN_SIDE_LEFT as i32);
-pub const AV_CH_SIDE_RIGHT: u64 = 1 << (AV_CHAN_SIDE_RIGHT as i32);
-pub const AV_CH_TOP_CENTER: u64 = 1 << (AV_CHAN_TOP_CENTER as i32);
-pub const AV_CH_TOP_FRONT_LEFT: u64 = 1 << (AV_CHAN_TOP_FRONT_LEFT as i32);
-pub const AV_CH_TOP_FRONT_CENTER: u64 = 1 << (AV_CHAN_TOP_FRONT_CENTER as i32);
-pub const AV_CH_TOP_FRONT_RIGHT: u64 = 1 << (AV_CHAN_TOP_FRONT_RIGHT as i32);
-pub const AV_CH_TOP_BACK_LEFT: u64 = 1 << (AV_CHAN_TOP_BACK_LEFT as i32);
-pub const AV_CH_TOP_BACK_CENTER: u64 = 1 << (AV_CHAN_TOP_BACK_CENTER as i32);
-pub const AV_CH_TOP_BACK_RIGHT: u64 = 1 << (AV_CHAN_TOP_BACK_RIGHT as i32);
-pub const AV_CH_STEREO_LEFT: u64 = 1 << (AV_CHAN_STEREO_LEFT as i32);
-pub const AV_CH_STEREO_RIGHT: u64 = 1 << (AV_CHAN_STEREO_RIGHT as i32);
-pub const AV_CH_WIDE_LEFT: u64 = 1 << (AV_CHAN_WIDE_LEFT as i32);
-pub const AV_CH_WIDE_RIGHT: u64 = 1 << (AV_CHAN_WIDE_RIGHT as i32);
-pub const AV_CH_SURROUND_DIRECT_LEFT: u64 = 1 << (AV_CHAN_SURROUND_DIRECT_LEFT as i32);
-pub const AV_CH_SURROUND_DIRECT_RIGHT: u64 = 1 << (AV_CHAN_SURROUND_DIRECT_RIGHT as i32);
-pub const AV_CH_LOW_FREQUENCY_2: u64 = 1 << (AV_CHAN_LOW_FREQUENCY_2 as i32);
-pub const AV_CH_TOP_SIDE_LEFT: u64 = 1 << (AV_CHAN_TOP_SIDE_LEFT as i32);
-pub const AV_CH_TOP_SIDE_RIGHT: u64 = 1 << (AV_CHAN_TOP_SIDE_RIGHT as i32);
-pub const AV_CH_BOTTOM_FRONT_CENTER: u64 = 1 << (AV_CHAN_BOTTOM_FRONT_CENTER as i32);
-pub const AV_CH_BOTTOM_FRONT_LEFT: u64 = 1 << (AV_CHAN_BOTTOM_FRONT_LEFT as i32);
-pub const AV_CH_BOTTOM_FRONT_RIGHT: u64 = 1 << (AV_CHAN_BOTTOM_FRONT_RIGHT as i32);
+pub const AV_CH_FRONT_LEFT: u64 = 1 << AVC::FRONT_LEFT.0;
+pub const AV_CH_FRONT_RIGHT: u64 = 1 << AVC::FRONT_RIGHT.0;
+pub const AV_CH_FRONT_CENTER: u64 = 1 << AVC::FRONT_CENTER.0;
+pub const AV_CH_LOW_FREQUENCY: u64 = 1 << AVC::LOW_FREQUENCY.0;
+pub const AV_CH_BACK_LEFT: u64 = 1 << AVC::BACK_LEFT.0;
+pub const AV_CH_BACK_RIGHT: u64 = 1 << AVC::BACK_RIGHT.0;
+pub const AV_CH_FRONT_LEFT_OF_CENTER: u64 = 1 << AVC::FRONT_LEFT_OF_CENTER.0;
+pub const AV_CH_FRONT_RIGHT_OF_CENTER: u64 = 1 << AVC::FRONT_RIGHT_OF_CENTER.0;
+pub const AV_CH_BACK_CENTER: u64 = 1 << AVC::BACK_CENTER.0;
+pub const AV_CH_SIDE_LEFT: u64 = 1 << AVC::SIDE_LEFT.0;
+pub const AV_CH_SIDE_RIGHT: u64 = 1 << AVC::SIDE_RIGHT.0;
+pub const AV_CH_TOP_CENTER: u64 = 1 << AVC::TOP_CENTER.0;
+pub const AV_CH_TOP_FRONT_LEFT: u64 = 1 << AVC::TOP_FRONT_LEFT.0;
+pub const AV_CH_TOP_FRONT_CENTER: u64 = 1 << AVC::TOP_FRONT_CENTER.0;
+pub const AV_CH_TOP_FRONT_RIGHT: u64 = 1 << AVC::TOP_FRONT_RIGHT.0;
+pub const AV_CH_TOP_BACK_LEFT: u64 = 1 << AVC::TOP_BACK_LEFT.0;
+pub const AV_CH_TOP_BACK_CENTER: u64 = 1 << AVC::TOP_BACK_CENTER.0;
+pub const AV_CH_TOP_BACK_RIGHT: u64 = 1 << AVC::TOP_BACK_RIGHT.0;
+pub const AV_CH_STEREO_LEFT: u64 = 1 << AVC::STEREO_LEFT.0;
+pub const AV_CH_STEREO_RIGHT: u64 = 1 << AVC::STEREO_RIGHT.0;
+pub const AV_CH_WIDE_LEFT: u64 = 1 << AVC::WIDE_LEFT.0;
+pub const AV_CH_WIDE_RIGHT: u64 = 1 << AVC::WIDE_RIGHT.0;
+pub const AV_CH_SURROUND_DIRECT_LEFT: u64 = 1 << AVC::SURROUND_DIRECT_LEFT.0;
+pub const AV_CH_SURROUND_DIRECT_RIGHT: u64 = 1 << AVC::SURROUND_DIRECT_RIGHT.0;
+pub const AV_CH_LOW_FREQUENCY_2: u64 = 1 << AVC::LOW_FREQUENCY_2.0;
+pub const AV_CH_TOP_SIDE_LEFT: u64 = 1 << AVC::TOP_SIDE_LEFT.0;
+pub const AV_CH_TOP_SIDE_RIGHT: u64 = 1 << AVC::TOP_SIDE_RIGHT.0;
+pub const AV_CH_BOTTOM_FRONT_CENTER: u64 = 1 << AVC::BOTTOM_FRONT_CENTER.0;
+pub const AV_CH_BOTTOM_FRONT_LEFT: u64 = 1 << AVC::BOTTOM_FRONT_LEFT.0;
+pub const AV_CH_BOTTOM_FRONT_RIGHT: u64 = 1 << AVC::BOTTOM_FRONT_RIGHT.0;
 
 #[cfg(feature = "ffmpeg_7_1")]
-pub const AV_CH_SIDE_SURROUND_LEFT: u64 = 1 << (AV_CHAN_SIDE_SURROUND_LEFT as i32);
+pub const AV_CH_SIDE_SURROUND_LEFT: u64 = 1 << AVC::SIDE_SURROUND_LEFT.0;
 #[cfg(feature = "ffmpeg_7_1")]
-pub const AV_CH_SIDE_SURROUND_RIGHT: u64 = 1 << (AV_CHAN_SIDE_SURROUND_RIGHT as i32);
+pub const AV_CH_SIDE_SURROUND_RIGHT: u64 = 1 << AVC::SIDE_SURROUND_RIGHT.0;
 #[cfg(feature = "ffmpeg_7_1")]
-pub const AV_CH_TOP_SURROUND_LEFT: u64 = 1 << (AV_CHAN_TOP_SURROUND_LEFT as i32);
+pub const AV_CH_TOP_SURROUND_LEFT: u64 = 1 << AVC::TOP_SURROUND_LEFT.0;
 #[cfg(feature = "ffmpeg_7_1")]
-pub const AV_CH_TOP_SURROUND_RIGHT: u64 = 1 << (AV_CHAN_TOP_SURROUND_RIGHT as i32);
+pub const AV_CH_TOP_SURROUND_RIGHT: u64 = 1 << AVC::TOP_SURROUND_RIGHT.0;
 
 #[cfg(feature = "ffmpeg_8_0")]
-pub const AV_CH_BINAURAL_LEFT: u64 = 1 << (AV_CHAN_BINAURAL_LEFT as i32);
+pub const AV_CH_BINAURAL_LEFT: u64 = 1 << AVC::BINAURAL_LEFT.0;
 #[cfg(feature = "ffmpeg_8_0")]
-pub const AV_CH_BINAURAL_RIGHT: u64 = 1 << (AV_CHAN_BINAURAL_RIGHT as i32);
+pub const AV_CH_BINAURAL_RIGHT: u64 = 1 << AVC::BINAURAL_RIGHT.0;
 
 // Audio channel layouts
 pub const AV_CH_LAYOUT_MONO: u64 = AV_CH_FRONT_CENTER;
@@ -185,7 +181,8 @@ pub const AV_CH_LAYOUT_7POINT1_WIDE: u64 =
 pub const AV_CH_LAYOUT_7POINT1_WIDE_BACK: u64 =
     AV_CH_LAYOUT_5POINT1_BACK | AV_CH_FRONT_LEFT_OF_CENTER | AV_CH_FRONT_RIGHT_OF_CENTER;
 #[cfg(feature = "ffmpeg_8_0")]
-pub const AV_CH_LAYOUT_5POINT1POINT2: u64 = AV_CH_LAYOUT_5POINT1 | AV_CH_TOP_FRONT_LEFT | AV_CH_TOP_FRONT_RIGHT;
+pub const AV_CH_LAYOUT_5POINT1POINT2: u64 =
+    AV_CH_LAYOUT_5POINT1 | AV_CH_TOP_FRONT_LEFT | AV_CH_TOP_FRONT_RIGHT;
 pub const AV_CH_LAYOUT_5POINT1POINT2_BACK: u64 =
     AV_CH_LAYOUT_5POINT1_BACK | AV_CH_TOP_FRONT_LEFT | AV_CH_TOP_FRONT_RIGHT;
 pub const AV_CH_LAYOUT_OCTAGONAL: u64 =
@@ -208,7 +205,8 @@ pub const AV_CH_LAYOUT_7POINT2POINT3: u64 =
 pub const AV_CH_LAYOUT_9POINT1POINT4_BACK: u64 =
     AV_CH_LAYOUT_7POINT1POINT4_BACK | AV_CH_FRONT_LEFT_OF_CENTER | AV_CH_FRONT_RIGHT_OF_CENTER;
 #[cfg(feature = "ffmpeg_8_0")]
-pub const AV_CH_LAYOUT_9POINT1POINT6: u64 = AV_CH_LAYOUT_9POINT1POINT4_BACK | AV_CH_TOP_SIDE_LEFT | AV_CH_TOP_SIDE_RIGHT;
+pub const AV_CH_LAYOUT_9POINT1POINT6: u64 =
+    AV_CH_LAYOUT_9POINT1POINT4_BACK | AV_CH_TOP_SIDE_LEFT | AV_CH_TOP_SIDE_RIGHT;
 pub const AV_CH_LAYOUT_HEXADECAGONAL: u64 = AV_CH_LAYOUT_OCTAGONAL
     | AV_CH_WIDE_LEFT
     | AV_CH_WIDE_RIGHT
@@ -246,7 +244,7 @@ pub const AV_CH_LAYOUT_7POINT1_TOP_BACK: u64 = AV_CH_LAYOUT_5POINT1POINT2_BACK;
 // Audio channel layouts as AVChannelLayout
 pub const fn AV_CHANNEL_LAYOUT_MASK(nb_channels: c_int, channel_mask: u64) -> AVChannelLayout {
     AVChannelLayout {
-        order: AVChannelOrder::AV_CHANNEL_ORDER_NATIVE,
+        order: AVChannelOrder::NATIVE,
         nb_channels,
         u: crate::AVChannelLayout__bindgen_ty_1 { mask: channel_mask },
         opaque: std::ptr::null_mut(),
@@ -302,7 +300,8 @@ pub const AV_CHANNEL_LAYOUT_7POINT1_WIDE: AVChannelLayout =
 pub const AV_CHANNEL_LAYOUT_7POINT1_WIDE_BACK: AVChannelLayout =
     AV_CHANNEL_LAYOUT_MASK(8, AV_CH_LAYOUT_7POINT1_WIDE_BACK);
 #[cfg(feature = "ffmpeg_8_0")]
-pub const AV_CHANNEL_LAYOUT_5POINT1POINT2: AVChannelLayout = AV_CHANNEL_LAYOUT_MASK(8, AV_CH_LAYOUT_5POINT1POINT2);
+pub const AV_CHANNEL_LAYOUT_5POINT1POINT2: AVChannelLayout =
+    AV_CHANNEL_LAYOUT_MASK(8, AV_CH_LAYOUT_5POINT1POINT2);
 pub const AV_CHANNEL_LAYOUT_5POINT1POINT2_BACK: AVChannelLayout =
     AV_CHANNEL_LAYOUT_MASK(8, AV_CH_LAYOUT_5POINT1POINT2_BACK);
 pub const AV_CHANNEL_LAYOUT_OCTAGONAL: AVChannelLayout =
@@ -321,11 +320,13 @@ pub const AV_CHANNEL_LAYOUT_7POINT2POINT3: AVChannelLayout =
 pub const AV_CHANNEL_LAYOUT_9POINT1POINT4_BACK: AVChannelLayout =
     AV_CHANNEL_LAYOUT_MASK(14, AV_CH_LAYOUT_9POINT1POINT4_BACK);
 #[cfg(feature = "ffmpeg_8_0")]
-pub const AV_CHANNEL_LAYOUT_9POINT1POINT6: AVChannelLayout = AV_CHANNEL_LAYOUT_MASK(16, AV_CH_LAYOUT_9POINT1POINT6);
+pub const AV_CHANNEL_LAYOUT_9POINT1POINT6: AVChannelLayout =
+    AV_CHANNEL_LAYOUT_MASK(16, AV_CH_LAYOUT_9POINT1POINT6);
 pub const AV_CHANNEL_LAYOUT_HEXADECAGONAL: AVChannelLayout =
     AV_CHANNEL_LAYOUT_MASK(16, AV_CH_LAYOUT_HEXADECAGONAL);
 #[cfg(feature = "ffmpeg_8_0")]
-pub const AV_CHANNEL_LAYOUT_BINAURAL: AVChannelLayout = AV_CHANNEL_LAYOUT_MASK(2, AV_CH_LAYOUT_BINAURAL);
+pub const AV_CHANNEL_LAYOUT_BINAURAL: AVChannelLayout =
+    AV_CHANNEL_LAYOUT_MASK(2, AV_CH_LAYOUT_BINAURAL);
 pub const AV_CHANNEL_LAYOUT_STEREO_DOWNMIX: AVChannelLayout =
     AV_CHANNEL_LAYOUT_MASK(2, AV_CH_LAYOUT_STEREO_DOWNMIX);
 pub const AV_CHANNEL_LAYOUT_22POINT2: AVChannelLayout =
@@ -350,7 +351,7 @@ mod test {
 
     const NATIVE: AVChannelLayout = {
         let mut layout = AVChannelLayout::empty();
-        layout.order = AVChannelOrder::AV_CHANNEL_ORDER_NATIVE;
+        layout.order = AVChannelOrder::NATIVE;
         layout.nb_channels = 6;
         layout.u.mask = AV_CH_LAYOUT_5POINT1;
         layout
@@ -384,20 +385,20 @@ mod test {
         let mut my_data = vec![0u8; 200];
 
         let channels = [
-            custom_ch(AVChannel::AV_CHAN_FRONT_LEFT, b"front left"),
-            custom_ch(AVChannel::AV_CHAN_TOP_FRONT_RIGHT, b"top front right"),
-            custom_ch(AVChannel::AV_CHAN_FRONT_RIGHT, b"front right"),
-            custom_ch(AVChannel::AV_CHAN_BOTTOM_FRONT_RIGHT, b"btm frt right"),
-            custom_ch(AVChannel::AV_CHAN_TOP_SIDE_LEFT, b"top side left"),
+            custom_ch(AVChannel::FRONT_LEFT, b"front left"),
+            custom_ch(AVChannel::TOP_FRONT_RIGHT, b"top front right"),
+            custom_ch(AVChannel::FRONT_RIGHT, b"front right"),
+            custom_ch(AVChannel::BOTTOM_FRONT_RIGHT, b"btm frt right"),
+            custom_ch(AVChannel::TOP_SIDE_LEFT, b"top side left"),
             AVChannelCustom {
-                id: AVChannel::AV_CHAN_LOW_FREQUENCY,
+                id: AVChannel::LOW_FREQUENCY,
                 name: c_string(b"subwoofer"),
                 opaque: my_data.as_mut_ptr() as _,
             },
         ];
 
         let mut layout = AVChannelLayout::empty();
-        layout.order = AVChannelOrder::AV_CHANNEL_ORDER_CUSTOM;
+        layout.order = AVChannelOrder::CUSTOM;
         layout.nb_channels = channels.len() as c_int;
         unsafe {
             layout.u.map = av_calloc(channels.len(), size_of::<AVChannelCustom>()) as _;

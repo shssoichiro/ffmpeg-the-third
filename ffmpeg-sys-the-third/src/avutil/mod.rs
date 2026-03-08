@@ -8,7 +8,6 @@ mod rational;
 pub use self::rational::*;
 
 mod pixfmt;
-pub use self::pixfmt::*;
 
 #[cfg(feature = "ffmpeg_5_1")]
 mod channel_layout;
