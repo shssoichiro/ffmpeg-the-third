@@ -121,62 +121,62 @@ impl Channel {
 
 impl From<AVChannel> for Channel {
     fn from(value: AVChannel) -> Self {
-        use crate::ffi::AVChannel::*;
+        use AVChannel as AV;
         use Channel::*;
 
         match value {
-            AV_CHAN_NONE => None,
-            AV_CHAN_FRONT_LEFT => FrontLeft,
-            AV_CHAN_FRONT_RIGHT => FrontRight,
-            AV_CHAN_FRONT_CENTER => FrontCenter,
-            AV_CHAN_LOW_FREQUENCY => LowFrequency,
-            AV_CHAN_BACK_LEFT => BackLeft,
-            AV_CHAN_BACK_RIGHT => BackRight,
-            AV_CHAN_FRONT_LEFT_OF_CENTER => FrontLeftOfCenter,
-            AV_CHAN_FRONT_RIGHT_OF_CENTER => FrontRightOfCenter,
-            AV_CHAN_BACK_CENTER => BackCenter,
-            AV_CHAN_SIDE_LEFT => SideLeft,
-            AV_CHAN_SIDE_RIGHT => SideRight,
-            AV_CHAN_TOP_CENTER => TopCenter,
-            AV_CHAN_TOP_FRONT_LEFT => TopFrontLeft,
-            AV_CHAN_TOP_FRONT_CENTER => TopFrontCenter,
-            AV_CHAN_TOP_FRONT_RIGHT => TopFrontRight,
-            AV_CHAN_TOP_BACK_LEFT => TopBackLeft,
-            AV_CHAN_TOP_BACK_CENTER => TopBackCenter,
-            AV_CHAN_TOP_BACK_RIGHT => TopBackRight,
-            AV_CHAN_STEREO_LEFT => StereoLeft,
-            AV_CHAN_STEREO_RIGHT => StereoRight,
-            AV_CHAN_WIDE_LEFT => WideLeft,
-            AV_CHAN_WIDE_RIGHT => WideRight,
-            AV_CHAN_SURROUND_DIRECT_LEFT => SurroundDirectLeft,
-            AV_CHAN_SURROUND_DIRECT_RIGHT => SurroundDirectRight,
-            AV_CHAN_LOW_FREQUENCY_2 => LowFrequency2,
-            AV_CHAN_TOP_SIDE_LEFT => TopSideLeft,
-            AV_CHAN_TOP_SIDE_RIGHT => TopSideRight,
-            AV_CHAN_BOTTOM_FRONT_CENTER => BottomFrontCenter,
-            AV_CHAN_BOTTOM_FRONT_LEFT => BottomFrontLeft,
-            AV_CHAN_BOTTOM_FRONT_RIGHT => BottomFrontRight,
+            AV::NONE => None,
+            AV::FRONT_LEFT => FrontLeft,
+            AV::FRONT_RIGHT => FrontRight,
+            AV::FRONT_CENTER => FrontCenter,
+            AV::LOW_FREQUENCY => LowFrequency,
+            AV::BACK_LEFT => BackLeft,
+            AV::BACK_RIGHT => BackRight,
+            AV::FRONT_LEFT_OF_CENTER => FrontLeftOfCenter,
+            AV::FRONT_RIGHT_OF_CENTER => FrontRightOfCenter,
+            AV::BACK_CENTER => BackCenter,
+            AV::SIDE_LEFT => SideLeft,
+            AV::SIDE_RIGHT => SideRight,
+            AV::TOP_CENTER => TopCenter,
+            AV::TOP_FRONT_LEFT => TopFrontLeft,
+            AV::TOP_FRONT_CENTER => TopFrontCenter,
+            AV::TOP_FRONT_RIGHT => TopFrontRight,
+            AV::TOP_BACK_LEFT => TopBackLeft,
+            AV::TOP_BACK_CENTER => TopBackCenter,
+            AV::TOP_BACK_RIGHT => TopBackRight,
+            AV::STEREO_LEFT => StereoLeft,
+            AV::STEREO_RIGHT => StereoRight,
+            AV::WIDE_LEFT => WideLeft,
+            AV::WIDE_RIGHT => WideRight,
+            AV::SURROUND_DIRECT_LEFT => SurroundDirectLeft,
+            AV::SURROUND_DIRECT_RIGHT => SurroundDirectRight,
+            AV::LOW_FREQUENCY_2 => LowFrequency2,
+            AV::TOP_SIDE_LEFT => TopSideLeft,
+            AV::TOP_SIDE_RIGHT => TopSideRight,
+            AV::BOTTOM_FRONT_CENTER => BottomFrontCenter,
+            AV::BOTTOM_FRONT_LEFT => BottomFrontLeft,
+            AV::BOTTOM_FRONT_RIGHT => BottomFrontRight,
 
             #[cfg(feature = "ffmpeg_7_1")]
-            AV_CHAN_SIDE_SURROUND_LEFT => SideSurroundLeft,
+            AV::SIDE_SURROUND_LEFT => SideSurroundLeft,
             #[cfg(feature = "ffmpeg_7_1")]
-            AV_CHAN_SIDE_SURROUND_RIGHT => SideSurroundRight,
+            AV::SIDE_SURROUND_RIGHT => SideSurroundRight,
             #[cfg(feature = "ffmpeg_7_1")]
-            AV_CHAN_TOP_SURROUND_LEFT => TopSurroundLeft,
+            AV::TOP_SURROUND_LEFT => TopSurroundLeft,
             #[cfg(feature = "ffmpeg_7_1")]
-            AV_CHAN_TOP_SURROUND_RIGHT => TopSurroundRight,
+            AV::TOP_SURROUND_RIGHT => TopSurroundRight,
 
             #[cfg(feature = "ffmpeg_8_0")]
-            AV_CHAN_BINAURAL_LEFT => BinauralLeft,
+            AV::BINAURAL_LEFT => BinauralLeft,
             #[cfg(feature = "ffmpeg_8_0")]
-            AV_CHAN_BINAURAL_RIGHT => BinauralRight,
+            AV::BINAURAL_RIGHT => BinauralRight,
 
-            AV_CHAN_UNUSED => Unused,
-            AV_CHAN_UNKNOWN => Unknown,
-            AV_CHAN_AMBISONIC_BASE => AmbisonicBase,
-            AV_CHAN_AMBISONIC_END => AmbisonicEnd,
+            AV::UNUSED => Unused,
+            AV::UNKNOWN => Unknown,
+            AV::AMBISONIC_BASE => AmbisonicBase,
+            AV::AMBISONIC_END => AmbisonicEnd,
 
-            #[cfg(feature = "non-exhaustive-enums")]
+            // TODO: implement Ambisonic range
             _ => unimplemented!(),
         }
     }
@@ -184,60 +184,60 @@ impl From<AVChannel> for Channel {
 
 impl From<Channel> for AVChannel {
     fn from(value: Channel) -> Self {
-        use crate::ffi::AVChannel::*;
+        use AVChannel as AV;
         use Channel::*;
 
         match value {
-            None => AV_CHAN_NONE,
-            FrontLeft => AV_CHAN_FRONT_LEFT,
-            FrontRight => AV_CHAN_FRONT_RIGHT,
-            FrontCenter => AV_CHAN_FRONT_CENTER,
-            LowFrequency => AV_CHAN_LOW_FREQUENCY,
-            BackLeft => AV_CHAN_BACK_LEFT,
-            BackRight => AV_CHAN_BACK_RIGHT,
-            FrontLeftOfCenter => AV_CHAN_FRONT_LEFT_OF_CENTER,
-            FrontRightOfCenter => AV_CHAN_FRONT_RIGHT_OF_CENTER,
-            BackCenter => AV_CHAN_BACK_CENTER,
-            SideLeft => AV_CHAN_SIDE_LEFT,
-            SideRight => AV_CHAN_SIDE_RIGHT,
-            TopCenter => AV_CHAN_TOP_CENTER,
-            TopFrontLeft => AV_CHAN_TOP_FRONT_LEFT,
-            TopFrontCenter => AV_CHAN_TOP_FRONT_CENTER,
-            TopFrontRight => AV_CHAN_TOP_FRONT_RIGHT,
-            TopBackLeft => AV_CHAN_TOP_BACK_LEFT,
-            TopBackCenter => AV_CHAN_TOP_BACK_CENTER,
-            TopBackRight => AV_CHAN_TOP_BACK_RIGHT,
-            StereoLeft => AV_CHAN_STEREO_LEFT,
-            StereoRight => AV_CHAN_STEREO_RIGHT,
-            WideLeft => AV_CHAN_WIDE_LEFT,
-            WideRight => AV_CHAN_WIDE_RIGHT,
-            SurroundDirectLeft => AV_CHAN_SURROUND_DIRECT_LEFT,
-            SurroundDirectRight => AV_CHAN_SURROUND_DIRECT_RIGHT,
-            LowFrequency2 => AV_CHAN_LOW_FREQUENCY_2,
-            TopSideLeft => AV_CHAN_TOP_SIDE_LEFT,
-            TopSideRight => AV_CHAN_TOP_SIDE_RIGHT,
-            BottomFrontCenter => AV_CHAN_BOTTOM_FRONT_CENTER,
-            BottomFrontLeft => AV_CHAN_BOTTOM_FRONT_LEFT,
-            BottomFrontRight => AV_CHAN_BOTTOM_FRONT_RIGHT,
+            None => AV::NONE,
+            FrontLeft => AV::FRONT_LEFT,
+            FrontRight => AV::FRONT_RIGHT,
+            FrontCenter => AV::FRONT_CENTER,
+            LowFrequency => AV::LOW_FREQUENCY,
+            BackLeft => AV::BACK_LEFT,
+            BackRight => AV::BACK_RIGHT,
+            FrontLeftOfCenter => AV::FRONT_LEFT_OF_CENTER,
+            FrontRightOfCenter => AV::FRONT_RIGHT_OF_CENTER,
+            BackCenter => AV::BACK_CENTER,
+            SideLeft => AV::SIDE_LEFT,
+            SideRight => AV::SIDE_RIGHT,
+            TopCenter => AV::TOP_CENTER,
+            TopFrontLeft => AV::TOP_FRONT_LEFT,
+            TopFrontCenter => AV::TOP_FRONT_CENTER,
+            TopFrontRight => AV::TOP_FRONT_RIGHT,
+            TopBackLeft => AV::TOP_BACK_LEFT,
+            TopBackCenter => AV::TOP_BACK_CENTER,
+            TopBackRight => AV::TOP_BACK_RIGHT,
+            StereoLeft => AV::STEREO_LEFT,
+            StereoRight => AV::STEREO_RIGHT,
+            WideLeft => AV::WIDE_LEFT,
+            WideRight => AV::WIDE_RIGHT,
+            SurroundDirectLeft => AV::SURROUND_DIRECT_LEFT,
+            SurroundDirectRight => AV::SURROUND_DIRECT_RIGHT,
+            LowFrequency2 => AV::LOW_FREQUENCY_2,
+            TopSideLeft => AV::TOP_SIDE_LEFT,
+            TopSideRight => AV::TOP_SIDE_RIGHT,
+            BottomFrontCenter => AV::BOTTOM_FRONT_CENTER,
+            BottomFrontLeft => AV::BOTTOM_FRONT_LEFT,
+            BottomFrontRight => AV::BOTTOM_FRONT_RIGHT,
 
             #[cfg(feature = "ffmpeg_7_1")]
-            SideSurroundLeft => AV_CHAN_SIDE_SURROUND_LEFT,
+            SideSurroundLeft => AV::SIDE_SURROUND_LEFT,
             #[cfg(feature = "ffmpeg_7_1")]
-            SideSurroundRight => AV_CHAN_SIDE_SURROUND_RIGHT,
+            SideSurroundRight => AV::SIDE_SURROUND_RIGHT,
             #[cfg(feature = "ffmpeg_7_1")]
-            TopSurroundLeft => AV_CHAN_TOP_SURROUND_LEFT,
+            TopSurroundLeft => AV::TOP_SURROUND_LEFT,
             #[cfg(feature = "ffmpeg_7_1")]
-            TopSurroundRight => AV_CHAN_TOP_SURROUND_RIGHT,
+            TopSurroundRight => AV::TOP_SURROUND_RIGHT,
 
             #[cfg(feature = "ffmpeg_8_0")]
-            BinauralLeft => AV_CHAN_BINAURAL_LEFT,
+            BinauralLeft => AV::BINAURAL_LEFT,
             #[cfg(feature = "ffmpeg_8_0")]
-            BinauralRight => AV_CHAN_BINAURAL_RIGHT,
+            BinauralRight => AV::BINAURAL_RIGHT,
 
-            Unused => AV_CHAN_UNUSED,
-            Unknown => AV_CHAN_UNKNOWN,
-            AmbisonicBase => AV_CHAN_AMBISONIC_BASE,
-            AmbisonicEnd => AV_CHAN_AMBISONIC_END,
+            Unused => AV::UNUSED,
+            Unknown => AV::UNKNOWN,
+            AmbisonicBase => AV::AMBISONIC_BASE,
+            AmbisonicEnd => AV::AMBISONIC_END,
         }
     }
 }

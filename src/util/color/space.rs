@@ -1,4 +1,3 @@
-use crate::ffi::AVColorSpace::*;
 use crate::ffi::*;
 use crate::utils;
 #[cfg(feature = "serialize")]
@@ -48,33 +47,34 @@ impl Space {
 
 impl From<AVColorSpace> for Space {
     fn from(value: AVColorSpace) -> Self {
+        use AVColorSpace as AV;
+
         match value {
-            AVCOL_SPC_RGB => Space::RGB,
-            AVCOL_SPC_BT709 => Space::BT709,
-            AVCOL_SPC_UNSPECIFIED => Space::Unspecified,
-            AVCOL_SPC_RESERVED => Space::Reserved,
-            AVCOL_SPC_FCC => Space::FCC,
-            AVCOL_SPC_BT470BG => Space::BT470BG,
-            AVCOL_SPC_SMPTE170M => Space::SMPTE170M,
-            AVCOL_SPC_SMPTE240M => Space::SMPTE240M,
-            AVCOL_SPC_YCGCO => Space::YCGCO,
-            AVCOL_SPC_BT2020_NCL => Space::BT2020NCL,
-            AVCOL_SPC_BT2020_CL => Space::BT2020CL,
-            AVCOL_SPC_SMPTE2085 => Space::SMPTE2085,
-            AVCOL_SPC_NB => Space::Unspecified,
+            AV::RGB => Space::RGB,
+            AV::BT709 => Space::BT709,
+            AV::UNSPECIFIED => Space::Unspecified,
+            AV::RESERVED => Space::Reserved,
+            AV::FCC => Space::FCC,
+            AV::BT470BG => Space::BT470BG,
+            AV::SMPTE170M => Space::SMPTE170M,
+            AV::SMPTE240M => Space::SMPTE240M,
+            AV::YCGCO => Space::YCGCO,
+            AV::BT2020_NCL => Space::BT2020NCL,
+            AV::BT2020_CL => Space::BT2020CL,
+            AV::SMPTE2085 => Space::SMPTE2085,
+            AV::NB => Space::Unspecified,
 
-            AVCOL_SPC_CHROMA_DERIVED_NCL => Space::ChromaDerivedNCL,
-            AVCOL_SPC_CHROMA_DERIVED_CL => Space::ChromaDerivedCL,
-            AVCOL_SPC_ICTCP => Space::ICTCP,
+            AV::CHROMA_DERIVED_NCL => Space::ChromaDerivedNCL,
+            AV::CHROMA_DERIVED_CL => Space::ChromaDerivedCL,
+            AV::ICTCP => Space::ICTCP,
 
             #[cfg(feature = "ffmpeg_7_1")]
-            AVCOL_SPC_IPT_C2 => Space::IPTC2,
+            AV::IPT_C2 => Space::IPTC2,
             #[cfg(feature = "ffmpeg_7_1")]
-            AVCOL_SPC_YCGCO_RE => Space::YCGCORE,
+            AV::YCGCO_RE => Space::YCGCORE,
             #[cfg(feature = "ffmpeg_7_1")]
-            AVCOL_SPC_YCGCO_RO => Space::YCGCORO,
+            AV::YCGCO_RO => Space::YCGCORO,
 
-            #[cfg(feature = "non-exhaustive-enums")]
             _ => unimplemented!(),
         }
     }
@@ -82,30 +82,32 @@ impl From<AVColorSpace> for Space {
 
 impl From<Space> for AVColorSpace {
     fn from(value: Space) -> AVColorSpace {
+        use AVColorSpace as AV;
+
         match value {
-            Space::RGB => AVCOL_SPC_RGB,
-            Space::BT709 => AVCOL_SPC_BT709,
-            Space::Unspecified => AVCOL_SPC_UNSPECIFIED,
-            Space::Reserved => AVCOL_SPC_RESERVED,
-            Space::FCC => AVCOL_SPC_FCC,
-            Space::BT470BG => AVCOL_SPC_BT470BG,
-            Space::SMPTE170M => AVCOL_SPC_SMPTE170M,
-            Space::SMPTE240M => AVCOL_SPC_SMPTE240M,
-            Space::YCGCO => AVCOL_SPC_YCGCO,
-            Space::BT2020NCL => AVCOL_SPC_BT2020_NCL,
-            Space::BT2020CL => AVCOL_SPC_BT2020_CL,
-            Space::SMPTE2085 => AVCOL_SPC_SMPTE2085,
+            Space::RGB => AV::RGB,
+            Space::BT709 => AV::BT709,
+            Space::Unspecified => AV::UNSPECIFIED,
+            Space::Reserved => AV::RESERVED,
+            Space::FCC => AV::FCC,
+            Space::BT470BG => AV::BT470BG,
+            Space::SMPTE170M => AV::SMPTE170M,
+            Space::SMPTE240M => AV::SMPTE240M,
+            Space::YCGCO => AV::YCGCO,
+            Space::BT2020NCL => AV::BT2020_NCL,
+            Space::BT2020CL => AV::BT2020_CL,
+            Space::SMPTE2085 => AV::SMPTE2085,
 
-            Space::ChromaDerivedNCL => AVCOL_SPC_CHROMA_DERIVED_NCL,
-            Space::ChromaDerivedCL => AVCOL_SPC_CHROMA_DERIVED_CL,
-            Space::ICTCP => AVCOL_SPC_ICTCP,
+            Space::ChromaDerivedNCL => AV::CHROMA_DERIVED_NCL,
+            Space::ChromaDerivedCL => AV::CHROMA_DERIVED_CL,
+            Space::ICTCP => AV::ICTCP,
 
             #[cfg(feature = "ffmpeg_7_1")]
-            Space::IPTC2 => AVCOL_SPC_IPT_C2,
+            Space::IPTC2 => AV::IPT_C2,
             #[cfg(feature = "ffmpeg_7_1")]
-            Space::YCGCORE => AVCOL_SPC_YCGCO_RE,
+            Space::YCGCORE => AV::YCGCO_RE,
             #[cfg(feature = "ffmpeg_7_1")]
-            Space::YCGCORO => AVCOL_SPC_YCGCO_RO,
+            Space::YCGCORO => AV::YCGCO_RO,
         }
     }
 }

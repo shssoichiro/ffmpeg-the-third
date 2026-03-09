@@ -1,4 +1,3 @@
-use crate::ffi::AVColorRange::*;
 use crate::ffi::*;
 use crate::utils;
 #[cfg(feature = "serialize")]
@@ -26,13 +25,14 @@ impl Range {
 
 impl From<AVColorRange> for Range {
     fn from(value: AVColorRange) -> Self {
-        match value {
-            AVCOL_RANGE_UNSPECIFIED => Range::Unspecified,
-            AVCOL_RANGE_MPEG => Range::MPEG,
-            AVCOL_RANGE_JPEG => Range::JPEG,
-            AVCOL_RANGE_NB => Range::Unspecified,
+        use AVColorRange as AV;
 
-            #[cfg(feature = "non-exhaustive-enums")]
+        match value {
+            AV::UNSPECIFIED => Range::Unspecified,
+            AV::MPEG => Range::MPEG,
+            AV::JPEG => Range::JPEG,
+
+            AV::NB => unreachable!(),
             _ => unimplemented!(),
         }
     }
@@ -40,10 +40,12 @@ impl From<AVColorRange> for Range {
 
 impl From<Range> for AVColorRange {
     fn from(value: Range) -> AVColorRange {
+        use AVColorRange as AV;
+
         match value {
-            Range::Unspecified => AVCOL_RANGE_UNSPECIFIED,
-            Range::MPEG => AVCOL_RANGE_MPEG,
-            Range::JPEG => AVCOL_RANGE_JPEG,
+            Range::Unspecified => AV::UNSPECIFIED,
+            Range::MPEG => AV::MPEG,
+            Range::JPEG => AV::JPEG,
         }
     }
 }

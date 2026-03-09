@@ -72,7 +72,7 @@ mod test {
     #[test]
     fn new() {
         let custom = ChannelCustom::new(Channel::FrontRight);
-        assert_eq!(custom.0.id, AVChannel::AV_CHAN_FRONT_RIGHT);
+        assert_eq!(custom.0.id, AVChannel::FRONT_RIGHT);
         assert_eq!(custom.0.name, [0; 16]);
         assert!(custom.0.opaque.is_null());
     }
@@ -85,7 +85,7 @@ mod test {
         ];
 
         let custom = ChannelCustom::named(Channel::BottomFrontRight, "Bottom front right");
-        assert_eq!(custom.0.id, AVChannel::AV_CHAN_BOTTOM_FRONT_RIGHT);
+        assert_eq!(custom.0.id, AVChannel::BOTTOM_FRONT_RIGHT);
         assert_eq!(custom.0.name, c_str_name);
         assert!(custom.0.opaque.is_null());
     }

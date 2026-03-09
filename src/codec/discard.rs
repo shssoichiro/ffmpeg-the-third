@@ -1,4 +1,3 @@
-use crate::ffi::AVDiscard::*;
 use crate::ffi::*;
 #[cfg(feature = "serialize")]
 use serde::{Deserialize, Serialize};
@@ -17,16 +16,17 @@ pub enum Discard {
 
 impl From<AVDiscard> for Discard {
     fn from(value: AVDiscard) -> Self {
-        match value {
-            AVDISCARD_NONE => Discard::None,
-            AVDISCARD_DEFAULT => Discard::Default,
-            AVDISCARD_NONREF => Discard::NonReference,
-            AVDISCARD_BIDIR => Discard::Bidirectional,
-            AVDISCARD_NONINTRA => Discard::NonIntra,
-            AVDISCARD_NONKEY => Discard::NonKey,
-            AVDISCARD_ALL => Discard::All,
+        use AVDiscard as AV;
 
-            #[cfg(feature = "non-exhaustive-enums")]
+        match value {
+            AV::NONE => Discard::None,
+            AV::DEFAULT => Discard::Default,
+            AV::NONREF => Discard::NonReference,
+            AV::BIDIR => Discard::Bidirectional,
+            AV::NONINTRA => Discard::NonIntra,
+            AV::NONKEY => Discard::NonKey,
+            AV::ALL => Discard::All,
+
             _ => unimplemented!(),
         }
     }
@@ -34,14 +34,16 @@ impl From<AVDiscard> for Discard {
 
 impl From<Discard> for AVDiscard {
     fn from(value: Discard) -> AVDiscard {
+        use AVDiscard as AV;
+
         match value {
-            Discard::None => AVDISCARD_NONE,
-            Discard::Default => AVDISCARD_DEFAULT,
-            Discard::NonReference => AVDISCARD_NONREF,
-            Discard::Bidirectional => AVDISCARD_BIDIR,
-            Discard::NonIntra => AVDISCARD_NONINTRA,
-            Discard::NonKey => AVDISCARD_NONKEY,
-            Discard::All => AVDISCARD_ALL,
+            Discard::None => AV::NONE,
+            Discard::Default => AV::DEFAULT,
+            Discard::NonReference => AV::NONREF,
+            Discard::Bidirectional => AV::BIDIR,
+            Discard::NonIntra => AV::NONINTRA,
+            Discard::NonKey => AV::NONKEY,
+            Discard::All => AV::ALL,
         }
     }
 }

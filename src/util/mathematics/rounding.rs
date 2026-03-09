@@ -1,4 +1,3 @@
-use crate::ffi::AVRounding::*;
 use crate::ffi::*;
 #[cfg(feature = "serialize")]
 use serde::{Deserialize, Serialize};
@@ -17,15 +16,16 @@ pub enum Rounding {
 impl From<AVRounding> for Rounding {
     #[inline(always)]
     fn from(value: AVRounding) -> Self {
-        match value {
-            AV_ROUND_ZERO => Rounding::Zero,
-            AV_ROUND_INF => Rounding::Infinity,
-            AV_ROUND_DOWN => Rounding::Down,
-            AV_ROUND_UP => Rounding::Up,
-            AV_ROUND_NEAR_INF => Rounding::NearInfinity,
-            AV_ROUND_PASS_MINMAX => Rounding::PassMinMax,
+        use AVRounding as AV;
 
-            #[cfg(feature = "non-exhaustive-enums")]
+        match value {
+            AV::ZERO => Rounding::Zero,
+            AV::INF => Rounding::Infinity,
+            AV::DOWN => Rounding::Down,
+            AV::UP => Rounding::Up,
+            AV::NEAR_INF => Rounding::NearInfinity,
+            AV::PASS_MINMAX => Rounding::PassMinMax,
+
             _ => unimplemented!(),
         }
     }
@@ -34,13 +34,15 @@ impl From<AVRounding> for Rounding {
 impl From<Rounding> for AVRounding {
     #[inline(always)]
     fn from(value: Rounding) -> AVRounding {
+        use AVRounding as AV;
+
         match value {
-            Rounding::Zero => AV_ROUND_ZERO,
-            Rounding::Infinity => AV_ROUND_INF,
-            Rounding::Down => AV_ROUND_DOWN,
-            Rounding::Up => AV_ROUND_UP,
-            Rounding::NearInfinity => AV_ROUND_NEAR_INF,
-            Rounding::PassMinMax => AV_ROUND_PASS_MINMAX,
+            Rounding::Zero => AV::ZERO,
+            Rounding::Infinity => AV::INF,
+            Rounding::Down => AV::DOWN,
+            Rounding::Up => AV::UP,
+            Rounding::NearInfinity => AV::NEAR_INF,
+            Rounding::PassMinMax => AV::PASS_MINMAX,
         }
     }
 }

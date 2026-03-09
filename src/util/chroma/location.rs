@@ -1,9 +1,9 @@
 use std::ffi::CString;
 
-use crate::ffi::AVChromaLocation::*;
 use crate::ffi::*;
 use crate::utils;
 use crate::Error;
+use libc::c_uint;
 #[cfg(feature = "serialize")]
 use serde::{Deserialize, Serialize};
 
@@ -35,12 +35,9 @@ impl Location {
 
         let ret = unsafe { av_chroma_location_from_name(cstr.as_ptr()) };
 
-        if ret < 0 {
-            Err(Error::from(ret))
-        } else {
-            AVChromaLocation::from_c_int(ret)
-                .map(Location::from)
-                .ok_or(Error::from(AVERROR(libc::EINVAL)))
+        match c_uint::try_from(ret) {
+            Ok(u) => Ok(Self::from(AVChromaLocation(u as _))),
+            Err(_) => Err(Error::from(ret)),
         }
     }
 
@@ -70,17 +67,19 @@ impl Location {
 
 impl From<AVChromaLocation> for Location {
     fn from(value: AVChromaLocation) -> Self {
-        match value {
-            AVCHROMA_LOC_UNSPECIFIED => Location::Unspecified,
-            AVCHROMA_LOC_LEFT => Location::Left,
-            AVCHROMA_LOC_CENTER => Location::Center,
-            AVCHROMA_LOC_TOPLEFT => Location::TopLeft,
-            AVCHROMA_LOC_TOP => Location::Top,
-            AVCHROMA_LOC_BOTTOMLEFT => Location::BottomLeft,
-            AVCHROMA_LOC_BOTTOM => Location::Bottom,
-            AVCHROMA_LOC_NB => Location::Unspecified,
+        use AVChromaLocation as AV;
 
-            #[cfg(feature = "non-exhaustive-enums")]
+        match value {
+            AV::UNSPECIFIED => Location::Unspecified,
+            AV::LEFT => Location::Left,
+            AV::CENTER => Location::Center,
+            AV::TOPLEFT => Location::TopLeft,
+            AV::TOP => Location::Top,
+            AV::BOTTOMLEFT => Location::BottomLeft,
+            AV::BOTTOM => Location::Bottom,
+
+            AV::NB => unreachable!(),
+
             _ => unimplemented!(),
         }
     }
@@ -88,14 +87,16 @@ impl From<AVChromaLocation> for Location {
 
 impl From<Location> for AVChromaLocation {
     fn from(value: Location) -> AVChromaLocation {
+        use AVChromaLocation as AV;
+
         match value {
-            Location::Unspecified => AVCHROMA_LOC_UNSPECIFIED,
-            Location::Left => AVCHROMA_LOC_LEFT,
-            Location::Center => AVCHROMA_LOC_CENTER,
-            Location::TopLeft => AVCHROMA_LOC_TOPLEFT,
-            Location::Top => AVCHROMA_LOC_TOP,
-            Location::BottomLeft => AVCHROMA_LOC_BOTTOMLEFT,
-            Location::Bottom => AVCHROMA_LOC_BOTTOM,
+            Location::Unspecified => AV::UNSPECIFIED,
+            Location::Left => AV::LEFT,
+            Location::Center => AV::CENTER,
+            Location::TopLeft => AV::TOPLEFT,
+            Location::Top => AV::TOP,
+            Location::BottomLeft => AV::BOTTOMLEFT,
+            Location::Bottom => AV::BOTTOM,
         }
     }
 }

@@ -1,4 +1,3 @@
-use crate::ffi::SwrFilterType::*;
 use crate::ffi::*;
 #[cfg(feature = "serialize")]
 use serde::{Deserialize, Serialize};
@@ -13,12 +12,13 @@ pub enum Filter {
 
 impl From<SwrFilterType> for Filter {
     fn from(value: SwrFilterType) -> Filter {
-        match value {
-            SWR_FILTER_TYPE_CUBIC => Filter::Cubic,
-            SWR_FILTER_TYPE_BLACKMAN_NUTTALL => Filter::BlackmanNuttall,
-            SWR_FILTER_TYPE_KAISER => Filter::Kaiser,
+        use SwrFilterType as AV;
 
-            #[cfg(feature = "non-exhaustive-enums")]
+        match value {
+            AV::CUBIC => Filter::Cubic,
+            AV::BLACKMAN_NUTTALL => Filter::BlackmanNuttall,
+            AV::KAISER => Filter::Kaiser,
+
             _ => unimplemented!(),
         }
     }
@@ -26,10 +26,12 @@ impl From<SwrFilterType> for Filter {
 
 impl From<Filter> for SwrFilterType {
     fn from(value: Filter) -> SwrFilterType {
+        use SwrFilterType as AV;
+
         match value {
-            Filter::Cubic => SWR_FILTER_TYPE_CUBIC,
-            Filter::BlackmanNuttall => SWR_FILTER_TYPE_BLACKMAN_NUTTALL,
-            Filter::Kaiser => SWR_FILTER_TYPE_KAISER,
+            Filter::Cubic => AV::CUBIC,
+            Filter::BlackmanNuttall => AV::BLACKMAN_NUTTALL,
+            Filter::Kaiser => AV::KAISER,
         }
     }
 }

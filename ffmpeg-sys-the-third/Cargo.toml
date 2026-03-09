@@ -45,13 +45,10 @@ default = [
     "avformat",
     "swresample",
     "swscale",
-    "non-exhaustive-enums",
 ]
 
 static = []
 
-# mark enums in generated bindings as #[non_exhaustive]
-non-exhaustive-enums = []
 
 # components
 avcodec = []

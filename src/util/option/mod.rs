@@ -10,32 +10,32 @@ bitflags::bitflags! {
     #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
     #[cfg_attr(feature = "serialize", derive(Serialize, Deserialize))]
     pub struct Type: c_uint {
-        const FLAGS             = AVOptionType::AV_OPT_TYPE_FLAGS.0 as c_uint;
-        const INT               = AVOptionType::AV_OPT_TYPE_INT.0 as c_uint;
-        const INT64             = AVOptionType::AV_OPT_TYPE_INT64.0 as c_uint;
-        const DOUBLE            = AVOptionType::AV_OPT_TYPE_DOUBLE.0 as c_uint;
-        const FLOAT             = AVOptionType::AV_OPT_TYPE_FLOAT.0 as c_uint;
-        const STRING            = AVOptionType::AV_OPT_TYPE_STRING.0 as c_uint;
-        const RATIONAL          = AVOptionType::AV_OPT_TYPE_RATIONAL.0 as c_uint;
+        const FLAGS             = AVOptionType::FLAGS.0 as _;
+        const INT               = AVOptionType::INT.0 as _;
+        const INT64             = AVOptionType::INT64.0 as _;
+        const DOUBLE            = AVOptionType::DOUBLE.0 as _;
+        const FLOAT             = AVOptionType::FLOAT.0 as _;
+        const STRING            = AVOptionType::STRING.0 as _;
+        const RATIONAL          = AVOptionType::RATIONAL.0 as _;
         /// `offset` must point to a pointer immediately followed by an int
         /// for the length.
-        const BINARY            = AVOptionType::AV_OPT_TYPE_BINARY.0 as c_uint;
-        const DICTIONARY        = AVOptionType::AV_OPT_TYPE_DICT.0 as c_uint;
-        const CONSTANT          = AVOptionType::AV_OPT_TYPE_CONST.0 as c_uint;
+        const BINARY            = AVOptionType::BINARY.0 as _;
+        const DICTIONARY        = AVOptionType::DICT.0 as _;
+        const CONSTANT          = AVOptionType::CONST.0 as _;
         /// `offset` must point to two consecutive ints
-        const IMAGE_SIZE        = AVOptionType::AV_OPT_TYPE_IMAGE_SIZE.0 as c_uint;
-        const PIXEL_FORMAT      = AVOptionType::AV_OPT_TYPE_PIXEL_FMT.0 as c_uint;
-        const SAMPLE_FORMAT     = AVOptionType::AV_OPT_TYPE_SAMPLE_FMT.0 as c_uint;
+        const IMAGE_SIZE        = AVOptionType::IMAGE_SIZE.0 as _;
+        const PIXEL_FORMAT      = AVOptionType::PIXEL_FMT.0 as _;
+        const SAMPLE_FORMAT     = AVOptionType::SAMPLE_FMT.0 as _;
         /// `offset` must point to AVRational
-        const VIDEO_RATE        = AVOptionType::AV_OPT_TYPE_VIDEO_RATE.0 as c_uint;
-        const DURATION          = AVOptionType::AV_OPT_TYPE_DURATION.0 as c_uint;
-        const COLOR             = AVOptionType::AV_OPT_TYPE_COLOR.0 as c_uint;
+        const VIDEO_RATE        = AVOptionType::VIDEO_RATE.0 as _;
+        const DURATION          = AVOptionType::DURATION.0 as _;
+        const COLOR             = AVOptionType::COLOR.0 as _;
         #[cfg(not(feature = "ffmpeg_7_0"))]
-        const CHANNEL_LAYOUT    = AVOptionType::AV_OPT_TYPE_CHANNEL_LAYOUT.0 as c_uint;
+        const CHANNEL_LAYOUT    = AVOptionType::CHANNEL_LAYOUT.0 as _;
         #[cfg(feature = "ffmpeg_5_1")]
-        const CHLAYOUT          = AVOptionType::AV_OPT_TYPE_CHLAYOUT.0 as c_uint;
-        const C_ULONG           = AVOptionType::AV_OPT_TYPE_UINT64.0 as c_uint;
-        const BOOL              = AVOptionType::AV_OPT_TYPE_BOOL.0 as c_uint;
+        const CHLAYOUT          = AVOptionType::CHLAYOUT.0 as _;
+        const C_ULONG           = AVOptionType::UINT64.0 as _;
+        const BOOL              = AVOptionType::BOOL.0 as _;
 
         /// May be combined with another regular option type to declare an
         /// array option.
@@ -45,7 +45,7 @@ bitflags::bitflags! {
         /// followed by an unsigned int that will store the number of elements
         /// in the array.
         #[cfg(feature = "ffmpeg_7_0")]
-        const FLAG_ARRAY        = AVOptionType::AV_OPT_TYPE_FLAG_ARRAY.0 as c_uint;
+        const FLAG_ARRAY        = AVOptionType::FLAG_ARRAY.0 as _;
     }
 }
 
