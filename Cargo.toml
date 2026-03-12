@@ -6,7 +6,7 @@ edition = "2021"
 authors = ["meh. <meh@schizofreni.co>", "Zhiming Wang <i@zhimingwang.org>"]
 license = "WTFPL"
 
-description = "Safe FFmpeg wrapper (FFmpeg 4 compatible fork of the ffmpeg crate)"
+description = "Safe FFmpeg wrapper (FFmpeg 5+ compatible fork of the ffmpeg crate)"
 documentation = "https://docs.rs/ffmpeg-the-third"
 homepage = "https://github.com/shssoichiro/ffmpeg-the-third"
 repository = "https://github.com/shssoichiro/ffmpeg-the-third"
