@@ -180,4 +180,20 @@ mod tests {
             "Resource temporarily unavailable"
         )
     }
+
+    #[test]
+    fn test_error_fmt() {
+        use std::fmt::Write;
+
+        let mut s = String::new();
+        write!(&mut s, "{}", Error::InvalidData).expect("can write into string");
+        assert_eq!(s, "Invalid data found when processing input");
+
+        s.clear();
+
+        write!(&mut s, "{}", Error::from(AVERROR(EAGAIN))).expect("can write into string");
+        if cfg!(any(target_os = "linux", target_os = "macos")) {
+            assert_eq!(s, "Resource temporarily unavailable");
+        }
+    }
 }
