@@ -61,13 +61,13 @@ impl Library {
 }
 
 static LIBRARIES: &[Library] = &[
-    Library::required("avutil", AVUTIL_FEATURES, AVUTIL_HEADERS, 50),
-    Library::optional("avcodec", AVCODEC_FEATURES, AVCODEC_HEADERS, 50),
-    Library::optional("avformat", AVFORMAT_FEATURES, AVFORMAT_HEADERS, 50),
-    Library::optional("avdevice", AVDEVICE_FEATURES, AVDEVICE_HEADERS, 50),
-    Library::optional("avfilter", AVFILTER_FEATURES, AVFILTER_HEADERS, 0),
-    Library::optional("swscale", SWSCALE_FEATURES, SWSCALE_HEADERS, 0),
-    Library::optional("swresample", SWRESAMPLE_FEATURES, SWRESAMPLE_HEADERS, 0),
+    Library::required("avutil", AVUTIL_FEATURES, AVUTIL_HEADERS, 57),
+    Library::optional("avcodec", AVCODEC_FEATURES, AVCODEC_HEADERS, 59),
+    Library::optional("avformat", AVFORMAT_FEATURES, AVFORMAT_HEADERS, 59),
+    Library::optional("avdevice", AVDEVICE_FEATURES, AVDEVICE_HEADERS, 59),
+    Library::optional("avfilter", AVFILTER_FEATURES, AVFILTER_HEADERS, 8),
+    Library::optional("swscale", SWSCALE_FEATURES, SWSCALE_HEADERS, 6),
+    Library::optional("swresample", SWRESAMPLE_FEATURES, SWRESAMPLE_HEADERS, 4),
 ];
 
 #[derive(Debug)]
@@ -82,11 +82,6 @@ impl AVFeature {
 }
 
 static AVUTIL_FEATURES: &[AVFeature] = &[
-    // before 5.0 (< v57)
-    AVFeature::new("VAAPI"),
-    AVFeature::new("PKT_PTS"),
-    AVFeature::new("ERROR_FRAME"),
-    AVFeature::new("FRAME_QP"),
     // before 6.0 (< v58)
     AVFeature::new("D2STR"),
     AVFeature::new("DECLARE_ALIGNED"),
@@ -118,17 +113,6 @@ static AVUTIL_FEATURES: &[AVFeature] = &[
 ];
 
 static AVCODEC_FEATURES: &[AVFeature] = &[
-    // before 5.0 (< v59)
-    AVFeature::new("LOWRES"),
-    AVFeature::new("CODED_FRAME"),
-    AVFeature::new("CONVERGENCE_DURATION"),
-    AVFeature::new("PRIVATE_OPT"),
-    AVFeature::new("CODER_TYPE"),
-    AVFeature::new("RTP_CALLBACK"),
-    AVFeature::new("STAT_BITS"),
-    AVFeature::new("VBV_DELAY"),
-    AVFeature::new("SIDEDATA_ONLY_PKT"),
-    AVFeature::new("AVPICTURE"),
     // before 6.0 (< v60)
     AVFeature::new("OPENH264_SLICE_MODE"),
     AVFeature::new("OPENH264_CABAC"),
@@ -171,9 +155,6 @@ static AVCODEC_FEATURES: &[AVFeature] = &[
 ];
 
 static AVFORMAT_FEATURES: &[AVFeature] = &[
-    // before 5.0 (< v59)
-    AVFeature::new("LAVF_AVCTX"),
-    AVFeature::new("OLD_OPEN_CALLBACKS"),
     // before 6.0 (< v60)
     AVFeature::new("LAVF_PRIV_OPT"),
     AVFeature::new("AVIOCONTEXT_WRITTEN"),
@@ -210,8 +191,6 @@ static AVDEVICE_FEATURES: &[AVFeature] = &[
 ];
 
 static AVFILTER_FEATURES: &[AVFeature] = &[
-    // before 5.0 (< v8)
-    AVFeature::new("OLD_FILTER_OPTS_ERROR"),
     // before 6.0 (< v9)
     AVFeature::new("SWS_PARAM_OPTION"),
     AVFeature::new("BUFFERSINK_ALLOC"),
@@ -798,10 +777,6 @@ fn check_features(include_paths: &[PathBuf]) -> u64 {
     }
 
     let ffmpeg_lavc_versions = [
-        ("ffmpeg_4_3", 58, 91),
-        ("ffmpeg_4_4", 58, 100),
-        ("ffmpeg_5_0", 59, 18),
-        ("ffmpeg_5_1", 59, 37),
         ("ffmpeg_6_0", 60, 3),
         ("ffmpeg_6_1", 60, 31),
         ("ffmpeg_7_0", 61, 3),
@@ -815,8 +790,8 @@ fn check_features(include_paths: &[PathBuf]) -> u64 {
 
     // This allows removing a lot of #[cfg] attributes.
     assert!(
-        lavc_version >= (58, 54),
-        "FFmpeg 4.2 or higher is required, but found avcodec version {lavc_version:?}"
+        lavc_version >= (59, 37),
+        "FFmpeg 5.1 or higher is required, but found avcodec version {lavc_version:?}"
     );
 
     for &(ffmpeg_version_flag, lavc_version_major, lavc_version_minor) in &ffmpeg_lavc_versions {

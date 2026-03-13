@@ -10,13 +10,7 @@ impl Iterator for AudioIter {
 
     fn next(&mut self) -> Option<<Self as Iterator>::Item> {
         unsafe {
-            let inner = self.0;
-
-            // Pre-5.0 FFmpeg uses a non-const pointer here
-            #[cfg(not(feature = "ffmpeg_5_0"))]
-            let inner = inner as *mut _;
-
-            let ptr = av_output_audio_device_next(inner);
+            let ptr = av_output_audio_device_next(self.0);
 
             if let Some(output) = format::Output::from_raw(ptr) {
                 self.0 = ptr;
@@ -39,13 +33,7 @@ impl Iterator for VideoIter {
 
     fn next(&mut self) -> Option<<Self as Iterator>::Item> {
         unsafe {
-            let inner = self.0;
-
-            // Pre-5.0 FFmpeg uses a non-const pointer here
-            #[cfg(not(feature = "ffmpeg_5_0"))]
-            let inner = inner as *mut _;
-
-            let ptr = av_output_video_device_next(inner);
+            let ptr = av_output_video_device_next(self.0);
 
             if let Some(output) = format::Output::from_raw(ptr) {
                 self.0 = ptr;

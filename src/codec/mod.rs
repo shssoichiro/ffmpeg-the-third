@@ -8,9 +8,6 @@ pub mod packet;
 
 pub mod subtitle;
 
-#[cfg(not(feature = "ffmpeg_5_0"))]
-pub mod picture;
-
 pub mod descriptor;
 pub use self::descriptor::CodecDescriptor;
 

@@ -14,8 +14,6 @@ pub enum Id {
     // video codecs
     MPEG1VIDEO,
     MPEG2VIDEO,
-    #[cfg(all(feature = "ff_api_xvmc", not(feature = "ffmpeg_5_0")))]
-    MPEG2VIDEO_XVMC,
     H261,
     H263,
     RV10,
@@ -505,92 +503,50 @@ pub enum Id {
     HCOM,
     ARIB_CAPTION,
 
-    #[cfg(feature = "ffmpeg_4_3")]
     IMM5,
-    #[cfg(feature = "ffmpeg_4_3")]
     MVDV,
-    #[cfg(feature = "ffmpeg_4_3")]
     MVHA,
-    #[cfg(feature = "ffmpeg_4_3")]
     CDTOONS,
-    #[cfg(feature = "ffmpeg_4_3")]
     MV30,
-    #[cfg(feature = "ffmpeg_4_3")]
     NOTCHLC,
-    #[cfg(feature = "ffmpeg_4_3")]
     PFM,
-    #[cfg(feature = "ffmpeg_4_3")]
     ADPCM_ARGO,
-    #[cfg(feature = "ffmpeg_4_3")]
     ADPCM_IMA_SSI,
-    #[cfg(feature = "ffmpeg_4_3")]
     ADPCM_ZORK,
-    #[cfg(feature = "ffmpeg_4_3")]
     ADPCM_IMA_APM,
-    #[cfg(feature = "ffmpeg_4_3")]
     ADPCM_IMA_ALP,
-    #[cfg(feature = "ffmpeg_4_3")]
     ADPCM_IMA_MTF,
-    #[cfg(feature = "ffmpeg_4_3")]
     ADPCM_IMA_CUNNING,
-    #[cfg(feature = "ffmpeg_4_3")]
     DERF_DPCM,
-    #[cfg(feature = "ffmpeg_4_3")]
     ACELP_KELVIN,
-    #[cfg(feature = "ffmpeg_4_3")]
     MPEGH_3D_AUDIO,
-    #[cfg(feature = "ffmpeg_4_3")]
     SIREN,
-    #[cfg(feature = "ffmpeg_4_3")]
     HCA,
-    #[cfg(feature = "ffmpeg_4_3")]
     EPG,
 
-    #[cfg(feature = "ffmpeg_4_4")]
     AVS3,
-    #[cfg(feature = "ffmpeg_4_4")]
     PGX,
-    #[cfg(feature = "ffmpeg_4_4")]
     MSP2,
-    #[cfg(feature = "ffmpeg_4_4")]
     VVC,
-    #[cfg(feature = "ffmpeg_4_4")]
     MOBICLIP,
-    #[cfg(feature = "ffmpeg_4_4")]
     PHOTOCD,
-    #[cfg(feature = "ffmpeg_4_4")]
     ARGO,
-    #[cfg(feature = "ffmpeg_4_4")]
     CRI,
-    #[cfg(feature = "ffmpeg_4_4")]
     IPU,
-    #[cfg(feature = "ffmpeg_4_4")]
     SIMBIOSIS_IMX,
-    #[cfg(feature = "ffmpeg_4_4")]
     SGA_VIDEO,
-    #[cfg(feature = "ffmpeg_4_4")]
     PCM_SGA,
-    #[cfg(feature = "ffmpeg_4_4")]
     ADPCM_IMA_MOFLEX,
-    #[cfg(feature = "ffmpeg_4_4")]
     FASTAUDIO,
 
-    #[cfg(feature = "ffmpeg_5_0")]
     GEM,
-    #[cfg(feature = "ffmpeg_5_0")]
     ADPCM_IMA_ACORN,
-    #[cfg(feature = "ffmpeg_5_0")]
     MSNSIREN,
 
-    #[cfg(feature = "ffmpeg_5_1")]
     VBN,
-    #[cfg(feature = "ffmpeg_5_1")]
     JPEGXL,
-    #[cfg(feature = "ffmpeg_5_1")]
     QOI,
-    #[cfg(feature = "ffmpeg_5_1")]
     PHM,
-    #[cfg(feature = "ffmpeg_5_1")]
     DFPWM,
 
     #[cfg(feature = "ffmpeg_6_0")]
@@ -687,8 +643,6 @@ impl From<AVCodecID> for Id {
             /* video codecs */
             AV_CODEC_ID_MPEG1VIDEO => Id::MPEG1VIDEO,
             AV_CODEC_ID_MPEG2VIDEO => Id::MPEG2VIDEO,
-            #[cfg(all(feature = "ff_api_xvmc", not(feature = "ffmpeg_5_0")))]
-            AV_CODEC_ID_MPEG2VIDEO_XVMC => Id::MPEG2VIDEO_XVMC,
             AV_CODEC_ID_H261 => Id::H261,
             AV_CODEC_ID_H263 => Id::H263,
             AV_CODEC_ID_RV10 => Id::RV10,
@@ -1175,92 +1129,50 @@ impl From<AVCodecID> for Id {
             AV_CODEC_ID_HCOM => Id::HCOM,
             AV_CODEC_ID_ARIB_CAPTION => Id::ARIB_CAPTION,
 
-            #[cfg(feature = "ffmpeg_4_3")]
             AV_CODEC_ID_IMM5 => Id::IMM5,
-            #[cfg(feature = "ffmpeg_4_3")]
             AV_CODEC_ID_MVDV => Id::MVDV,
-            #[cfg(feature = "ffmpeg_4_3")]
             AV_CODEC_ID_MVHA => Id::MVHA,
-            #[cfg(feature = "ffmpeg_4_3")]
             AV_CODEC_ID_CDTOONS => Id::CDTOONS,
-            #[cfg(feature = "ffmpeg_4_3")]
             AV_CODEC_ID_MV30 => Id::MV30,
-            #[cfg(feature = "ffmpeg_4_3")]
             AV_CODEC_ID_NOTCHLC => Id::NOTCHLC,
-            #[cfg(feature = "ffmpeg_4_3")]
             AV_CODEC_ID_PFM => Id::PFM,
-            #[cfg(feature = "ffmpeg_4_3")]
             AV_CODEC_ID_ADPCM_ARGO => Id::ADPCM_ARGO,
-            #[cfg(feature = "ffmpeg_4_3")]
             AV_CODEC_ID_ADPCM_IMA_SSI => Id::ADPCM_IMA_SSI,
-            #[cfg(feature = "ffmpeg_4_3")]
             AV_CODEC_ID_ADPCM_ZORK => Id::ADPCM_ZORK,
-            #[cfg(feature = "ffmpeg_4_3")]
             AV_CODEC_ID_ADPCM_IMA_APM => Id::ADPCM_IMA_APM,
-            #[cfg(feature = "ffmpeg_4_3")]
             AV_CODEC_ID_ADPCM_IMA_ALP => Id::ADPCM_IMA_ALP,
-            #[cfg(feature = "ffmpeg_4_3")]
             AV_CODEC_ID_ADPCM_IMA_MTF => Id::ADPCM_IMA_MTF,
-            #[cfg(feature = "ffmpeg_4_3")]
             AV_CODEC_ID_ADPCM_IMA_CUNNING => Id::ADPCM_IMA_CUNNING,
-            #[cfg(feature = "ffmpeg_4_3")]
             AV_CODEC_ID_DERF_DPCM => Id::DERF_DPCM,
-            #[cfg(feature = "ffmpeg_4_3")]
             AV_CODEC_ID_ACELP_KELVIN => Id::ACELP_KELVIN,
-            #[cfg(feature = "ffmpeg_4_3")]
             AV_CODEC_ID_MPEGH_3D_AUDIO => Id::MPEGH_3D_AUDIO,
-            #[cfg(feature = "ffmpeg_4_3")]
             AV_CODEC_ID_SIREN => Id::SIREN,
-            #[cfg(feature = "ffmpeg_4_3")]
             AV_CODEC_ID_HCA => Id::HCA,
-            #[cfg(feature = "ffmpeg_4_3")]
             AV_CODEC_ID_EPG => Id::EPG,
 
-            #[cfg(feature = "ffmpeg_4_4")]
             AV_CODEC_ID_PGX => Id::PGX,
-            #[cfg(feature = "ffmpeg_4_4")]
             AV_CODEC_ID_AVS3 => Id::AVS3,
-            #[cfg(feature = "ffmpeg_4_4")]
             AV_CODEC_ID_MSP2 => Id::MSP2,
-            #[cfg(feature = "ffmpeg_4_4")]
             AV_CODEC_ID_VVC => Id::VVC,
-            #[cfg(feature = "ffmpeg_4_4")]
             AV_CODEC_ID_MOBICLIP => Id::MOBICLIP,
-            #[cfg(feature = "ffmpeg_4_4")]
             AV_CODEC_ID_PHOTOCD => Id::PHOTOCD,
-            #[cfg(feature = "ffmpeg_4_4")]
             AV_CODEC_ID_IPU => Id::IPU,
-            #[cfg(feature = "ffmpeg_4_4")]
             AV_CODEC_ID_ARGO => Id::ARGO,
-            #[cfg(feature = "ffmpeg_4_4")]
             AV_CODEC_ID_CRI => Id::CRI,
-            #[cfg(feature = "ffmpeg_4_4")]
             AV_CODEC_ID_SIMBIOSIS_IMX => Id::SIMBIOSIS_IMX,
-            #[cfg(feature = "ffmpeg_4_4")]
             AV_CODEC_ID_SGA_VIDEO => Id::SGA_VIDEO,
-            #[cfg(feature = "ffmpeg_4_4")]
             AV_CODEC_ID_PCM_SGA => Id::PCM_SGA,
-            #[cfg(feature = "ffmpeg_4_4")]
             AV_CODEC_ID_ADPCM_IMA_MOFLEX => Id::ADPCM_IMA_MOFLEX,
-            #[cfg(feature = "ffmpeg_4_4")]
             AV_CODEC_ID_FASTAUDIO => Id::FASTAUDIO,
 
-            #[cfg(feature = "ffmpeg_5_0")]
             AV_CODEC_ID_GEM => Id::GEM,
-            #[cfg(feature = "ffmpeg_5_0")]
             AV_CODEC_ID_ADPCM_IMA_ACORN => Id::ADPCM_IMA_ACORN,
-            #[cfg(feature = "ffmpeg_5_0")]
             AV_CODEC_ID_MSNSIREN => Id::MSNSIREN,
 
-            #[cfg(feature = "ffmpeg_5_1")]
             AV_CODEC_ID_VBN => Id::VBN,
-            #[cfg(feature = "ffmpeg_5_1")]
             AV_CODEC_ID_JPEGXL => Id::JPEGXL,
-            #[cfg(feature = "ffmpeg_5_1")]
             AV_CODEC_ID_QOI => Id::QOI,
-            #[cfg(feature = "ffmpeg_5_1")]
             AV_CODEC_ID_PHM => Id::PHM,
-            #[cfg(feature = "ffmpeg_5_1")]
             AV_CODEC_ID_DFPWM => Id::DFPWM,
 
             #[cfg(feature = "ffmpeg_6_0")]
@@ -1352,8 +1264,6 @@ impl From<Id> for AVCodecID {
             /* video codecs */
             Id::MPEG1VIDEO => AV_CODEC_ID_MPEG1VIDEO,
             Id::MPEG2VIDEO => AV_CODEC_ID_MPEG2VIDEO,
-            #[cfg(all(feature = "ff_api_xvmc", not(feature = "ffmpeg_5_0")))]
-            Id::MPEG2VIDEO_XVMC => AV_CODEC_ID_MPEG2VIDEO_XVMC,
             Id::H261 => AV_CODEC_ID_H261,
             Id::H263 => AV_CODEC_ID_H263,
             Id::RV10 => AV_CODEC_ID_RV10,
@@ -1843,92 +1753,50 @@ impl From<Id> for AVCodecID {
             Id::HCOM => AV_CODEC_ID_HCOM,
             Id::ARIB_CAPTION => AV_CODEC_ID_ARIB_CAPTION,
 
-            #[cfg(feature = "ffmpeg_4_3")]
             Id::IMM5 => AV_CODEC_ID_IMM5,
-            #[cfg(feature = "ffmpeg_4_3")]
             Id::MVDV => AV_CODEC_ID_MVDV,
-            #[cfg(feature = "ffmpeg_4_3")]
             Id::MVHA => AV_CODEC_ID_MVHA,
-            #[cfg(feature = "ffmpeg_4_3")]
             Id::CDTOONS => AV_CODEC_ID_CDTOONS,
-            #[cfg(feature = "ffmpeg_4_3")]
             Id::MV30 => AV_CODEC_ID_MV30,
-            #[cfg(feature = "ffmpeg_4_3")]
             Id::NOTCHLC => AV_CODEC_ID_NOTCHLC,
-            #[cfg(feature = "ffmpeg_4_3")]
             Id::PFM => AV_CODEC_ID_PFM,
-            #[cfg(feature = "ffmpeg_4_3")]
             Id::ADPCM_ARGO => AV_CODEC_ID_ADPCM_ARGO,
-            #[cfg(feature = "ffmpeg_4_3")]
             Id::ADPCM_IMA_SSI => AV_CODEC_ID_ADPCM_IMA_SSI,
-            #[cfg(feature = "ffmpeg_4_3")]
             Id::ADPCM_ZORK => AV_CODEC_ID_ADPCM_ZORK,
-            #[cfg(feature = "ffmpeg_4_3")]
             Id::ADPCM_IMA_APM => AV_CODEC_ID_ADPCM_IMA_APM,
-            #[cfg(feature = "ffmpeg_4_3")]
             Id::ADPCM_IMA_ALP => AV_CODEC_ID_ADPCM_IMA_ALP,
-            #[cfg(feature = "ffmpeg_4_3")]
             Id::ADPCM_IMA_MTF => AV_CODEC_ID_ADPCM_IMA_MTF,
-            #[cfg(feature = "ffmpeg_4_3")]
             Id::ADPCM_IMA_CUNNING => AV_CODEC_ID_ADPCM_IMA_CUNNING,
-            #[cfg(feature = "ffmpeg_4_3")]
             Id::DERF_DPCM => AV_CODEC_ID_DERF_DPCM,
-            #[cfg(feature = "ffmpeg_4_3")]
             Id::ACELP_KELVIN => AV_CODEC_ID_ACELP_KELVIN,
-            #[cfg(feature = "ffmpeg_4_3")]
             Id::MPEGH_3D_AUDIO => AV_CODEC_ID_MPEGH_3D_AUDIO,
-            #[cfg(feature = "ffmpeg_4_3")]
             Id::SIREN => AV_CODEC_ID_SIREN,
-            #[cfg(feature = "ffmpeg_4_3")]
             Id::HCA => AV_CODEC_ID_HCA,
-            #[cfg(feature = "ffmpeg_4_3")]
             Id::EPG => AV_CODEC_ID_EPG,
 
-            #[cfg(feature = "ffmpeg_4_4")]
             Id::PGX => AV_CODEC_ID_PGX,
-            #[cfg(feature = "ffmpeg_4_4")]
             Id::AVS3 => AV_CODEC_ID_AVS3,
-            #[cfg(feature = "ffmpeg_4_4")]
             Id::MSP2 => AV_CODEC_ID_MSP2,
-            #[cfg(feature = "ffmpeg_4_4")]
             Id::VVC => AV_CODEC_ID_VVC,
-            #[cfg(feature = "ffmpeg_4_4")]
             Id::MOBICLIP => AV_CODEC_ID_MOBICLIP,
-            #[cfg(feature = "ffmpeg_4_4")]
             Id::PHOTOCD => AV_CODEC_ID_PHOTOCD,
-            #[cfg(feature = "ffmpeg_4_4")]
             Id::IPU => AV_CODEC_ID_IPU,
-            #[cfg(feature = "ffmpeg_4_4")]
             Id::ARGO => AV_CODEC_ID_ARGO,
-            #[cfg(feature = "ffmpeg_4_4")]
             Id::CRI => AV_CODEC_ID_CRI,
-            #[cfg(feature = "ffmpeg_4_4")]
             Id::SIMBIOSIS_IMX => AV_CODEC_ID_SIMBIOSIS_IMX,
-            #[cfg(feature = "ffmpeg_4_4")]
             Id::SGA_VIDEO => AV_CODEC_ID_SGA_VIDEO,
-            #[cfg(feature = "ffmpeg_4_4")]
             Id::PCM_SGA => AV_CODEC_ID_PCM_SGA,
-            #[cfg(feature = "ffmpeg_4_4")]
             Id::ADPCM_IMA_MOFLEX => AV_CODEC_ID_ADPCM_IMA_MOFLEX,
-            #[cfg(feature = "ffmpeg_4_4")]
             Id::FASTAUDIO => AV_CODEC_ID_FASTAUDIO,
 
-            #[cfg(feature = "ffmpeg_5_0")]
             Id::GEM => AV_CODEC_ID_GEM,
-            #[cfg(feature = "ffmpeg_5_0")]
             Id::ADPCM_IMA_ACORN => AV_CODEC_ID_ADPCM_IMA_ACORN,
-            #[cfg(feature = "ffmpeg_5_0")]
             Id::MSNSIREN => AV_CODEC_ID_MSNSIREN,
 
-            #[cfg(feature = "ffmpeg_5_1")]
             Id::VBN => AV_CODEC_ID_VBN,
-            #[cfg(feature = "ffmpeg_5_1")]
             Id::JPEGXL => AV_CODEC_ID_JPEGXL,
-            #[cfg(feature = "ffmpeg_5_1")]
             Id::QOI => AV_CODEC_ID_QOI,
-            #[cfg(feature = "ffmpeg_5_1")]
             Id::PHM => AV_CODEC_ID_PHM,
-            #[cfg(feature = "ffmpeg_5_1")]
             Id::DFPWM => AV_CODEC_ID_DFPWM,
 
             #[cfg(feature = "ffmpeg_6_0")]

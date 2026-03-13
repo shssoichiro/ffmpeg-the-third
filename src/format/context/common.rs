@@ -7,9 +7,6 @@ use crate::ffi::*;
 use crate::{media, Chapter, ChapterMut, DictionaryRef, Stream, StreamMut};
 use libc::{c_int, c_uint};
 
-#[cfg(not(feature = "ffmpeg_5_0"))]
-type DtorHolder = std::sync::Arc<Destructor>;
-#[cfg(feature = "ffmpeg_5_0")]
 type DtorHolder = Destructor;
 
 pub struct Context {
@@ -35,20 +32,6 @@ impl Context {
         self.ptr
     }
 
-    #[cfg(not(feature = "ffmpeg_5_0"))]
-    pub unsafe fn destructor(&self) -> std::sync::Arc<Destructor> {
-        self._dtor.clone()
-    }
-
-    #[cfg(not(feature = "ffmpeg_5_0"))]
-    unsafe fn new_destructor_holder(
-        ptr: *mut AVFormatContext,
-        mode: destructor::Mode,
-    ) -> DtorHolder {
-        std::sync::Arc::new(Destructor::new(ptr, mode))
-    }
-
-    #[cfg(feature = "ffmpeg_5_0")]
     unsafe fn new_destructor_holder(
         ptr: *mut AVFormatContext,
         mode: destructor::Mode,

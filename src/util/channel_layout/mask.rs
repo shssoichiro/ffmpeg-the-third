@@ -49,7 +49,6 @@ bitflags::bitflags! {
         const _6POINT0            = AV_CH_LAYOUT_6POINT0;
         const _6POINT0_FRONT      = AV_CH_LAYOUT_6POINT0_FRONT;
         const HEXAGONAL           = AV_CH_LAYOUT_HEXAGONAL;
-        #[cfg(feature = "ffmpeg_5_1")]
         const _3POINT1POINT2      = AV_CH_LAYOUT_3POINT1POINT2;
         const _6POINT1            = AV_CH_LAYOUT_6POINT1;
         const _6POINT1_BACK       = AV_CH_LAYOUT_6POINT1_BACK;
@@ -59,16 +58,11 @@ bitflags::bitflags! {
         const _7POINT1            = AV_CH_LAYOUT_7POINT1;
         const _7POINT1_WIDE       = AV_CH_LAYOUT_7POINT1_WIDE;
         const _7POINT1_WIDE_BACK  = AV_CH_LAYOUT_7POINT1_WIDE_BACK;
-        #[cfg(feature = "ffmpeg_5_1")]
         const _5POINT1POINT2_BACK = AV_CH_LAYOUT_5POINT1POINT2_BACK;
         const OCTAGONAL           = AV_CH_LAYOUT_OCTAGONAL;
-        #[cfg(feature = "ffmpeg_5_1")]
         const CUBE                = AV_CH_LAYOUT_CUBE;
-        #[cfg(feature = "ffmpeg_5_1")]
         const _5POINT1POINT4_BACK = AV_CH_LAYOUT_5POINT1POINT4_BACK;
-        #[cfg(feature = "ffmpeg_5_1")]
         const _7POINT1POINT2      = AV_CH_LAYOUT_7POINT1POINT2;
-        #[cfg(feature = "ffmpeg_5_1")]
         const _7POINT1POINT4_BACK = AV_CH_LAYOUT_7POINT1POINT4_BACK;
         #[cfg(feature = "ffmpeg_7_0")]
         const _7POINT2POINT3      = AV_CH_LAYOUT_7POINT2POINT3;
@@ -76,7 +70,6 @@ bitflags::bitflags! {
         const _9POINT1POINT4_BACK = AV_CH_LAYOUT_9POINT1POINT4_BACK;
         const HEXADECAGONAL       = AV_CH_LAYOUT_HEXADECAGONAL;
         const STEREO_DOWNMIX      = AV_CH_LAYOUT_STEREO_DOWNMIX;
-        #[cfg(feature = "ffmpeg_5_1")]
         const _22POINT2           = AV_CH_LAYOUT_22POINT2;
     }
 }

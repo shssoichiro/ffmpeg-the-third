@@ -14,10 +14,7 @@ fn filter(
 ) -> Result<filter::Graph, ffmpeg::Error> {
     let mut filter = filter::Graph::new();
 
-    #[cfg(feature = "ffmpeg_5_1")]
     let channel_layout = decoder.ch_layout().description();
-    #[cfg(not(feature = "ffmpeg_5_1"))]
-    let channel_layout = format!("0x{:x}", decoder.channel_layout().bits());
 
     let args = format!(
         "time_base={}:sample_rate={}:sample_fmt={}:channel_layout={channel_layout}",
@@ -33,9 +30,6 @@ fn filter(
         let mut out = filter.get("out").unwrap();
 
         out.set_sample_format(encoder.format());
-        #[cfg(not(feature = "ffmpeg_5_1"))]
-        out.set_channel_layout(encoder.channel_layout());
-        #[cfg(feature = "ffmpeg_5_1")]
         out.set_ch_layout(encoder.ch_layout());
         out.set_sample_rate(encoder.rate());
     }
@@ -101,26 +95,12 @@ fn transcoder<P: AsRef<Path> + ?Sized>(
         encoder.set_flags(ffmpeg::codec::flag::Flags::GLOBAL_HEADER);
     }
 
-    #[cfg(feature = "ffmpeg_5_1")]
-    {
-        let ch_layout = codec
-            .ch_layouts()
-            .map(|cls| cls.best(decoder.ch_layout().channels()))
-            .unwrap_or(ffmpeg::channel_layout::ChannelLayout::STEREO);
+    let ch_layout = codec
+        .ch_layouts()
+        .map(|cls| cls.best(decoder.ch_layout().channels()))
+        .unwrap_or(ffmpeg::channel_layout::ChannelLayout::STEREO);
 
-        encoder.set_ch_layout(ch_layout);
-    }
-
-    #[cfg(not(feature = "ffmpeg_5_1"))]
-    {
-        let channel_layout = codec
-            .channel_layouts()
-            .map(|cls| cls.best(decoder.channel_layout().channels()))
-            .unwrap_or(ffmpeg::channel_layout::ChannelLayoutMask::STEREO);
-        encoder.set_channel_layout(channel_layout);
-        encoder.set_channels(channel_layout.channels());
-    }
-
+    encoder.set_ch_layout(ch_layout);
     encoder.set_rate(decoder.rate() as i32);
     encoder.set_format(
         codec

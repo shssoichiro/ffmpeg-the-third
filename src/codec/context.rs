@@ -10,9 +10,6 @@ use crate::{AsMutPtr, AsPtr};
 use crate::{Codec, Error};
 use libc::c_int;
 
-#[cfg(not(feature = "ffmpeg_5_0"))]
-type OwnerHolder = std::sync::Arc<dyn std::any::Any>;
-#[cfg(feature = "ffmpeg_5_0")]
 type OwnerHolder = ();
 
 pub struct Context {
@@ -151,23 +148,6 @@ impl Drop for Context {
             if self.owner.is_none() {
                 avcodec_free_context(&mut self.ptr);
             }
-        }
-    }
-}
-
-#[cfg(not(feature = "ffmpeg_5_0"))]
-impl Clone for Context {
-    fn clone(&self) -> Self {
-        let mut ctx = Context::new();
-        ctx.clone_from(self);
-
-        ctx
-    }
-
-    fn clone_from(&mut self, source: &Self) {
-        unsafe {
-            // Removed in ffmpeg >= 5.0.
-            avcodec_copy_context(self.as_mut_ptr(), source.as_ptr());
         }
     }
 }

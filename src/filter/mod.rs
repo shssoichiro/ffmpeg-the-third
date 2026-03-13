@@ -17,25 +17,6 @@ use std::ffi::CString;
 
 use crate::ffi::*;
 use crate::utils;
-#[cfg(not(feature = "ffmpeg_5_0"))]
-use crate::Error;
-
-#[cfg(not(feature = "ffmpeg_5_0"))]
-pub fn register_all() {
-    unsafe {
-        avfilter_register_all();
-    }
-}
-
-#[cfg(not(feature = "ffmpeg_5_0"))]
-pub fn register(filter: &Filter) -> Result<(), Error> {
-    unsafe {
-        match avfilter_register(filter.as_ptr() as *mut _) {
-            0 => Ok(()),
-            _ => Err(Error::InvalidData),
-        }
-    }
-}
 
 pub fn version() -> u32 {
     unsafe { avfilter_version() }
@@ -68,8 +49,6 @@ mod tests {
 
     #[test]
     fn test_paditer() {
-        #[cfg(not(feature = "ffmpeg_5_0"))]
-        register_all();
         assert_eq!(
             find("overlay")
                 .unwrap()

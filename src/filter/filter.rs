@@ -1,4 +1,3 @@
-#[cfg(feature = "ffmpeg_5_0")]
 use libc::c_int;
 use std::marker::PhantomData;
 
@@ -40,10 +39,7 @@ impl Filter {
             if ptr.is_null() {
                 None
             } else {
-                #[cfg(feature = "ffmpeg_5_0")]
                 let count = avfilter_filter_pad_count(self.as_ptr(), c_int::from(false)) as isize;
-                #[cfg(not(feature = "ffmpeg_5_0"))]
-                let count = avfilter_pad_count(ptr) as isize;
 
                 Some(PadIter::new(ptr, count))
             }
@@ -57,10 +53,7 @@ impl Filter {
             if ptr.is_null() {
                 None
             } else {
-                #[cfg(feature = "ffmpeg_5_0")]
                 let count = avfilter_filter_pad_count(self.as_ptr(), c_int::from(true)) as isize;
-                #[cfg(not(feature = "ffmpeg_5_0"))]
-                let count = avfilter_pad_count(ptr) as isize;
 
                 Some(PadIter::new(ptr, count))
             }

@@ -29,10 +29,6 @@ pub enum Pixel {
     YUVJ420P,
     YUVJ422P,
     YUVJ444P,
-    #[cfg(all(feature = "ff_api_xvmc", not(feature = "ffmpeg_5_0")))]
-    XVMC_MPEG2_MC,
-    #[cfg(all(feature = "ff_api_xvmc", not(feature = "ffmpeg_5_0")))]
-    XVMC_MPEG2_IDCT,
     UYVY422,
     UYYVYY411,
     BGR8,
@@ -67,13 +63,6 @@ pub enum Pixel {
     BGR555BE,
     BGR555LE,
 
-    #[cfg(all(feature = "ff_api_vaapi", not(feature = "ffmpeg_5_0")))]
-    VAAPI_MOCO,
-    #[cfg(all(feature = "ff_api_vaapi", not(feature = "ffmpeg_5_0")))]
-    VAAPI_IDCT,
-    #[cfg(all(feature = "ff_api_vaapi", not(feature = "ffmpeg_5_0")))]
-    VAAPI_VLD,
-    #[cfg(any(not(feature = "ff_api_vaapi"), feature = "ffmpeg_5_0"))]
     VAAPI,
 
     YUV420P16LE,
@@ -311,37 +300,22 @@ pub enum Pixel {
     NV24,
     NV42,
 
-    #[cfg(feature = "ffmpeg_4_3")]
     VULKAN,
-    #[cfg(feature = "ffmpeg_4_3")]
     Y210BE,
-    #[cfg(feature = "ffmpeg_4_3")]
     Y210LE,
 
-    #[cfg(feature = "ffmpeg_4_4")]
     X2RGB10LE,
-    #[cfg(feature = "ffmpeg_4_4")]
     X2RGB10BE,
 
-    #[cfg(feature = "ffmpeg_5_0")]
     X2BGR10LE,
-    #[cfg(feature = "ffmpeg_5_0")]
     X2BGR10BE,
-    #[cfg(feature = "ffmpeg_5_0")]
     P210BE,
-    #[cfg(feature = "ffmpeg_5_0")]
     P210LE,
-    #[cfg(feature = "ffmpeg_5_0")]
     P410BE,
-    #[cfg(feature = "ffmpeg_5_0")]
     P410LE,
-    #[cfg(feature = "ffmpeg_5_0")]
     P216BE,
-    #[cfg(feature = "ffmpeg_5_0")]
     P216LE,
-    #[cfg(feature = "ffmpeg_5_0")]
     P416BE,
-    #[cfg(feature = "ffmpeg_5_0")]
     P416LE,
 
     #[cfg(feature = "ffmpeg_6_0")]
@@ -515,8 +489,6 @@ impl Pixel {
     pub const Y400A: Pixel = Pixel::YA8;
     pub const GRAY8A: Pixel = Pixel::YA8;
     pub const GBR24P: Pixel = Pixel::GBRP;
-    #[cfg(all(feature = "ff_api_xvmc", not(feature = "ffmpeg_5_0")))]
-    pub const XVMC: Pixel = Pixel::XVMC_MPEG2_IDCT;
 
     pub fn descriptor(self) -> Option<Descriptor> {
         unsafe {
@@ -572,10 +544,6 @@ impl From<AVPixelFormat> for Pixel {
             AV_PIX_FMT_YUVJ444P => Pixel::YUVJ444P,
             #[cfg(not(feature = "ffmpeg_7_0"))]
             AV_PIX_FMT_XVMC => Pixel::XVMC,
-            #[cfg(all(feature = "ff_api_xvmc", not(feature = "ffmpeg_5_0")))]
-            AV_PIX_FMT_XVMC_MPEG2_MC => Pixel::XVMC_MPEG2_MC,
-            #[cfg(all(feature = "ff_api_xvmc", not(feature = "ffmpeg_5_0")))]
-            AV_PIX_FMT_XVMC_MPEG2_IDCT => Pixel::XVMC_MPEG2_IDCT,
             AV_PIX_FMT_UYVY422 => Pixel::UYVY422,
             AV_PIX_FMT_UYYVYY411 => Pixel::UYYVYY411,
             AV_PIX_FMT_BGR8 => Pixel::BGR8,
@@ -610,13 +578,6 @@ impl From<AVPixelFormat> for Pixel {
             AV_PIX_FMT_BGR555BE => Pixel::BGR555BE,
             AV_PIX_FMT_BGR555LE => Pixel::BGR555LE,
 
-            #[cfg(all(feature = "ff_api_vaapi", not(feature = "ffmpeg_5_0")))]
-            AV_PIX_FMT_VAAPI_MOCO => Pixel::VAAPI_MOCO,
-            #[cfg(all(feature = "ff_api_vaapi", not(feature = "ffmpeg_5_0")))]
-            AV_PIX_FMT_VAAPI_IDCT => Pixel::VAAPI_IDCT,
-            #[cfg(all(feature = "ff_api_vaapi", not(feature = "ffmpeg_5_0")))]
-            AV_PIX_FMT_VAAPI_VLD => Pixel::VAAPI_VLD,
-            #[cfg(any(not(feature = "ff_api_vaapi"), feature = "ffmpeg_5_0"))]
             AV_PIX_FMT_VAAPI => Pixel::VAAPI,
 
             AV_PIX_FMT_YUV420P16LE => Pixel::YUV420P16LE,
@@ -790,37 +751,22 @@ impl From<AVPixelFormat> for Pixel {
             AV_PIX_FMT_NV24 => Pixel::NV24,
             AV_PIX_FMT_NV42 => Pixel::NV42,
 
-            #[cfg(feature = "ffmpeg_4_3")]
             AV_PIX_FMT_VULKAN => Pixel::VULKAN,
-            #[cfg(feature = "ffmpeg_4_3")]
             AV_PIX_FMT_Y210BE => Pixel::Y210BE,
-            #[cfg(feature = "ffmpeg_4_3")]
             AV_PIX_FMT_Y210LE => Pixel::Y210LE,
 
-            #[cfg(feature = "ffmpeg_4_4")]
             AV_PIX_FMT_X2RGB10LE => Pixel::X2RGB10LE,
-            #[cfg(feature = "ffmpeg_4_4")]
             AV_PIX_FMT_X2RGB10BE => Pixel::X2RGB10BE,
 
-            #[cfg(feature = "ffmpeg_5_0")]
             AV_PIX_FMT_X2BGR10LE => Pixel::X2BGR10LE,
-            #[cfg(feature = "ffmpeg_5_0")]
             AV_PIX_FMT_X2BGR10BE => Pixel::X2BGR10BE,
-            #[cfg(feature = "ffmpeg_5_0")]
             AV_PIX_FMT_P210BE => Pixel::P210BE,
-            #[cfg(feature = "ffmpeg_5_0")]
             AV_PIX_FMT_P210LE => Pixel::P210LE,
-            #[cfg(feature = "ffmpeg_5_0")]
             AV_PIX_FMT_P410BE => Pixel::P410BE,
-            #[cfg(feature = "ffmpeg_5_0")]
             AV_PIX_FMT_P410LE => Pixel::P410LE,
-            #[cfg(feature = "ffmpeg_5_0")]
             AV_PIX_FMT_P216BE => Pixel::P216BE,
-            #[cfg(feature = "ffmpeg_5_0")]
             AV_PIX_FMT_P216LE => Pixel::P216LE,
-            #[cfg(feature = "ffmpeg_5_0")]
             AV_PIX_FMT_P416BE => Pixel::P416BE,
-            #[cfg(feature = "ffmpeg_5_0")]
             AV_PIX_FMT_P416LE => Pixel::P416LE,
 
             #[cfg(feature = "ffmpeg_6_0")]
@@ -1008,10 +954,6 @@ impl From<Pixel> for AVPixelFormat {
             Pixel::YUVJ420P => AV_PIX_FMT_YUVJ420P,
             Pixel::YUVJ422P => AV_PIX_FMT_YUVJ422P,
             Pixel::YUVJ444P => AV_PIX_FMT_YUVJ444P,
-            #[cfg(all(feature = "ff_api_xvmc", not(feature = "ffmpeg_5_0")))]
-            Pixel::XVMC_MPEG2_MC => AV_PIX_FMT_XVMC_MPEG2_MC,
-            #[cfg(all(feature = "ff_api_xvmc", not(feature = "ffmpeg_5_0")))]
-            Pixel::XVMC_MPEG2_IDCT => AV_PIX_FMT_XVMC_MPEG2_IDCT,
             Pixel::UYVY422 => AV_PIX_FMT_UYVY422,
             Pixel::UYYVYY411 => AV_PIX_FMT_UYYVYY411,
             Pixel::BGR8 => AV_PIX_FMT_BGR8,
@@ -1046,13 +988,6 @@ impl From<Pixel> for AVPixelFormat {
             Pixel::BGR555BE => AV_PIX_FMT_BGR555BE,
             Pixel::BGR555LE => AV_PIX_FMT_BGR555LE,
 
-            #[cfg(all(feature = "ff_api_vaapi", not(feature = "ffmpeg_5_0")))]
-            Pixel::VAAPI_MOCO => AV_PIX_FMT_VAAPI_MOCO,
-            #[cfg(all(feature = "ff_api_vaapi", not(feature = "ffmpeg_5_0")))]
-            Pixel::VAAPI_IDCT => AV_PIX_FMT_VAAPI_IDCT,
-            #[cfg(all(feature = "ff_api_vaapi", not(feature = "ffmpeg_5_0")))]
-            Pixel::VAAPI_VLD => AV_PIX_FMT_VAAPI_VLD,
-            #[cfg(not(feature = "ff_api_vaapi"))]
             Pixel::VAAPI => AV_PIX_FMT_VAAPI,
 
             Pixel::YUV420P16LE => AV_PIX_FMT_YUV420P16LE,
@@ -1290,37 +1225,22 @@ impl From<Pixel> for AVPixelFormat {
             Pixel::NV24 => AV_PIX_FMT_NV24,
             Pixel::NV42 => AV_PIX_FMT_NV42,
 
-            #[cfg(feature = "ffmpeg_4_3")]
             Pixel::VULKAN => AV_PIX_FMT_VULKAN,
-            #[cfg(feature = "ffmpeg_4_3")]
             Pixel::Y210BE => AV_PIX_FMT_Y210BE,
-            #[cfg(feature = "ffmpeg_4_3")]
             Pixel::Y210LE => AV_PIX_FMT_Y210LE,
 
-            #[cfg(feature = "ffmpeg_4_4")]
             Pixel::X2RGB10LE => AV_PIX_FMT_X2RGB10LE,
-            #[cfg(feature = "ffmpeg_4_4")]
             Pixel::X2RGB10BE => AV_PIX_FMT_X2RGB10BE,
 
-            #[cfg(feature = "ffmpeg_5_0")]
             Pixel::X2BGR10LE => AV_PIX_FMT_X2BGR10LE,
-            #[cfg(feature = "ffmpeg_5_0")]
             Pixel::X2BGR10BE => AV_PIX_FMT_X2BGR10BE,
-            #[cfg(feature = "ffmpeg_5_0")]
             Pixel::P210BE => AV_PIX_FMT_P210BE,
-            #[cfg(feature = "ffmpeg_5_0")]
             Pixel::P210LE => AV_PIX_FMT_P210LE,
-            #[cfg(feature = "ffmpeg_5_0")]
             Pixel::P410BE => AV_PIX_FMT_P410BE,
-            #[cfg(feature = "ffmpeg_5_0")]
             Pixel::P410LE => AV_PIX_FMT_P410LE,
-            #[cfg(feature = "ffmpeg_5_0")]
             Pixel::P216BE => AV_PIX_FMT_P216BE,
-            #[cfg(feature = "ffmpeg_5_0")]
             Pixel::P216LE => AV_PIX_FMT_P216LE,
-            #[cfg(feature = "ffmpeg_5_0")]
             Pixel::P416BE => AV_PIX_FMT_P416BE,
-            #[cfg(feature = "ffmpeg_5_0")]
             Pixel::P416LE => AV_PIX_FMT_P416LE,
 
             #[cfg(feature = "ffmpeg_6_0")]

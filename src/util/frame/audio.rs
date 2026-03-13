@@ -8,7 +8,6 @@ use crate::util::format;
 use crate::ChannelLayoutMask;
 use libc::c_int;
 
-#[cfg(feature = "ffmpeg_5_1")]
 use crate::ChannelLayout;
 
 #[cfg(not(feature = "ffmpeg_7_0"))]
@@ -93,13 +92,11 @@ impl Audio {
         }
     }
 
-    #[cfg(feature = "ffmpeg_5_1")]
     #[inline]
     pub fn ch_layout(&self) -> ChannelLayout<'_> {
         unsafe { ChannelLayout::from(&self.as_ref().unwrap().ch_layout) }
     }
 
-    #[cfg(feature = "ffmpeg_5_1")]
     #[inline]
     pub fn set_ch_layout(&mut self, value: ChannelLayout) {
         unsafe {
@@ -166,12 +163,7 @@ impl Audio {
         if self.is_packed() {
             1
         } else {
-            #[cfg(not(feature = "ffmpeg_5_1"))]
-            let channels = self.channels() as usize;
-            #[cfg(feature = "ffmpeg_5_1")]
-            let channels = self.ch_layout().channels() as usize;
-
-            channels
+            self.ch_layout().channels() as usize
         }
     }
 
@@ -181,9 +173,6 @@ impl Audio {
             panic!("out of bounds");
         }
 
-        #[cfg(not(feature = "ffmpeg_5_1"))]
-        let channels = self.channels() as u16;
-        #[cfg(feature = "ffmpeg_5_1")]
         let channels = self.ch_layout().channels() as u16;
 
         if !<T as Sample>::is_valid(self.format(), channels) {
@@ -199,9 +188,6 @@ impl Audio {
             panic!("out of bounds");
         }
 
-        #[cfg(not(feature = "ffmpeg_5_1"))]
-        let channels = self.channels() as u16;
-        #[cfg(feature = "ffmpeg_5_1")]
         let channels = self.ch_layout().channels() as u16;
 
         if !<T as Sample>::is_valid(self.format(), channels) {
@@ -258,9 +244,6 @@ impl DerefMut for Audio {
 
 impl ::std::fmt::Debug for Audio {
     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> Result<(), ::std::fmt::Error> {
-        #[cfg(not(feature = "ffmpeg_5_1"))]
-        let channels = self.channels() as u16;
-        #[cfg(feature = "ffmpeg_5_1")]
         let channels = self.ch_layout().channels() as u16;
 
         f.write_str("ffmpeg::frame::Audio { ")?;
@@ -274,9 +257,6 @@ impl ::std::fmt::Debug for Audio {
 
 impl Clone for Audio {
     fn clone(&self) -> Self {
-        #[cfg(not(feature = "ffmpeg_5_1"))]
-        let mask = self.channel_layout();
-        #[cfg(feature = "ffmpeg_5_1")]
         let mask = self.ch_layout().mask().unwrap();
 
         let mut cloned = Audio::new(self.format(), self.samples(), mask);
