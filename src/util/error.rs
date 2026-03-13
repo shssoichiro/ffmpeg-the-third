@@ -132,19 +132,25 @@ impl From<Error> for io::Error {
 impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
         let mut buf = [0; AV_ERROR_MAX_STRING_SIZE];
+        let ret = unsafe {
+            match *self {
+                Error::Other { errno } => {
+                    #[cfg(target_os = "windows")]
+                    let ret = libc::strerror_s(buf.as_mut_ptr(), buf.len(), errno);
+                    #[cfg(not(target_os = "windows"))]
+                    let ret = libc::strerror_r(errno, buf.as_mut_ptr(), buf.len());
 
-        f.write_str(unsafe {
-            from_utf8_unchecked(
-                CStr::from_ptr(match *self {
-                    Error::Other { errno } => libc::strerror(errno),
-                    av_err => {
-                        av_strerror(av_err.into(), buf.as_mut_ptr(), buf.len());
-                        buf.as_ptr()
-                    }
-                })
-                .to_bytes(),
-            )
-        })
+                    ret
+                }
+                av_err => av_strerror(av_err.into(), buf.as_mut_ptr(), buf.len()),
+            }
+        };
+
+        if ret != 0 {
+            return f.write_str("unknown error");
+        }
+
+        unsafe { f.write_str(from_utf8_unchecked(CStr::from_ptr(buf.as_ptr()).to_bytes())) }
     }
 }
 
