@@ -131,16 +131,58 @@ impl From<Error> for io::Error {
 
 impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
-        f.write_str(unsafe {
-            from_utf8_unchecked(
-                CStr::from_ptr(match *self {
-                    Error::Other { errno } => libc::strerror(errno),
-                    _ => STRINGS[index(self)].as_ptr(),
-                })
-                .to_bytes(),
-            )
-        })
+        let mut buf = [0; AV_ERROR_MAX_STRING_SIZE];
+
+        unsafe {
+            let error_text = match *self {
+                Error::Other { errno } => os_strerror(errno, &mut buf),
+                av_err => {
+                    if 0 == av_strerror(av_err.into(), buf.as_mut_ptr(), buf.len()) {
+                        CStr::from_ptr(buf.as_ptr())
+                    } else {
+                        CStr::from_bytes_with_nul_unchecked(b"Unknown error\0")
+                    }
+                }
+            };
+
+            f.write_str(from_utf8_unchecked(error_text.to_bytes()))
+        }
     }
+}
+
+// SAFETY: The buffer passed to os_strerror must be 0-initialized
+// in order to satisfy the safety invariants for CStr::from_ptr.
+
+#[cfg(unix)]
+unsafe fn os_strerror(errno: c_int, buf: &mut [c_char; AV_ERROR_MAX_STRING_SIZE]) -> &CStr {
+    let _err = libc::strerror_r(errno, buf.as_mut_ptr(), buf.len());
+    // _err can be either ERANGE or EINVAL
+    // in the second case "Unknown error: <errno>" has been written to the buf
+    #[cfg(test)]
+    {
+        if _err == libc::ERANGE {
+            panic!("Insufficient buffer size")
+        }
+    }
+    CStr::from_ptr(buf.as_ptr())
+}
+
+#[cfg(windows)]
+unsafe fn os_strerror(errno: c_int, _buf: &mut [c_char; AV_ERROR_MAX_STRING_SIZE]) -> &CStr {
+    CStr::from_ptr(libc::strerror(errno))
+}
+
+#[cfg(all(not(windows), not(unix)))]
+unsafe fn os_strerror(errno: c_int, buf: &mut [c_char; AV_ERROR_MAX_STRING_SIZE]) -> &CStr {
+    static MUTEX: std::sync::Mutex<()> = std::sync::Mutex::new(());
+    let guard = MUTEX.lock();
+    libc::strncpy(
+        buf.as_mut_ptr(),
+        libc::strerror(errno),
+        AV_ERROR_MAX_STRING_SIZE - 1,
+    );
+    drop(guard);
+    CStr::from_ptr(buf.as_ptr())
 }
 
 impl fmt::Debug for Error {
@@ -149,186 +191,6 @@ impl fmt::Debug for Error {
         f.write_str(&format!("{}: ", AVUNERROR((*self).into())))?;
         fmt::Display::fmt(self, f)?;
         f.write_str(")")
-    }
-}
-
-#[inline(always)]
-fn index(error: &Error) -> usize {
-    match *error {
-        Error::BsfNotFound => 0,
-        Error::Bug => 1,
-        Error::BufferTooSmall => 2,
-        Error::DecoderNotFound => 3,
-        Error::DemuxerNotFound => 4,
-        Error::EncoderNotFound => 5,
-        Error::Eof => 6,
-        Error::Exit => 7,
-        Error::External => 8,
-        Error::FilterNotFound => 9,
-        Error::InvalidData => 10,
-        Error::MuxerNotFound => 11,
-        Error::OptionNotFound => 12,
-        Error::PatchWelcome => 13,
-        Error::ProtocolNotFound => 14,
-        Error::StreamNotFound => 15,
-        Error::Bug2 => 16,
-        Error::Unknown => 17,
-        Error::Experimental => 18,
-        Error::InputChanged => 19,
-        Error::OutputChanged => 20,
-        Error::HttpBadRequest => 21,
-        Error::HttpUnauthorized => 22,
-        Error::HttpForbidden => 23,
-        Error::HttpNotFound => 24,
-        Error::HttpOther4xx => 25,
-        Error::HttpServerError => 26,
-        Error::Other { errno: _ } => (-1isize) as usize,
-    }
-}
-
-// XXX: the length has to be synced with the number of errors
-static mut STRINGS: [[c_char; AV_ERROR_MAX_STRING_SIZE]; 27] = [[0; AV_ERROR_MAX_STRING_SIZE]; 27];
-
-pub fn register_all() {
-    unsafe {
-        av_strerror(
-            Error::Bug.into(),
-            STRINGS[index(&Error::Bug)].as_mut_ptr(),
-            AV_ERROR_MAX_STRING_SIZE,
-        );
-        av_strerror(
-            Error::Bug2.into(),
-            STRINGS[index(&Error::Bug2)].as_mut_ptr(),
-            AV_ERROR_MAX_STRING_SIZE,
-        );
-        av_strerror(
-            Error::Unknown.into(),
-            STRINGS[index(&Error::Unknown)].as_mut_ptr(),
-            AV_ERROR_MAX_STRING_SIZE,
-        );
-        av_strerror(
-            Error::Experimental.into(),
-            STRINGS[index(&Error::Experimental)].as_mut_ptr(),
-            AV_ERROR_MAX_STRING_SIZE,
-        );
-        av_strerror(
-            Error::BufferTooSmall.into(),
-            STRINGS[index(&Error::BufferTooSmall)].as_mut_ptr(),
-            AV_ERROR_MAX_STRING_SIZE,
-        );
-        av_strerror(
-            Error::Eof.into(),
-            STRINGS[index(&Error::Eof)].as_mut_ptr(),
-            AV_ERROR_MAX_STRING_SIZE,
-        );
-        av_strerror(
-            Error::Exit.into(),
-            STRINGS[index(&Error::Exit)].as_mut_ptr(),
-            AV_ERROR_MAX_STRING_SIZE,
-        );
-        av_strerror(
-            Error::External.into(),
-            STRINGS[index(&Error::External)].as_mut_ptr(),
-            AV_ERROR_MAX_STRING_SIZE,
-        );
-        av_strerror(
-            Error::InvalidData.into(),
-            STRINGS[index(&Error::InvalidData)].as_mut_ptr(),
-            AV_ERROR_MAX_STRING_SIZE,
-        );
-        av_strerror(
-            Error::PatchWelcome.into(),
-            STRINGS[index(&Error::PatchWelcome)].as_mut_ptr(),
-            AV_ERROR_MAX_STRING_SIZE,
-        );
-
-        av_strerror(
-            Error::InputChanged.into(),
-            STRINGS[index(&Error::InputChanged)].as_mut_ptr(),
-            AV_ERROR_MAX_STRING_SIZE,
-        );
-        av_strerror(
-            Error::OutputChanged.into(),
-            STRINGS[index(&Error::OutputChanged)].as_mut_ptr(),
-            AV_ERROR_MAX_STRING_SIZE,
-        );
-
-        av_strerror(
-            Error::BsfNotFound.into(),
-            STRINGS[index(&Error::BsfNotFound)].as_mut_ptr(),
-            AV_ERROR_MAX_STRING_SIZE,
-        );
-        av_strerror(
-            Error::DecoderNotFound.into(),
-            STRINGS[index(&Error::DecoderNotFound)].as_mut_ptr(),
-            AV_ERROR_MAX_STRING_SIZE,
-        );
-        av_strerror(
-            Error::DemuxerNotFound.into(),
-            STRINGS[index(&Error::DemuxerNotFound)].as_mut_ptr(),
-            AV_ERROR_MAX_STRING_SIZE,
-        );
-        av_strerror(
-            Error::EncoderNotFound.into(),
-            STRINGS[index(&Error::EncoderNotFound)].as_mut_ptr(),
-            AV_ERROR_MAX_STRING_SIZE,
-        );
-        av_strerror(
-            Error::OptionNotFound.into(),
-            STRINGS[index(&Error::OptionNotFound)].as_mut_ptr(),
-            AV_ERROR_MAX_STRING_SIZE,
-        );
-        av_strerror(
-            Error::MuxerNotFound.into(),
-            STRINGS[index(&Error::MuxerNotFound)].as_mut_ptr(),
-            AV_ERROR_MAX_STRING_SIZE,
-        );
-        av_strerror(
-            Error::FilterNotFound.into(),
-            STRINGS[index(&Error::FilterNotFound)].as_mut_ptr(),
-            AV_ERROR_MAX_STRING_SIZE,
-        );
-        av_strerror(
-            Error::ProtocolNotFound.into(),
-            STRINGS[index(&Error::ProtocolNotFound)].as_mut_ptr(),
-            AV_ERROR_MAX_STRING_SIZE,
-        );
-        av_strerror(
-            Error::StreamNotFound.into(),
-            STRINGS[index(&Error::StreamNotFound)].as_mut_ptr(),
-            AV_ERROR_MAX_STRING_SIZE,
-        );
-
-        av_strerror(
-            Error::HttpBadRequest.into(),
-            STRINGS[index(&Error::HttpBadRequest)].as_mut_ptr(),
-            AV_ERROR_MAX_STRING_SIZE,
-        );
-        av_strerror(
-            Error::HttpUnauthorized.into(),
-            STRINGS[index(&Error::HttpUnauthorized)].as_mut_ptr(),
-            AV_ERROR_MAX_STRING_SIZE,
-        );
-        av_strerror(
-            Error::HttpForbidden.into(),
-            STRINGS[index(&Error::HttpForbidden)].as_mut_ptr(),
-            AV_ERROR_MAX_STRING_SIZE,
-        );
-        av_strerror(
-            Error::HttpNotFound.into(),
-            STRINGS[index(&Error::HttpNotFound)].as_mut_ptr(),
-            AV_ERROR_MAX_STRING_SIZE,
-        );
-        av_strerror(
-            Error::HttpOther4xx.into(),
-            STRINGS[index(&Error::HttpOther4xx)].as_mut_ptr(),
-            AV_ERROR_MAX_STRING_SIZE,
-        );
-        av_strerror(
-            Error::HttpServerError.into(),
-            STRINGS[index(&Error::HttpServerError)].as_mut_ptr(),
-            AV_ERROR_MAX_STRING_SIZE,
-        );
     }
 }
 
@@ -347,12 +209,37 @@ mod tests {
         assert_eq!(Error::from(AVERROR(EAGAIN)), Error::Other { errno: EAGAIN });
     }
 
-    #[cfg(any(target_os = "linux", target_os = "macos"))]
+    #[cfg(unix)]
+    #[test]
+    fn test_posix_error_string_range() {
+        let mut buf = [0; AV_ERROR_MAX_STRING_SIZE];
+        for e in 1..255 {
+            let _ = unsafe { os_strerror(e, &mut buf) };
+        }
+    }
+
+    #[cfg(unix)]
     #[test]
     fn test_posix_error_string() {
         assert_eq!(
             Error::from(AVERROR(EAGAIN)).to_string(),
             "Resource temporarily unavailable"
         )
+    }
+
+    #[test]
+    fn test_error_fmt() {
+        use std::fmt::Write;
+
+        let mut s = String::new();
+        write!(&mut s, "{}", Error::InvalidData).expect("can write into string");
+        assert_eq!(s, "Invalid data found when processing input");
+
+        s.clear();
+
+        write!(&mut s, "{}", Error::from(AVERROR(EAGAIN))).expect("can write into string");
+        if cfg!(unix) {
+            assert_eq!(s, "Resource temporarily unavailable");
+        }
     }
 }

@@ -68,10 +68,6 @@ pub(crate) mod iters;
 pub(crate) mod macros;
 pub(crate) mod utils;
 
-fn init_error() {
-    util::error::register_all();
-}
-
 #[cfg(not(feature = "format"))]
 fn init_format() {}
 
@@ -87,7 +83,6 @@ fn init_device() {}
 fn init_filter() {}
 
 pub fn init() -> Result<(), Error> {
-    init_error();
     init_device();
 
     Ok(())
