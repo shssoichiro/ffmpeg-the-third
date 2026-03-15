@@ -5,7 +5,7 @@ use std::io;
 use std::str::from_utf8_unchecked;
 
 use crate::ffi::*;
-use libc::c_int;
+use libc::{c_char, c_int};
 #[cfg(feature = "serialize")]
 use serde::{Deserialize, Serialize};
 
@@ -132,26 +132,57 @@ impl From<Error> for io::Error {
 impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
         let mut buf = [0; AV_ERROR_MAX_STRING_SIZE];
-        let ret = unsafe {
-            match *self {
-                Error::Other { errno } => {
-                    #[cfg(target_os = "windows")]
-                    let ret = libc::strerror_s(buf.as_mut_ptr(), buf.len(), errno);
-                    #[cfg(not(target_os = "windows"))]
-                    let ret = libc::strerror_r(errno, buf.as_mut_ptr(), buf.len());
 
-                    ret
+        unsafe {
+            let error_text = match *self {
+                Error::Other { errno } => os_strerror(errno, &mut buf),
+                av_err => {
+                    if 0 == av_strerror(av_err.into(), buf.as_mut_ptr(), buf.len()) {
+                        CStr::from_ptr(buf.as_ptr())
+                    } else {
+                        CStr::from_bytes_with_nul_unchecked(b"Unknown error\0")
+                    }
                 }
-                av_err => av_strerror(av_err.into(), buf.as_mut_ptr(), buf.len()),
-            }
-        };
+            };
 
-        if ret != 0 {
-            return f.write_str("unknown error");
+            f.write_str(from_utf8_unchecked(error_text.to_bytes()))
         }
-
-        unsafe { f.write_str(from_utf8_unchecked(CStr::from_ptr(buf.as_ptr()).to_bytes())) }
     }
+}
+
+// SAFETY: The buffer passed to os_strerror must be 0-initialized
+// in order to satisfy the safety invariants for CStr::from_ptr.
+
+#[cfg(unix)]
+unsafe fn os_strerror(errno: c_int, buf: &mut [c_char; AV_ERROR_MAX_STRING_SIZE]) -> &CStr {
+    let _err = libc::strerror_r(errno, buf.as_mut_ptr(), buf.len());
+    // _err can be either ERANGE or EINVAL
+    // in the second case "Unknown error: <errno>" has been written to the buf
+    #[cfg(test)]
+    {
+        if _err == libc::ERANGE {
+            panic!("Insufficient buffer size")
+        }
+    }
+    CStr::from_ptr(buf.as_ptr())
+}
+
+#[cfg(windows)]
+unsafe fn os_strerror(errno: c_int, _buf: &mut [c_char; AV_ERROR_MAX_STRING_SIZE]) -> &CStr {
+    CStr::from_ptr(libc::strerror(errno))
+}
+
+#[cfg(all(not(windows), not(unix)))]
+unsafe fn os_strerror(errno: c_int, buf: &mut [c_char; AV_ERROR_MAX_STRING_SIZE]) -> &CStr {
+    static MUTEX: std::sync::Mutex<()> = std::sync::Mutex::new(());
+    let guard = MUTEX.lock();
+    libc::strncpy(
+        buf.as_mut_ptr(),
+        libc::strerror(errno),
+        AV_ERROR_MAX_STRING_SIZE - 1,
+    );
+    drop(guard);
+    CStr::from_ptr(buf.as_ptr())
 }
 
 impl fmt::Debug for Error {
@@ -178,7 +209,16 @@ mod tests {
         assert_eq!(Error::from(AVERROR(EAGAIN)), Error::Other { errno: EAGAIN });
     }
 
-    #[cfg(any(target_os = "linux", target_os = "macos"))]
+    #[cfg(unix)]
+    #[test]
+    fn test_posix_error_string_range() {
+        let mut buf = [0; AV_ERROR_MAX_STRING_SIZE];
+        for e in 1..255 {
+            let _ = unsafe { os_strerror(e, &mut buf) };
+        }
+    }
+
+    #[cfg(unix)]
     #[test]
     fn test_posix_error_string() {
         assert_eq!(
@@ -198,7 +238,7 @@ mod tests {
         s.clear();
 
         write!(&mut s, "{}", Error::from(AVERROR(EAGAIN))).expect("can write into string");
-        if cfg!(any(target_os = "linux", target_os = "macos")) {
+        if cfg!(unix) {
             assert_eq!(s, "Resource temporarily unavailable");
         }
     }
