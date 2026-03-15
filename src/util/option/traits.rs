@@ -1,7 +1,6 @@
 //! NOTE: this will be much better once specialization comes
 
 use std::ffi::CString;
-use std::mem;
 
 use crate::ffi::*;
 use crate::util::format;
@@ -29,7 +28,7 @@ pub trait Settable<T>: AsPtr<T> + AsMutPtr<T> {
                 self.as_mut_ptr() as *mut _,
                 name.as_ptr(),
                 value as *const _ as *const _,
-                mem::size_of::<V>() as c_int,
+                size_of::<V>() as c_int,
                 AV_OPT_SEARCH_CHILDREN
             ))
         }

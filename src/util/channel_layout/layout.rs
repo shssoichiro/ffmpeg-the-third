@@ -1,7 +1,6 @@
 use std::borrow::Borrow;
 use std::borrow::Cow;
 use std::ffi::CString;
-use std::mem::{align_of, size_of};
 
 use crate::ffi::*;
 #[cfg(feature = "ffmpeg_7_0")]

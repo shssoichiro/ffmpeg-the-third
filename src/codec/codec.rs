@@ -325,10 +325,8 @@ impl Iterator for ChannelLayoutMaskIter {
                 return None;
             }
 
-            let layout = ChannelLayoutMask::from_bits_truncate(*ptr);
-            self.ptr = NonNull::new_unchecked(ptr.add(1));
-
-            Some(layout)
+            self.ptr = self.ptr.add(1);
+            Some(ChannelLayoutMask::from_bits_truncate(*ptr))
         }
     }
 }
@@ -359,9 +357,11 @@ impl<'a> Iterator for ChannelLayoutIter<'a> {
     type Item = ChannelLayout<'a>;
 
     fn next(&mut self) -> Option<Self::Item> {
+        const ITER_END: AVChannelLayout = unsafe { std::mem::zeroed() };
+
         unsafe {
             let curr = self.next;
-            if *curr == zeroed_layout() {
+            if *curr == ITER_END {
                 return None;
             }
 
@@ -371,9 +371,4 @@ impl<'a> Iterator for ChannelLayoutIter<'a> {
             Some(ChannelLayout::from(curr))
         }
     }
-}
-
-// TODO: Remove this with a const variable when zeroed() is const (1.75.0)
-unsafe fn zeroed_layout() -> AVChannelLayout {
-    std::mem::zeroed()
 }
