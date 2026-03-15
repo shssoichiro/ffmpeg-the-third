@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use std::env;
 use std::fmt::Write as FmtWrite;
-use std::fs::{self, File};
+use std::fs::File;
 use std::io::{self, BufRead, BufReader};
 use std::path::{Path, PathBuf};
 use std::process::Command;
@@ -10,6 +10,7 @@ use std::str;
 use bindgen::callbacks::{
     EnumVariantCustomBehavior, EnumVariantValue, IntKind, MacroParsingBehavior, ParseCallbacks,
 };
+use bindgen::EnumVariation;
 
 #[derive(Debug)]
 struct Library {
@@ -216,14 +217,30 @@ static SWSCALE_FEATURES: &[AVFeature] = &[];
 
 static SWRESAMPLE_FEATURES: &[AVFeature] = &[];
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 struct AVHeader {
     name: &'static str,
+    from_ver: Option<u64>,
+    to_ver: Option<u64>,
 }
 
 impl AVHeader {
     const fn new(name: &'static str) -> Self {
-        Self { name }
+        Self {
+            name,
+            from_ver: None,
+            to_ver: None,
+        }
+    }
+
+    const fn from_ver(mut self, ver: u64) -> Self {
+        self.from_ver = Some(ver);
+        self
+    }
+
+    const fn to_ver(mut self, ver: u64) -> Self {
+        self.to_ver = Some(ver);
+        self
     }
 }
 
@@ -251,6 +268,7 @@ static AVUTIL_HEADERS: &[AVHeader] = &[
     AVHeader::new("hash.h"),
     AVHeader::new("hmac.h"),
     AVHeader::new("hwcontext.h"),
+    AVHeader::new("hwcontext_drm.h"),
     AVHeader::new("imgutils.h"),
     AVHeader::new("lfg.h"),
     AVHeader::new("log.h"),
@@ -278,14 +296,14 @@ static AVUTIL_HEADERS: &[AVHeader] = &[
     AVHeader::new("time.h"),
     AVHeader::new("timecode.h"),
     AVHeader::new("twofish.h"),
-    // AVHeader::new("tx.h"),
+    AVHeader::new("tx.h").from_ver(60), // post-8.0
     AVHeader::new("avutil.h"),
     AVHeader::new("xtea.h"),
 ];
 static AVCODEC_HEADERS: &[AVHeader] = &[
     AVHeader::new("avcodec.h"),
     AVHeader::new("dv_profile.h"),
-    // AVHeader::new("avfft.h"), TODO: Make these things version-aware
+    AVHeader::new("avfft.h").to_ver(61), // pre-8.0
     AVHeader::new("vorbis_parser.h"),
 ];
 static AVFORMAT_HEADERS: &[AVHeader] = &[AVHeader::new("avformat.h"), AVHeader::new("avio.h")];
@@ -828,25 +846,6 @@ fn check_features(include_paths: &[PathBuf]) -> u64 {
     lavc_version.0
 }
 
-fn search_include(include_paths: &[PathBuf], header: &str) -> String {
-    for dir in include_paths {
-        let include = dir.join(header);
-        if fs::metadata(&include).is_ok() {
-            return include.as_path().to_str().unwrap().to_string();
-        }
-    }
-    format!("/usr/include/{}", header)
-}
-
-fn maybe_search_include(include_paths: &[PathBuf], header: &str) -> Option<String> {
-    let path = search_include(include_paths, header);
-    if fs::metadata(&path).is_ok() {
-        Some(path)
-    } else {
-        None
-    }
-}
-
 fn link_to_libraries(statik: bool) {
     let ffmpeg_ty = if statik { "static" } else { "dylib" };
     for lib in LIBRARIES.iter().filter(|lib| lib.enabled()) {
@@ -936,16 +935,27 @@ fn main() {
         }
     }
 
-    let lavc_major_ver = check_features(&include_paths);
+    check_features(&include_paths);
+
+    let mut wrapper_h = String::with_capacity(2048);
+
+    for lib in LIBRARIES.iter().filter(|lib| lib.enabled()) {
+        for header in lib.headers {
+            add_include(&mut wrapper_h, lib, header).expect("failed to write to String");
+        }
+    }
+
+    // eprintln!("wrapper header: {wrapper_h}");
 
     let clang_includes = include_paths
         .iter()
         .map(|include| format!("-I{}", include.to_string_lossy()));
 
-    // The bindgen::Builder is the main entry point
-    // to bindgen, and lets you build up options for
-    // the resulting bindings.
-    let mut builder = bindgen::Builder::default()
+    let default_enum_style = EnumVariation::Rust {
+        non_exhaustive: cargo_feature_enabled("non_exhaustive_enums"),
+    };
+
+    bindgen::Builder::default()
         .clang_args(clang_includes)
         .ctypes_prefix("libc")
         // Not trivially copyable
@@ -953,10 +963,12 @@ fn main() {
         // We need/want to implement Debug by hand for some types
         .no_debug("AVChannelLayout")
         .no_debug("AVChannelCustom")
+        .default_enum_style(default_enum_style)
         // Some enums can never be rustified, use the newtype
         // pattern for them instead.
         .newtype_enum("AVOptionType")
         .newtype_enum("AVAlphaMode")
+        // Only generate bindings from FFmpeg headers
         .allowlist_file(r#".*[/\\]libavutil[/\\].*"#)
         .allowlist_file(r#".*[/\\]libavcodec[/\\].*"#)
         .allowlist_file(r#".*[/\\]libavformat[/\\].*"#)
@@ -968,46 +980,38 @@ fn main() {
         .prepend_enum_name(false)
         .derive_eq(true)
         .size_t_is_usize(true)
-        .parse_callbacks(Box::new(Callbacks));
-
-    if cargo_feature_enabled("non_exhaustive_enums") {
-        builder = builder.rustified_non_exhaustive_enum(".*");
-    } else {
-        builder = builder.rustified_enum(".*");
-    }
-
-    // The input headers we would like to generate
-    // bindings for.
-    for lib in LIBRARIES.iter().filter(|lib| lib.enabled()) {
-        for header in lib.headers {
-            builder = builder.header(search_include(
-                &include_paths,
-                &format!("lib{}/{}", lib.name, header.name),
-            ));
-        }
-
-        // HACK: if pre-8.0
-        if lavc_major_ver < 62 {
-            builder = builder.header(search_include(&include_paths, "libavcodec/avfft.h"));
-        } else {
-            builder = builder.header(search_include(&include_paths, "libavutil/tx.h"));
-        }
-    }
-
-    if let Some(hwcontext_drm_header) =
-        maybe_search_include(&include_paths, "libavutil/hwcontext_drm.h")
-    {
-        builder = builder.header(hwcontext_drm_header);
-    }
-
-    // Finish the builder and generate the bindings.
-    let bindings = builder
+        .parse_callbacks(Box::new(Callbacks))
+        .header_contents("wrapper.h", &wrapper_h)
         .generate()
-        // Unwrap the Result and panic on failure.
-        .expect("Unable to generate bindings");
-
-    // Write the bindings to the $OUT_DIR/bindings.rs file.
-    bindings
+        .expect("Unable to generate bindings")
         .write_to_file(out_dir.join("bindings.rs"))
         .expect("Couldn't write bindings!");
+}
+
+fn add_include(s: &mut String, lib: &Library, header: &AVHeader) -> std::fmt::Result {
+    let ver_name = format!("LIB{}_VERSION_MAJOR", lib.name.to_uppercase());
+
+    let end_if = match (header.from_ver, header.to_ver) {
+        (Some(from), Some(to)) => {
+            writeln!(s, "#if {ver_name} >= {from} && {ver_name} <= {to}")?;
+            true
+        }
+        (Some(from), None) => {
+            writeln!(s, "#if {ver_name} >= {from}")?;
+            true
+        }
+        (None, Some(to)) => {
+            writeln!(s, "#if {ver_name} <= {to}")?;
+            true
+        }
+        (None, None) => false,
+    };
+
+    writeln!(s, r#"#include "lib{}/{}""#, lib.name, header.name)?;
+
+    if end_if {
+        writeln!(s, "#endif")?;
+    }
+
+    Ok(())
 }
