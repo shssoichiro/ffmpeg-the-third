@@ -230,30 +230,14 @@ pub fn build(libraries: &[Library], out_dir: &Path) -> io::Result<PathBuf> {
         )));
     }
 
-    let num_jobs = if let Ok(cpus) = std::thread::available_parallelism() {
-        cpus.to_string()
-    } else {
-        "1".to_string()
-    };
-
-    // run make
     if !Command::new("make")
-        .arg(format!("-j{num_jobs}"))
-        .current_dir(&source_dir)
-        .status()?
-        .success()
-    {
-        return Err(io::Error::new(io::ErrorKind::Other, "make failed"));
-    }
-
-    // run make install
-    if !Command::new("make")
-        .current_dir(&source_dir)
         .arg("install")
+        .env("MAKEFLAGS", env::var("CARGO_MAKEFLAGS").unwrap())
+        .current_dir(&source_dir)
         .status()?
         .success()
     {
-        return Err(io::Error::new(io::ErrorKind::Other, "make install failed"));
+        return Err(io::Error::other("make install failed"));
     }
 
     rustc_link_extralibs(&source_dir);
