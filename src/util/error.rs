@@ -140,7 +140,7 @@ impl fmt::Display for Error {
                     if 0 == av_strerror(av_err.into(), buf.as_mut_ptr(), buf.len()) {
                         CStr::from_ptr(buf.as_ptr())
                     } else {
-                        CStr::from_bytes_with_nul_unchecked(b"Unknown error\0")
+                        c"Unknown error"
                     }
                 }
             };
