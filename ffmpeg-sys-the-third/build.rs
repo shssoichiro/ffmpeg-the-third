@@ -373,14 +373,6 @@ fn cargo_feature_enabled(feature: &str) -> bool {
     env::var(format!("CARGO_FEATURE_{}", feature.to_uppercase())).is_ok()
 }
 
-fn ffmpeg_version() -> String {
-    env!("CARGO_PKG_VERSION")
-        .split('+')
-        .nth(1)
-        .unwrap()
-        .replace("ffmpeg-", "")
-}
-
 fn output() -> PathBuf {
     PathBuf::from(env::var("OUT_DIR").unwrap())
 }
@@ -589,7 +581,6 @@ fn link_to_libraries(libraries: &[Library], statik: bool) {
 fn main() {
     let out_dir = output();
     let statik = cargo_feature_enabled("static");
-    let ffmpeg_version = ffmpeg_version();
 
     let all_libraries = [
         Library::required("avutil", AVUTIL_FEATURES, AVUTIL_HEADERS, 57),
@@ -607,7 +598,7 @@ fn main() {
         .collect();
 
     let include_paths: Vec<PathBuf> = if cargo_feature_enabled("build") {
-        let install_dir = compile::build(&enabled_libraries, &out_dir, &ffmpeg_version).unwrap();
+        let install_dir = compile::build(&enabled_libraries, &out_dir).unwrap();
         println!(
             "cargo:rustc-link-search=native={}",
             install_dir.join("lib").to_string_lossy()

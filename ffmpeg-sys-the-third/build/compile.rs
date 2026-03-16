@@ -2,7 +2,7 @@ use std::env;
 use std::fs::File;
 use std::io::{self, BufRead, BufReader};
 use std::path::{Path, PathBuf};
-use std::process::Command;
+use std::process::{Command, Output};
 
 use crate::cargo_feature_enabled;
 use crate::Library;
@@ -79,6 +79,44 @@ static EXTERNAL_BUILD_LIBS: &[(&str, &str)] = &[
     ("SSH", "libssh"),
 ];
 
+const REPO_URL: &str = "https://github.com/FFmpeg/FFmpeg";
+
+fn get_newest_patch_version() -> String {
+    let crate_ffmpeg_version = env!("CARGO_PKG_VERSION")
+        .split_once("+ffmpeg-")
+        .expect("crate version follows v1.2.3+ffmpeg-4.5 format")
+        .1;
+
+    // The crate version usually doesn't reference patch releases, so
+    // see if there's a compatible patch (i.e. 8.0.3 for 8.0) in the remote repository.
+
+    let Output { status, stdout, .. } = Command::new("git")
+        .arg("ls-remote")
+        .arg("-q")
+        .arg("--tags")
+        .arg("--refs")
+        .arg(REPO_URL)
+        .arg(format!("n{}*", crate_ffmpeg_version))
+        .output()
+        .expect("can run git ls-remote");
+
+    assert!(
+        status.success(),
+        "git ls-remote returned non-zero exit code"
+    );
+
+    String::from_utf8(stdout)
+        .expect("git ls-remote output is utf8")
+        .lines()
+        // format follows <commit hash><TAB>refs/tags/n8.0
+        .filter_map(|line| line.split_once("refs/tags/n"))
+        .map(|(_hash, version)| version)
+        .filter(|ver| !ver.contains("-dev"))
+        .max() // lexicographic maximum is the highest version
+        .expect("matching non-dev tag exists")
+        .to_string()
+}
+
 fn fetch(source_dir: &Path, ffmpeg_version: &str) -> io::Result<()> {
     let _ = std::fs::remove_dir_all(source_dir);
     let status = Command::new("git")
@@ -86,7 +124,7 @@ fn fetch(source_dir: &Path, ffmpeg_version: &str) -> io::Result<()> {
         .arg("--depth=1")
         .arg("-b")
         .arg(format!("n{ffmpeg_version}"))
-        .arg("https://github.com/FFmpeg/FFmpeg")
+        .arg(REPO_URL)
         .arg(source_dir)
         .status()?;
 
@@ -97,7 +135,8 @@ fn fetch(source_dir: &Path, ffmpeg_version: &str) -> io::Result<()> {
     }
 }
 
-pub fn build(libraries: &[Library], out_dir: &Path, ffmpeg_version: &str) -> io::Result<PathBuf> {
+pub fn build(libraries: &[Library], out_dir: &Path) -> io::Result<PathBuf> {
+    let ffmpeg_version = get_newest_patch_version();
     let source_dir = out_dir.join(format!("ffmpeg-{ffmpeg_version}"));
     let install_dir = out_dir.join("dist");
     if install_dir.join("lib").join("libavutil.a").exists() {
@@ -105,7 +144,7 @@ pub fn build(libraries: &[Library], out_dir: &Path, ffmpeg_version: &str) -> io:
         return Ok(install_dir);
     }
 
-    fetch(&source_dir, ffmpeg_version)?;
+    fetch(&source_dir, &ffmpeg_version)?;
 
     // Explicitly enable building all libraries passed to this function
     let library_flags = libraries.iter().map(|lib| format!("--enable-{}", lib.name));
