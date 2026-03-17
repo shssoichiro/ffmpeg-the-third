@@ -18,8 +18,9 @@ In addition to feature flags declared in `Cargo.toml`, this crate performs vario
   - "ffmpeg_7_0"
   - "ffmpeg_7_1"
   - "ffmpeg_8_0"
+  - "ffmpeg_8_1"
 
-- `avcodec_version_greater_than_<x>_<y>`, e.g., `avcodec_version_greater_than_58_90`. The name should be self-explanatory.
+- `avcodec_version_greater_than_<x>_<y>`, e.g., `avcodec_version_greater_than_61_11`. The name should be self-explanatory.
 
 - `ff_api_<feature>`, e.g. `ff_api_vaapi`, corresponding to whether their respective uppercase deprecation guards evaluate to true.
 
