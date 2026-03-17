@@ -7,6 +7,9 @@ use crate::color;
 use crate::media;
 use crate::{FieldOrder, Rational};
 
+#[cfg(feature = "ffmpeg_8_1")]
+use crate::format::AlphaMode;
+
 use crate::ChannelLayout;
 
 impl_for_many! {
@@ -133,6 +136,11 @@ impl_for_many! {
         /// Audio only
         pub fn seek_preroll(&self) -> u32 {
             unsafe { (*self.as_ptr()).seek_preroll as u32 }
+        }
+
+        #[cfg(feature = "ffmpeg_8_1")]
+        pub fn alpha_mode(&self) -> AlphaMode {
+            unsafe { (*self.as_ptr()).alpha_mode.into() }
         }
     }
 }

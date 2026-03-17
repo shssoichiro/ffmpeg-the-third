@@ -11,6 +11,8 @@ pub mod flag;
 pub use self::flag::Flags;
 
 use crate::ffi::*;
+#[cfg(feature = "ffmpeg_8_1")]
+use crate::format::AlphaMode;
 use crate::{Dictionary, DictionaryRef};
 
 #[derive(PartialEq, Eq)]
@@ -153,6 +155,16 @@ impl Frame {
         unsafe {
             av_frame_remove_side_data(self.as_mut_ptr(), kind.into());
         }
+    }
+
+    #[cfg(feature = "ffmpeg_8_1")]
+    pub fn alpha_mode(&self) -> AlphaMode {
+        unsafe { (*self.as_ptr()).alpha_mode.into() }
+    }
+
+    #[cfg(feature = "ffmpeg_8_1")]
+    pub fn set_alpha_mode(&mut self, mode: AlphaMode) {
+        unsafe { (*self.as_mut_ptr()).alpha_mode = mode.into() }
     }
 }
 

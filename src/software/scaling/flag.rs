@@ -54,6 +54,9 @@ bitflags::bitflags! {
         const DIRECT_BGR           = SF::SWS_DIRECT_BGR as c_int;
         const ACCURATE_RND         = SF::SWS_ACCURATE_RND as c_int;
         const BITEXACT             = SF::SWS_BITEXACT as c_int;
+        /// For debugging purposes only.
+        #[cfg(feature = "ffmpeg_8_1")]
+        const UNSTABLE             = SF::SWS_UNSTABLE as c_int;
         const ERROR_DIFFUSION      = SF::SWS_ERROR_DIFFUSION as c_int;
     }
 }

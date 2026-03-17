@@ -1,5 +1,8 @@
+#[cfg(feature = "ffmpeg_8_1")]
+pub use crate::util::format::AlphaMode;
 pub use crate::util::format::{pixel, Pixel};
 pub use crate::util::format::{sample, Sample};
+
 use crate::util::interrupt;
 
 pub mod stream;

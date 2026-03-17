@@ -623,6 +623,27 @@ pub enum Id {
     IVTV_VBI,
     #[cfg(feature = "ffmpeg_8_0")]
     SMPTE_436M_ANC,
+
+    #[cfg(feature = "ffmpeg_8_1")]
+    JPEGXS,
+    #[cfg(feature = "ffmpeg_8_1")]
+    ADPCM_IMA_HVQM4,
+    #[cfg(feature = "ffmpeg_8_1")]
+    ADPCM_IMA_PDA,
+    #[cfg(feature = "ffmpeg_8_1")]
+    ADPCM_N64,
+    #[cfg(feature = "ffmpeg_8_1")]
+    ADPCM_IMA_HVQM2,
+    #[cfg(feature = "ffmpeg_8_1")]
+    ADPCM_IMA_MAGIX,
+    #[cfg(feature = "ffmpeg_8_1")]
+    ADPCM_PSXC,
+    #[cfg(feature = "ffmpeg_8_1")]
+    ADPCM_CIRCUS,
+    #[cfg(feature = "ffmpeg_8_1")]
+    ADPCM_IMA_ESCAPE,
+    #[cfg(feature = "ffmpeg_8_1")]
+    AHX,
 }
 
 impl Id {
@@ -1250,6 +1271,27 @@ impl From<AVCodecID> for Id {
             #[cfg(feature = "ffmpeg_8_0")]
             AV_CODEC_ID_SMPTE_436M_ANC => Id::SMPTE_436M_ANC,
 
+            #[cfg(feature = "ffmpeg_8_1")]
+            AV_CODEC_ID_JPEGXS => Id::JPEGXS,
+            #[cfg(feature = "ffmpeg_8_1")]
+            AV_CODEC_ID_ADPCM_IMA_HVQM4 => Id::ADPCM_IMA_HVQM4,
+            #[cfg(feature = "ffmpeg_8_1")]
+            AV_CODEC_ID_ADPCM_IMA_PDA => Id::ADPCM_IMA_PDA,
+            #[cfg(feature = "ffmpeg_8_1")]
+            AV_CODEC_ID_ADPCM_N64 => Id::ADPCM_N64,
+            #[cfg(feature = "ffmpeg_8_1")]
+            AV_CODEC_ID_ADPCM_IMA_HVQM2 => Id::ADPCM_IMA_HVQM2,
+            #[cfg(feature = "ffmpeg_8_1")]
+            AV_CODEC_ID_ADPCM_IMA_MAGIX => Id::ADPCM_IMA_MAGIX,
+            #[cfg(feature = "ffmpeg_8_1")]
+            AV_CODEC_ID_ADPCM_PSXC => Id::ADPCM_PSXC,
+            #[cfg(feature = "ffmpeg_8_1")]
+            AV_CODEC_ID_ADPCM_CIRCUS => Id::ADPCM_CIRCUS,
+            #[cfg(feature = "ffmpeg_8_1")]
+            AV_CODEC_ID_ADPCM_IMA_ESCAPE => Id::ADPCM_IMA_ESCAPE,
+            #[cfg(feature = "ffmpeg_8_1")]
+            AV_CODEC_ID_AHX => Id::AHX,
+
             #[cfg(feature = "non-exhaustive-enums")]
             _ => unimplemented!(),
         }
@@ -1872,6 +1914,27 @@ impl From<Id> for AVCodecID {
             Id::IVTV_VBI => AV_CODEC_ID_IVTV_VBI,
             #[cfg(feature = "ffmpeg_8_0")]
             Id::SMPTE_436M_ANC => AV_CODEC_ID_SMPTE_436M_ANC,
+
+            #[cfg(feature = "ffmpeg_8_1")]
+            Id::JPEGXS => AV_CODEC_ID_JPEGXS,
+            #[cfg(feature = "ffmpeg_8_1")]
+            Id::ADPCM_IMA_HVQM4 => AV_CODEC_ID_ADPCM_IMA_HVQM4,
+            #[cfg(feature = "ffmpeg_8_1")]
+            Id::ADPCM_IMA_PDA => AV_CODEC_ID_ADPCM_IMA_PDA,
+            #[cfg(feature = "ffmpeg_8_1")]
+            Id::ADPCM_N64 => AV_CODEC_ID_ADPCM_N64,
+            #[cfg(feature = "ffmpeg_8_1")]
+            Id::ADPCM_IMA_HVQM2 => AV_CODEC_ID_ADPCM_IMA_HVQM2,
+            #[cfg(feature = "ffmpeg_8_1")]
+            Id::ADPCM_IMA_MAGIX => AV_CODEC_ID_ADPCM_IMA_MAGIX,
+            #[cfg(feature = "ffmpeg_8_1")]
+            Id::ADPCM_PSXC => AV_CODEC_ID_ADPCM_PSXC,
+            #[cfg(feature = "ffmpeg_8_1")]
+            Id::ADPCM_CIRCUS => AV_CODEC_ID_ADPCM_CIRCUS,
+            #[cfg(feature = "ffmpeg_8_1")]
+            Id::ADPCM_IMA_ESCAPE => AV_CODEC_ID_ADPCM_IMA_ESCAPE,
+            #[cfg(feature = "ffmpeg_8_1")]
+            Id::AHX => AV_CODEC_ID_AHX,
         }
     }
 }

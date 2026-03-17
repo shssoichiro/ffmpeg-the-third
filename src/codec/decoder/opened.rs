@@ -6,6 +6,9 @@ use crate::codec::{Context, Profile};
 use crate::ffi::*;
 use crate::{media, packet, Error, Frame, Rational};
 
+#[cfg(feature = "ffmpeg_8_1")]
+use super::Flags;
+
 pub struct Opened(pub Decoder);
 
 impl Opened {
@@ -47,6 +50,20 @@ impl Opened {
     pub fn send_eof(&mut self) -> Result<(), Error> {
         unsafe {
             match avcodec_send_packet(self.as_mut_ptr(), ptr::null()) {
+                e if e < 0 => Err(Error::from(e)),
+                _ => Ok(()),
+            }
+        }
+    }
+
+    #[cfg(feature = "ffmpeg_8_1")]
+    pub fn receive_frame_with_flags(
+        &mut self,
+        frame: &mut Frame,
+        flags: Flags,
+    ) -> Result<(), Error> {
+        unsafe {
+            match avcodec_receive_frame_flags(self.as_mut_ptr(), frame.as_mut_ptr(), flags.bits()) {
                 e if e < 0 => Err(Error::from(e)),
                 _ => Ok(()),
             }

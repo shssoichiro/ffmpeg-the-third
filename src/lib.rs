@@ -28,6 +28,9 @@ pub use crate::util::{
     time,
 };
 
+#[cfg(feature = "ffmpeg_8_1")]
+pub use crate::util::format::pixel::AlphaMode;
+
 #[cfg(feature = "format")]
 pub mod format;
 #[cfg(feature = "format")]

@@ -10,6 +10,9 @@ use crate::{AsMutPtr, AsPtr};
 use crate::{Codec, Error};
 use libc::c_int;
 
+#[cfg(feature = "ffmpeg_8_1")]
+use crate::format::AlphaMode;
+
 type OwnerHolder = ();
 
 pub struct Context {
@@ -99,6 +102,11 @@ impl Context {
         unsafe {
             (*self.as_mut_ptr()).debug = value.bits();
         }
+    }
+
+    #[cfg(feature = "ffmpeg_8_1")]
+    pub fn alpha_mode(&self) -> AlphaMode {
+        unsafe { (*self.as_ptr()).alpha_mode.into() }
     }
 
     pub fn set_threading(&mut self, config: threading::Config) {

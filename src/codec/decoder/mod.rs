@@ -21,6 +21,11 @@ pub use self::check::Check;
 pub mod opened;
 pub use self::opened::Opened;
 
+#[cfg(feature = "ffmpeg_8_1")]
+mod flag;
+#[cfg(feature = "ffmpeg_8_1")]
+pub use self::flag::Flags;
+
 use std::ffi::CString;
 
 use crate::codec::Context;

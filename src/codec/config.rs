@@ -241,6 +241,16 @@ impl_config_iter!(
     crate::ffi::AVColorSpace::AVCOL_SPC_UNSPECIFIED
 );
 
+#[cfg(feature = "ffmpeg_8_1")]
+impl_config_iter!(
+    supported_alpha_modes,
+    crate::ffi::AVCodecConfig::AV_CODEC_CONFIG_ALPHA_MODE,
+    AlphaModeIter,
+    crate::format::AlphaMode,
+    crate::ffi::AVAlphaMode,
+    crate::ffi::AVAlphaMode::AVALPHA_MODE_UNSPECIFIED
+);
+
 #[cfg(test)]
 #[cfg(feature = "ffmpeg_7_1")]
 mod test {
@@ -324,6 +334,21 @@ mod test {
             supported_frame_rates(codec, None),
             Ok(Supported::All)
         ));
+    }
+
+    #[cfg(feature = "ffmpeg_8_1")]
+    #[test]
+    fn alpha_modes() {
+        let codec = encoder::find(Id::PNG).expect("can find PNG encoder");
+
+        let alpha_modes = match supported_alpha_modes(codec, None) {
+            Ok(Supported::Specific(c)) => c,
+            sup => panic!("Should be Supported::Specific, got {sup:#?}"),
+        };
+
+        for mode in alpha_modes {
+            println!("{mode:?}");
+        }
     }
 
     #[test]

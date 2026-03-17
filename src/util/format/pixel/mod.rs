@@ -1,3 +1,8 @@
+#[cfg(feature = "ffmpeg_8_1")]
+mod alpha_mode;
+#[cfg(feature = "ffmpeg_8_1")]
+pub use self::alpha_mode::AlphaMode;
+
 use std::error;
 use std::ffi::{CString, NulError};
 use std::fmt;
