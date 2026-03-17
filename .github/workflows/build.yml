@@ -44,6 +44,9 @@ jobs:
           - version: "8.0"
             file: "ffmpeg-8.0-linux-clang-default.tar.xz"
             lib_subdir: "amd64"
+          - version: "8.1"
+            file: "ffmpeg-8.1-linux-clang-default.tar.xz"
+            lib_subdir: "amd64"
       fail-fast: false
 
     steps:
@@ -130,8 +133,7 @@ jobs:
     runs-on: windows-latest
     strategy:
       matrix:
-        # GyanD builds don't go as far back as the Ubuntu builds
-        ffmpeg_version: ["5.1", "6.0", "6.1", "7.0", "7.1", "8.0"]
+        ffmpeg_version: ["5.1", "6.0", "6.1", "7.0", "7.1", "8.0", "8.1"]
       fail-fast: false
 
     env:
