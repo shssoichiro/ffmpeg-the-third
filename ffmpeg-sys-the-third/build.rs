@@ -110,6 +110,11 @@ static AVUTIL_FEATURES: &[AVFeature] = &[
     AVFeature::new("VULKAN_FIXED_QUEUES"),
     AVFeature::new("OPT_INT_LIST"),
     AVFeature::new("OPT_PTR"),
+    AVFeature::new("CPU_FLAG_FORCE"),
+    AVFeature::new("DOVI_L11_INVALID_PROPS"),
+    AVFeature::new("ASSERT_FPU"),
+    // before 10.0 (< v62)
+    AVFeature::new("VULKAN_SYNC_QUEUES"),
 ];
 
 static AVCODEC_FEATURES: &[AVFeature] = &[
@@ -148,7 +153,10 @@ static AVCODEC_FEATURES: &[AVFeature] = &[
     AVFeature::new("V408_CODECID"),
     AVFeature::new("CODEC_PROPS"),
     AVFeature::new("EXR_GAMMA"),
+    AVFeature::new("INTRA_DC_PRECISION"),
     AVFeature::new("NVDEC_OLD_PIX_FMTS"),
+    AVFeature::new("PARSER_PRIVATE"),
+    AVFeature::new("PARSER_CODECID"),
     AVFeature::new("OMX"),
     AVFeature::new("SONIC_ENC"),
     AVFeature::new("SONIC_DEC"),
@@ -172,7 +180,6 @@ static AVFORMAT_FEATURES: &[AVFeature] = &[
     AVFeature::new("COMPUTE_PKT_FIELDS2"),
     AVFeature::new("INTERNAL_TIMING"),
     AVFeature::new("NO_DEFAULT_TLS_VERIFY"),
-
     // after 5.0 (> v59)
     AVFeature::new("AVSTREAM_CLASS"),
     // for all eternity
@@ -199,6 +206,10 @@ static AVFILTER_FEATURES: &[AVFeature] = &[
     AVFeature::new("LIBPLACEBO_OPTS"),
     // before 8.0 (< v11)
     AVFeature::new("LINK_PUBLIC"),
+    // before 9.0 (< v12)
+    AVFeature::new("BUFFERSINK_OPTS"),
+    AVFeature::new("CONTEXT_PUBLIC"),
+    AVFeature::new("LIBNPP_SUPPOR"),
 ];
 
 static SWSCALE_FEATURES: &[AVFeature] = &[];
@@ -379,10 +390,6 @@ fn ffmpeg_version() -> String {
         .replace("ffmpeg-", "")
 }
 
-fn get_major_version(version_string: &str) -> u32 {
-    version_string.split('.').next().unwrap().parse().unwrap()
-}
-
 fn output() -> PathBuf {
     PathBuf::from(env::var("OUT_DIR").unwrap())
 }
@@ -436,12 +443,14 @@ static EXTERNAL_BUILD_LIBS: &[(&str, &str)] = &[
     ("LC3", "liblc3"),
     ("LCEVC_DEC", "liblcevc-dec"),
     ("MP3LAME", "libmp3lame"),
+    ("MPEGHDEC", "libmpeghdec"),
     ("OAPV", "liboapv"),
     ("OPENCORE_AMRNB", "libopencore-amrnb"),
     ("OPENCORE_AMRWB", "libopencore-amrwb"),
     ("OPENH264", "libopenh264"),
     ("OPENH265", "libopenh265"),
     ("OPENJPEG", "libopenjpeg"),
+    ("OPENMPT", "libopenmpt"),
     ("OPUS", "libopus"),
     ("RAV1E", "librav1e"),
     ("SCHROEDINGER", "libschroedinger"),
@@ -450,6 +459,7 @@ static EXTERNAL_BUILD_LIBS: &[(&str, &str)] = &[
     ("SPEEX", "libspeex"),
     ("STAGEFRIGHT_H264", "libstagefright-h264"),
     ("SVTAV1", "libsvtav1"),
+    ("SVTJPEGXS", "libsvtjpegxs"),
     ("THEORA", "libtheora"),
     ("TWOLAME", "libtwolame"),
     ("UAVS3D", "libuavs3d"),
@@ -782,6 +792,7 @@ fn check_features(include_paths: &[PathBuf]) -> u64 {
         ("ffmpeg_7_0", 61, 3),
         ("ffmpeg_7_1", 61, 19),
         ("ffmpeg_8_0", 62, 11),
+        ("ffmpeg_8_1", 62, 28),
     ];
 
     let lavc_version = *versions
@@ -845,7 +856,6 @@ fn main() {
     let out_dir = output();
     let statik = cargo_feature_enabled("static");
     let ffmpeg_version = ffmpeg_version();
-    let ffmpeg_major_version: u32 = get_major_version(&ffmpeg_version);
 
     let include_paths: Vec<PathBuf> = if cargo_feature_enabled("build") {
         let install_dir = build(&out_dir, &ffmpeg_version).unwrap();
@@ -938,9 +948,10 @@ fn main() {
         // We need/want to implement Debug by hand for some types
         .no_debug("AVChannelLayout")
         .no_debug("AVChannelCustom")
-        // In FFmpeg 7.0+, this has bitfield-like behaviour,
-        // so cannot be a "rustified" enum
+        // Some enums can never be rustified, use the newtype
+        // pattern for them instead.
         .newtype_enum("AVOptionType")
+        .newtype_enum("AVAlphaMode")
         .allowlist_file(r#".*[/\\]libavutil[/\\].*"#)
         .allowlist_file(r#".*[/\\]libavcodec[/\\].*"#)
         .allowlist_file(r#".*[/\\]libavformat[/\\].*"#)
@@ -976,10 +987,6 @@ fn main() {
         } else {
             builder = builder.header(search_include(&include_paths, "libavutil/tx.h"));
         }
-    }
-
-    if cargo_feature_enabled("avcodec") && ffmpeg_major_version < 5 {
-        builder = builder.header(search_include(&include_paths, "libavcodec/vaapi.h"))
     }
 
     if let Some(hwcontext_drm_header) =
