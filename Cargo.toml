@@ -85,7 +85,6 @@ build-license-nonfree = ["ffmpeg-sys-the-third/build-license-nonfree"]
 build-license-version3 = ["ffmpeg-sys-the-third/build-license-version3"]
 
 # misc
-build-pic = ["ffmpeg-sys-the-third/build-pic"]
 build-zlib = ["ffmpeg-sys-the-third/build-zlib"]
 
 # ssl

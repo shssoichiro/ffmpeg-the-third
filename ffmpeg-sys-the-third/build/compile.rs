@@ -216,8 +216,6 @@ pub fn build(libraries: &[Library], out_dir: &Path) -> io::Result<PathBuf> {
 
     configure.enable("BUILD_DRM", "libdrm");
     configure.enable("BUILD_NVENC", "nvenc");
-    // configure misc build options
-    configure.enable("BUILD_PIC", "pic");
 
     // run ./configure
     let output = configure.output()?;
