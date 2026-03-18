@@ -6,12 +6,12 @@ fn main() {
 
         if name.starts_with("DEP_FFMPEG_CHECK_") {
             println!(
-                r#"cargo:rustc-check-cfg=cfg(feature, values("{}"))"#,
+                r#"cargo::rustc-check-cfg=cfg(feature, values("{}"))"#,
                 name["DEP_FFMPEG_CHECK_".len()..name.len()].to_lowercase()
             );
         } else if name.starts_with("DEP_FFMPEG_") {
             println!(
-                r#"cargo:rustc-cfg=feature="{}""#,
+                r#"cargo::rustc-cfg=feature="{}""#,
                 name["DEP_FFMPEG_".len()..name.len()].to_lowercase()
             );
         }

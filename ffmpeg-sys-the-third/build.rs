@@ -373,10 +373,6 @@ fn cargo_feature_enabled(feature: &str) -> bool {
     env::var(format!("CARGO_FEATURE_{}", feature.to_uppercase())).is_ok()
 }
 
-fn output() -> PathBuf {
-    PathBuf::from(env::var("OUT_DIR").unwrap())
-}
-
 #[cfg(not(target_env = "msvc"))]
 fn try_vcpkg(_statik: bool) -> Option<Vec<PathBuf>> {
     None
@@ -389,9 +385,7 @@ fn try_vcpkg(statik: bool) -> Option<Vec<PathBuf>> {
     }
 
     vcpkg::find_package("ffmpeg")
-        .map_err(|e| {
-            println!("Could not find ffmpeg with vcpkg: {}", e);
-        })
+        .inspect_err(|e| println!("Could not find ffmpeg with vcpkg: {e}"))
         .map(|library| library.include_paths)
         .ok()
 }
@@ -493,19 +487,19 @@ fn check_features(libraries: &[Library], include_paths: &[PathBuf]) -> u64 {
 
     for (var, (var_defined, var_enabled)) in features_defined_enabled {
         // Every possible feature needs an unconditional check-cfg to prevent warnings
-        println!(r#"cargo:rustc-check-cfg=cfg(feature, values("{}"))"#, var);
-        println!(r#"cargo:check_{}=true"#, var);
+        println!(r#"cargo::rustc-check-cfg=cfg(feature, values("{var}"))"#);
+        println!(r#"cargo::metadata=check_{var}=true"#);
 
         if var_enabled {
-            println!(r#"cargo:rustc-cfg=feature="{}""#, var);
-            println!(r#"cargo:{}=true"#, var);
+            println!(r#"cargo::rustc-cfg=feature="{var}""#);
+            println!(r#"cargo::metadata={var}=true"#);
         }
 
         // Also find out if defined or not (useful for cases where only the definition of a macro
         // can be used as distinction)
         if var_defined {
-            println!(r#"cargo:rustc-cfg=feature="{}_is_defined""#, var);
-            println!(r#"cargo:{}_is_defined=true"#, var);
+            println!(r#"cargo::rustc-cfg=feature="{var}_is_defined""#);
+            println!(r#"cargo::metadata={var}_is_defined=true"#);
         }
     }
 
@@ -519,11 +513,11 @@ fn check_features(libraries: &[Library], include_paths: &[PathBuf]) -> u64 {
             for minor in 0..=135 {
                 if *ver >= (major, minor) {
                     println!(
-                        r#"cargo:rustc-cfg=feature="{}_version_greater_than_{major}_{minor}""#,
+                        r#"cargo::rustc-cfg=feature="{}_version_greater_than_{major}_{minor}""#,
                         lib.name,
                     );
                     println!(
-                        r#"cargo:{}_version_greater_than_{major}_{minor}=true"#,
+                        r#"cargo::metadata={}_version_greater_than_{major}_{minor}=true"#,
                         lib.name,
                     );
                 }
@@ -550,17 +544,14 @@ fn check_features(libraries: &[Library], include_paths: &[PathBuf]) -> u64 {
         "FFmpeg 5.1 or higher is required, but found avcodec version {lavc_version:?}"
     );
 
-    for &(ffmpeg_version_flag, lavc_version_major, lavc_version_minor) in &ffmpeg_lavc_versions {
+    for &(ff_version, lavc_version_major, lavc_version_minor) in &ffmpeg_lavc_versions {
         // Every possible feature needs an unconditional check-cfg to prevent warnings
-        println!(
-            r#"cargo:rustc-check-cfg=cfg(feature, values("{}"))"#,
-            ffmpeg_version_flag
-        );
-        println!(r#"cargo:check_{}=true"#, ffmpeg_version_flag);
+        println!(r#"cargo::rustc-check-cfg=cfg(feature, values("{ff_version}"))"#,);
+        println!(r#"cargo::metadata=check_{ff_version}=true"#);
 
         if lavc_version >= (lavc_version_major, lavc_version_minor) {
-            println!(r#"cargo:rustc-cfg=feature="{}""#, ffmpeg_version_flag);
-            println!(r#"cargo:{}=true"#, ffmpeg_version_flag);
+            println!(r#"cargo::rustc-cfg=feature="{ff_version}""#);
+            println!(r#"cargo::metadata={ff_version}=true"#);
         }
     }
 
@@ -571,15 +562,15 @@ fn check_features(libraries: &[Library], include_paths: &[PathBuf]) -> u64 {
 fn link_to_libraries(libraries: &[Library], statik: bool) {
     let ffmpeg_ty = if statik { "static" } else { "dylib" };
     for lib in libraries {
-        println!("cargo:rustc-link-lib={}={}", ffmpeg_ty, lib.name);
+        println!("cargo::rustc-link-lib={}={}", ffmpeg_ty, lib.name);
     }
     if cargo_feature_enabled("build_zlib") && cfg!(target_os = "linux") {
-        println!("cargo:rustc-link-lib=z");
+        println!("cargo::rustc-link-lib=z");
     }
 }
 
 fn main() {
-    let out_dir = output();
+    let out_dir = PathBuf::from(env::var("OUT_DIR").unwrap());
     let statik = cargo_feature_enabled("static");
 
     let all_libraries = [
@@ -600,7 +591,7 @@ fn main() {
     let include_paths: Vec<PathBuf> = if cargo_feature_enabled("build") {
         let install_dir = compile::build(&enabled_libraries, &out_dir).unwrap();
         println!(
-            "cargo:rustc-link-search=native={}",
+            "cargo::rustc-link-search=native={}",
             install_dir.join("lib").to_string_lossy()
         );
         link_to_libraries(&enabled_libraries, statik);
@@ -611,7 +602,7 @@ fn main() {
     else if let Ok(ffmpeg_dir) = env::var("FFMPEG_DIR") {
         let ffmpeg_dir = PathBuf::from(ffmpeg_dir);
         println!(
-            "cargo:rustc-link-search=native={}",
+            "cargo::rustc-link-search=native={}",
             ffmpeg_dir.join("lib").to_string_lossy()
         );
         link_to_libraries(&enabled_libraries, statik);
@@ -620,17 +611,17 @@ fn main() {
         // vcpkg doesn't detect the "system" dependencies
         if statik {
             if cfg!(feature = "avcodec") || cfg!(feature = "avdevice") {
-                println!("cargo:rustc-link-lib=ole32");
+                println!("cargo::rustc-link-lib=ole32");
             }
 
             if cfg!(feature = "avformat") {
-                println!("cargo:rustc-link-lib=secur32");
-                println!("cargo:rustc-link-lib=ws2_32");
+                println!("cargo::rustc-link-lib=secur32");
+                println!("cargo::rustc-link-lib=ws2_32");
             }
 
             // avutil dependencies
-            println!("cargo:rustc-link-lib=bcrypt");
-            println!("cargo:rustc-link-lib=user32");
+            println!("cargo::rustc-link-lib=bcrypt");
+            println!("cargo::rustc-link-lib=user32");
         }
 
         paths
@@ -667,7 +658,7 @@ fn main() {
             "VideoToolbox",
         ];
         for f in frameworks {
-            println!("cargo:rustc-link-lib=framework={}", f);
+            println!("cargo::rustc-link-lib=framework={f}");
         }
     }
 
