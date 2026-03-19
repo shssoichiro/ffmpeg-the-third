@@ -44,12 +44,15 @@ After building, go into `target/debug/build/ffmpeg-sys-.../out/` and copy the `b
 
 ## Update the main crate
 
-First, compatibility should be restored. The crate needs to compile successfully before adding new features. **Never enable the crate feature `non-exhaustive-enums` during this step!** This means compiling with `--no-default-features`. Make sure that all other features are enabled though (this will result in a messy build command, sorry).
+First, compatibility should be restored. The crate needs to compile successfully before adding new features.
+
+To ensure that all new enums and enum variants are covered, it can be very helpful to change the default enum type in build.rs to a "rustified" (EnumVariation::Rust) style without the #[non_exhaustive] attribute. This should highlight all non-exhaustive match arms (i.e. all enums that have new variants).
 
 It is helpful to have FFmpeg's `doc/APIchanges` open in a separate window. `git log -S` and `git diff` in the FFmpeg repository are also useful.
 
 Run `diff old-bindings.rs new-bindings.rs` and go through all changes. This can mean:
 
+- Adding new enums to build.rs (build.rs, Callback::default)
 - Adding new enum variants (including `#[cfg(feature = "ffmpeg_8_0")]`)
   - also update the related `From<AVEnum> for Enum` and `From<Enum> for AVEnum` implementations
 - Marking removed enum variants with a cfg gate (`#[cfg(not(feature = "ffmpeg_8_0"))]`)
