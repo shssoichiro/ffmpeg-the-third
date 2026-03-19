@@ -1,4 +1,3 @@
-use crate::ffi::AVAudioServiceType::*;
 use crate::ffi::*;
 #[cfg(feature = "serialize")]
 use serde::{Deserialize, Serialize};
@@ -19,19 +18,20 @@ pub enum AudioService {
 
 impl From<AVAudioServiceType> for AudioService {
     fn from(value: AVAudioServiceType) -> Self {
-        match value {
-            AV_AUDIO_SERVICE_TYPE_MAIN => AudioService::Main,
-            AV_AUDIO_SERVICE_TYPE_EFFECTS => AudioService::Effects,
-            AV_AUDIO_SERVICE_TYPE_VISUALLY_IMPAIRED => AudioService::VisuallyImpaired,
-            AV_AUDIO_SERVICE_TYPE_HEARING_IMPAIRED => AudioService::HearingImpaired,
-            AV_AUDIO_SERVICE_TYPE_DIALOGUE => AudioService::Dialogue,
-            AV_AUDIO_SERVICE_TYPE_COMMENTARY => AudioService::Commentary,
-            AV_AUDIO_SERVICE_TYPE_EMERGENCY => AudioService::Emergency,
-            AV_AUDIO_SERVICE_TYPE_VOICE_OVER => AudioService::VoiceOver,
-            AV_AUDIO_SERVICE_TYPE_KARAOKE => AudioService::Karaoke,
-            AV_AUDIO_SERVICE_TYPE_NB => AudioService::Main,
+        use AVAudioServiceType as AV;
 
-            #[cfg(feature = "non-exhaustive-enums")]
+        match value {
+            AV::MAIN => AudioService::Main,
+            AV::EFFECTS => AudioService::Effects,
+            AV::VISUALLY_IMPAIRED => AudioService::VisuallyImpaired,
+            AV::HEARING_IMPAIRED => AudioService::HearingImpaired,
+            AV::DIALOGUE => AudioService::Dialogue,
+            AV::COMMENTARY => AudioService::Commentary,
+            AV::EMERGENCY => AudioService::Emergency,
+            AV::VOICE_OVER => AudioService::VoiceOver,
+            AV::KARAOKE => AudioService::Karaoke,
+            AV::NB => AudioService::Main,
+
             _ => unimplemented!(),
         }
     }
@@ -39,16 +39,18 @@ impl From<AVAudioServiceType> for AudioService {
 
 impl From<AudioService> for AVAudioServiceType {
     fn from(value: AudioService) -> AVAudioServiceType {
+        use AVAudioServiceType as AV;
+
         match value {
-            AudioService::Main => AV_AUDIO_SERVICE_TYPE_MAIN,
-            AudioService::Effects => AV_AUDIO_SERVICE_TYPE_EFFECTS,
-            AudioService::VisuallyImpaired => AV_AUDIO_SERVICE_TYPE_VISUALLY_IMPAIRED,
-            AudioService::HearingImpaired => AV_AUDIO_SERVICE_TYPE_HEARING_IMPAIRED,
-            AudioService::Dialogue => AV_AUDIO_SERVICE_TYPE_DIALOGUE,
-            AudioService::Commentary => AV_AUDIO_SERVICE_TYPE_COMMENTARY,
-            AudioService::Emergency => AV_AUDIO_SERVICE_TYPE_EMERGENCY,
-            AudioService::VoiceOver => AV_AUDIO_SERVICE_TYPE_VOICE_OVER,
-            AudioService::Karaoke => AV_AUDIO_SERVICE_TYPE_KARAOKE,
+            AudioService::Main => AV::MAIN,
+            AudioService::Effects => AV::EFFECTS,
+            AudioService::VisuallyImpaired => AV::VISUALLY_IMPAIRED,
+            AudioService::HearingImpaired => AV::HEARING_IMPAIRED,
+            AudioService::Dialogue => AV::DIALOGUE,
+            AudioService::Commentary => AV::COMMENTARY,
+            AudioService::Emergency => AV::EMERGENCY,
+            AudioService::VoiceOver => AV::VOICE_OVER,
+            AudioService::Karaoke => AV::KARAOKE,
         }
     }
 }

@@ -20,7 +20,7 @@ impl<'a> ChannelLayout<'a> {
     /// Get a new channel layout with an unspecified channel ordering.
     pub fn unspecified(channels: u32) -> Self {
         let mut layout = AVChannelLayout::empty();
-        layout.order = AVChannelOrder::AV_CHANNEL_ORDER_UNSPEC;
+        layout.order = AVChannelOrder::UNSPEC;
         layout.nb_channels = channels as c_int;
 
         Self(Cow::Owned(layout))
@@ -38,7 +38,7 @@ impl<'a> ChannelLayout<'a> {
         }
 
         let mut layout = AVChannelLayout::empty();
-        layout.order = AVChannelOrder::AV_CHANNEL_ORDER_CUSTOM;
+        layout.order = AVChannelOrder::CUSTOM;
         layout.nb_channels = channels.len() as c_int;
         unsafe {
             layout.u.map = av_malloc_array(channels.len(), size_of::<AVChannelCustom>()) as _;

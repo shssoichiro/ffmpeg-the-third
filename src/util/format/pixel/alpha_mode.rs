@@ -39,9 +39,9 @@ impl From<AVAlphaMode> for AlphaMode {
         use AVAlphaMode as AV;
 
         match value {
-            AV::AVALPHA_MODE_UNSPECIFIED => Self::Unspecified,
-            AV::AVALPHA_MODE_PREMULTIPLIED => Self::Premultiplied,
-            AV::AVALPHA_MODE_STRAIGHT => Self::Straight,
+            AV::UNSPECIFIED => Self::Unspecified,
+            AV::PREMULTIPLIED => Self::Premultiplied,
+            AV::STRAIGHT => Self::Straight,
             _ => unreachable!(),
         }
     }
@@ -52,9 +52,9 @@ impl From<AlphaMode> for AVAlphaMode {
         use AVAlphaMode as AV;
 
         match value {
-            AlphaMode::Unspecified => AV::AVALPHA_MODE_UNSPECIFIED,
-            AlphaMode::Premultiplied => AV::AVALPHA_MODE_PREMULTIPLIED,
-            AlphaMode::Straight => AV::AVALPHA_MODE_STRAIGHT,
+            AlphaMode::Unspecified => AV::UNSPECIFIED,
+            AlphaMode::Premultiplied => AV::PREMULTIPLIED,
+            AlphaMode::Straight => AV::STRAIGHT,
         }
     }
 }

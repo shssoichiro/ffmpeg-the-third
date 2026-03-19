@@ -1,4 +1,3 @@
-use crate::ffi::AVPictureType::*;
 use crate::ffi::*;
 #[cfg(feature = "serialize")]
 use serde::{Deserialize, Serialize};
@@ -19,17 +18,18 @@ pub enum Type {
 impl From<AVPictureType> for Type {
     #[inline(always)]
     fn from(value: AVPictureType) -> Type {
-        match value {
-            AV_PICTURE_TYPE_NONE => Type::None,
-            AV_PICTURE_TYPE_I => Type::I,
-            AV_PICTURE_TYPE_P => Type::P,
-            AV_PICTURE_TYPE_B => Type::B,
-            AV_PICTURE_TYPE_S => Type::S,
-            AV_PICTURE_TYPE_SI => Type::SI,
-            AV_PICTURE_TYPE_SP => Type::SP,
-            AV_PICTURE_TYPE_BI => Type::BI,
+        use AVPictureType as AV;
 
-            #[cfg(feature = "non-exhaustive-enums")]
+        match value {
+            AV::NONE => Type::None,
+            AV::I => Type::I,
+            AV::P => Type::P,
+            AV::B => Type::B,
+            AV::S => Type::S,
+            AV::SI => Type::SI,
+            AV::SP => Type::SP,
+            AV::BI => Type::BI,
+
             _ => unimplemented!(),
         }
     }
@@ -38,15 +38,17 @@ impl From<AVPictureType> for Type {
 impl From<Type> for AVPictureType {
     #[inline(always)]
     fn from(value: Type) -> AVPictureType {
+        use AVPictureType as AV;
+
         match value {
-            Type::None => AV_PICTURE_TYPE_NONE,
-            Type::I => AV_PICTURE_TYPE_I,
-            Type::P => AV_PICTURE_TYPE_P,
-            Type::B => AV_PICTURE_TYPE_B,
-            Type::S => AV_PICTURE_TYPE_S,
-            Type::SI => AV_PICTURE_TYPE_SI,
-            Type::SP => AV_PICTURE_TYPE_SP,
-            Type::BI => AV_PICTURE_TYPE_BI,
+            Type::None => AV::NONE,
+            Type::I => AV::I,
+            Type::P => AV::P,
+            Type::B => AV::B,
+            Type::S => AV::S,
+            Type::SI => AV::SI,
+            Type::SP => AV::SP,
+            Type::BI => AV::BI,
         }
     }
 }

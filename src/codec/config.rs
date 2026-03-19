@@ -187,16 +187,16 @@ macro_rules! impl_config_iter_traits {
 
 impl_config_iter!(
     supported_pixel_formats,
-    crate::ffi::AVCodecConfig::AV_CODEC_CONFIG_PIX_FORMAT,
+    crate::ffi::AVCodecConfig::PIX_FORMAT,
     PixelFormatIter,
     crate::format::Pixel,
     crate::ffi::AVPixelFormat,
-    crate::ffi::AVPixelFormat::AV_PIX_FMT_NONE
+    crate::ffi::AVPixelFormat::NONE
 );
 
 impl_config_iter!(
     supported_frame_rates,
-    crate::ffi::AVCodecConfig::AV_CODEC_CONFIG_FRAME_RATE,
+    crate::ffi::AVCodecConfig::FRAME_RATE,
     FrameRateIter,
     crate::Rational,
     crate::ffi::AVRational,
@@ -205,7 +205,7 @@ impl_config_iter!(
 
 impl_config_iter!(
     supported_sample_rates,
-    crate::ffi::AVCodecConfig::AV_CODEC_CONFIG_SAMPLE_RATE,
+    crate::ffi::AVCodecConfig::SAMPLE_RATE,
     SampleRateIter,
     libc::c_int,
     libc::c_int,
@@ -214,41 +214,41 @@ impl_config_iter!(
 
 impl_config_iter!(
     supported_sample_formats,
-    crate::ffi::AVCodecConfig::AV_CODEC_CONFIG_SAMPLE_FORMAT,
+    crate::ffi::AVCodecConfig::SAMPLE_FORMAT,
     SampleFormatIter,
     crate::format::Sample,
     crate::ffi::AVSampleFormat,
-    crate::ffi::AVSampleFormat::AV_SAMPLE_FMT_NONE
+    crate::ffi::AVSampleFormat::NONE
 );
 
 #[cfg(feature = "ffmpeg_7_1")]
 impl_config_iter!(
     supported_color_ranges,
-    crate::ffi::AVCodecConfig::AV_CODEC_CONFIG_COLOR_RANGE,
+    crate::ffi::AVCodecConfig::COLOR_RANGE,
     ColorRangeIter,
     crate::color::Range,
     crate::ffi::AVColorRange,
-    crate::ffi::AVColorRange::AVCOL_RANGE_UNSPECIFIED
+    crate::ffi::AVColorRange::UNSPECIFIED
 );
 
 #[cfg(feature = "ffmpeg_7_1")]
 impl_config_iter!(
     supported_color_spaces,
-    crate::ffi::AVCodecConfig::AV_CODEC_CONFIG_COLOR_SPACE,
+    crate::ffi::AVCodecConfig::COLOR_SPACE,
     ColorSpaceIter,
     crate::color::Space,
     crate::ffi::AVColorSpace,
-    crate::ffi::AVColorSpace::AVCOL_SPC_UNSPECIFIED
+    crate::ffi::AVColorSpace::UNSPECIFIED
 );
 
 #[cfg(feature = "ffmpeg_8_1")]
 impl_config_iter!(
     supported_alpha_modes,
-    crate::ffi::AVCodecConfig::AV_CODEC_CONFIG_ALPHA_MODE,
+    crate::ffi::AVCodecConfig::ALPHA_MODE,
     AlphaModeIter,
     crate::format::AlphaMode,
     crate::ffi::AVAlphaMode,
-    crate::ffi::AVAlphaMode::AVALPHA_MODE_UNSPECIFIED
+    crate::ffi::AVAlphaMode::UNSPECIFIED
 );
 
 #[cfg(test)]

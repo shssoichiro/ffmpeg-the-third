@@ -1,256 +1,131 @@
-use libc::c_int;
+use crate::{AVPixelFormat, AVPixelFormat as AVP};
 
-use crate::AVPixelFormat::*;
-use crate::{AVChromaLocation, AVPixelFormat};
+#[cfg(target_endian = "little")]
+impl AVPixelFormat {
+    pub const RGB32: AVPixelFormat = AVP::BGRA;
+    pub const RGB32_1: AVPixelFormat = AVP::ABGR;
+    pub const BGR32: AVPixelFormat = AVP::RGBA;
+    pub const BGR32_1: AVPixelFormat = AVP::ARGB;
+    pub const _0RGB32: AVPixelFormat = AVP::BGR0;
+    pub const _0BGR32: AVPixelFormat = AVP::RGB0;
 
-impl AVChromaLocation {
-    pub fn from_c_int(n: c_int) -> Option<Self> {
-        use AVChromaLocation as AVCL;
+    pub const GRAY16: AVPixelFormat = AVP::GRAY16LE;
+    pub const YA16: AVPixelFormat = AVP::YA16LE;
+    pub const RGB48: AVPixelFormat = AVP::RGB48LE;
+    pub const RGB565: AVPixelFormat = AVP::RGB565LE;
+    pub const RGB555: AVPixelFormat = AVP::RGB555LE;
+    pub const RGB444: AVPixelFormat = AVP::RGB444LE;
+    pub const BGR48: AVPixelFormat = AVP::BGR48LE;
+    pub const BGR565: AVPixelFormat = AVP::BGR565LE;
+    pub const BGR555: AVPixelFormat = AVP::BGR555LE;
+    pub const BGR444: AVPixelFormat = AVP::BGR444LE;
 
-        Some(match n {
-            n if n == AVCL::AVCHROMA_LOC_UNSPECIFIED as c_int => AVCL::AVCHROMA_LOC_UNSPECIFIED,
-            n if n == AVCL::AVCHROMA_LOC_LEFT as c_int => AVCL::AVCHROMA_LOC_LEFT,
-            n if n == AVCL::AVCHROMA_LOC_CENTER as c_int => AVCL::AVCHROMA_LOC_CENTER,
-            n if n == AVCL::AVCHROMA_LOC_TOPLEFT as c_int => AVCL::AVCHROMA_LOC_TOPLEFT,
-            n if n == AVCL::AVCHROMA_LOC_TOP as c_int => AVCL::AVCHROMA_LOC_TOP,
-            n if n == AVCL::AVCHROMA_LOC_BOTTOMLEFT as c_int => AVCL::AVCHROMA_LOC_BOTTOMLEFT,
-            n if n == AVCL::AVCHROMA_LOC_BOTTOM as c_int => AVCL::AVCHROMA_LOC_BOTTOM,
+    pub const YUV420P9: AVPixelFormat = AVP::YUV420P9LE;
+    pub const YUV422P9: AVPixelFormat = AVP::YUV422P9LE;
+    pub const YUV444P9: AVPixelFormat = AVP::YUV444P9LE;
+    pub const YUV420P10: AVPixelFormat = AVP::YUV420P10LE;
+    pub const YUV422P10: AVPixelFormat = AVP::YUV422P10LE;
+    pub const YUV440P10: AVPixelFormat = AVP::YUV440P10LE;
+    pub const YUV444P10: AVPixelFormat = AVP::YUV444P10LE;
+    pub const YUV420P12: AVPixelFormat = AVP::YUV420P12LE;
+    pub const YUV422P12: AVPixelFormat = AVP::YUV422P12LE;
+    pub const YUV440P12: AVPixelFormat = AVP::YUV440P12LE;
+    pub const YUV444P12: AVPixelFormat = AVP::YUV444P12LE;
+    pub const YUV420P14: AVPixelFormat = AVP::YUV420P14LE;
+    pub const YUV422P14: AVPixelFormat = AVP::YUV422P14LE;
+    pub const YUV444P14: AVPixelFormat = AVP::YUV444P14LE;
+    pub const YUV420P16: AVPixelFormat = AVP::YUV420P16LE;
+    pub const YUV422P16: AVPixelFormat = AVP::YUV422P16LE;
+    pub const YUV444P16: AVPixelFormat = AVP::YUV444P16LE;
 
-            _ => return None,
-        })
-    }
+    pub const GBRP9: AVPixelFormat = AVP::GBRP9LE;
+    pub const GBRP10: AVPixelFormat = AVP::GBRP10LE;
+    pub const GBRP12: AVPixelFormat = AVP::GBRP12LE;
+    pub const GBRP14: AVPixelFormat = AVP::GBRP14LE;
+    pub const GBRP16: AVPixelFormat = AVP::GBRP16LE;
+    pub const GBRAP16: AVPixelFormat = AVP::GBRAP16LE;
+
+    pub const BAYER_BGGR16: AVPixelFormat = AVP::BAYER_BGGR16LE;
+    pub const BAYER_RGGB16: AVPixelFormat = AVP::BAYER_RGGB16LE;
+    pub const BAYER_GBRG16: AVPixelFormat = AVP::BAYER_GBRG16LE;
+    pub const BAYER_GRBG16: AVPixelFormat = AVP::BAYER_GRBG16LE;
+
+    pub const YUVA420P9: AVPixelFormat = AVP::YUVA420P9LE;
+    pub const YUVA422P9: AVPixelFormat = AVP::YUVA422P9LE;
+    pub const YUVA444P9: AVPixelFormat = AVP::YUVA444P9LE;
+    pub const YUVA420P10: AVPixelFormat = AVP::YUVA420P10LE;
+    pub const YUVA422P10: AVPixelFormat = AVP::YUVA422P10LE;
+    pub const YUVA444P10: AVPixelFormat = AVP::YUVA444P10LE;
+    pub const YUVA420P16: AVPixelFormat = AVP::YUVA420P16LE;
+    pub const YUVA422P16: AVPixelFormat = AVP::YUVA422P16LE;
+    pub const YUVA444P16: AVPixelFormat = AVP::YUVA444P16LE;
+
+    pub const XYZ12: AVPixelFormat = AVP::XYZ12LE;
+    pub const NV20: AVPixelFormat = AVP::NV20LE;
+    pub const AYUV64: AVPixelFormat = AVP::AYUV64LE;
 }
 
-#[cfg(target_endian = "little")]
-pub const AV_PIX_FMT_RGB32: AVPixelFormat = AV_PIX_FMT_BGRA;
-#[cfg(target_endian = "little")]
-pub const AV_PIX_FMT_RGB32_1: AVPixelFormat = AV_PIX_FMT_ABGR;
-#[cfg(target_endian = "little")]
-pub const AV_PIX_FMT_BGR32: AVPixelFormat = AV_PIX_FMT_RGBA;
-#[cfg(target_endian = "little")]
-pub const AV_PIX_FMT_BGR32_1: AVPixelFormat = AV_PIX_FMT_ARGB;
-#[cfg(target_endian = "little")]
-pub const AV_PIX_FMT_0RGB32: AVPixelFormat = AV_PIX_FMT_BGR0;
-#[cfg(target_endian = "little")]
-pub const AV_PIX_FMT_0BGR32: AVPixelFormat = AV_PIX_FMT_RGB0;
+#[cfg(target_endian = "big")]
+impl AVPixelFormat {
+    pub const RGB32: AVPixelFormat = AVP::ARGB;
+    pub const RGB32_1: AVPixelFormat = AVP::RGBA;
+    pub const BGR32: AVPixelFormat = AVP::ABGR;
+    pub const BGR32_1: AVPixelFormat = AVP::BGRA;
+    pub const _0RGB32: AVPixelFormat = AVP::_0RGB;
+    pub const _0BGR32: AVPixelFormat = AVP::_0BGR;
 
-#[cfg(target_endian = "little")]
-pub const AV_PIX_FMT_GRAY16: AVPixelFormat = AV_PIX_FMT_GRAY16LE;
-#[cfg(target_endian = "little")]
-pub const AV_PIX_FMT_YA16: AVPixelFormat = AV_PIX_FMT_YA16LE;
-#[cfg(target_endian = "little")]
-pub const AV_PIX_FMT_RGB48: AVPixelFormat = AV_PIX_FMT_RGB48LE;
-#[cfg(target_endian = "little")]
-pub const AV_PIX_FMT_RGB565: AVPixelFormat = AV_PIX_FMT_RGB565LE;
-#[cfg(target_endian = "little")]
-pub const AV_PIX_FMT_RGB555: AVPixelFormat = AV_PIX_FMT_RGB555LE;
-#[cfg(target_endian = "little")]
-pub const AV_PIX_FMT_RGB444: AVPixelFormat = AV_PIX_FMT_RGB444LE;
-#[cfg(target_endian = "little")]
-pub const AV_PIX_FMT_BGR48: AVPixelFormat = AV_PIX_FMT_BGR48LE;
-#[cfg(target_endian = "little")]
-pub const AV_PIX_FMT_BGR565: AVPixelFormat = AV_PIX_FMT_BGR565LE;
-#[cfg(target_endian = "little")]
-pub const AV_PIX_FMT_BGR555: AVPixelFormat = AV_PIX_FMT_BGR555LE;
-#[cfg(target_endian = "little")]
-pub const AV_PIX_FMT_BGR444: AVPixelFormat = AV_PIX_FMT_BGR444LE;
+    pub const GRAY16: AVPixelFormat = AVP::GRAY16BE;
+    pub const YA16: AVPixelFormat = AVP::YA16BE;
+    pub const RGB48: AVPixelFormat = AVP::RGB48BE;
+    pub const RGB565: AVPixelFormat = AVP::RGB565BE;
+    pub const RGB555: AVPixelFormat = AVP::RGB555BE;
+    pub const RGB444: AVPixelFormat = AVP::RGB444BE;
+    pub const BGR48: AVPixelFormat = AVP::BGR48BE;
+    pub const BGR565: AVPixelFormat = AVP::BGR565BE;
+    pub const BGR555: AVPixelFormat = AVP::BGR555BE;
+    pub const BGR444: AVPixelFormat = AVP::BGR444BE;
 
-#[cfg(target_endian = "little")]
-pub const AV_PIX_FMT_YUV420P9: AVPixelFormat = AV_PIX_FMT_YUV420P9LE;
-#[cfg(target_endian = "little")]
-pub const AV_PIX_FMT_YUV422P9: AVPixelFormat = AV_PIX_FMT_YUV422P9LE;
-#[cfg(target_endian = "little")]
-pub const AV_PIX_FMT_YUV444P9: AVPixelFormat = AV_PIX_FMT_YUV444P9LE;
-#[cfg(target_endian = "little")]
-pub const AV_PIX_FMT_YUV420P10: AVPixelFormat = AV_PIX_FMT_YUV420P10LE;
-#[cfg(target_endian = "little")]
-pub const AV_PIX_FMT_YUV422P10: AVPixelFormat = AV_PIX_FMT_YUV422P10LE;
-#[cfg(target_endian = "little")]
-pub const AV_PIX_FMT_YUV440P10: AVPixelFormat = AV_PIX_FMT_YUV440P10LE;
-#[cfg(target_endian = "little")]
-pub const AV_PIX_FMT_YUV444P10: AVPixelFormat = AV_PIX_FMT_YUV444P10LE;
-#[cfg(target_endian = "little")]
-pub const AV_PIX_FMT_YUV420P12: AVPixelFormat = AV_PIX_FMT_YUV420P12LE;
-#[cfg(target_endian = "little")]
-pub const AV_PIX_FMT_YUV422P12: AVPixelFormat = AV_PIX_FMT_YUV422P12LE;
-#[cfg(target_endian = "little")]
-pub const AV_PIX_FMT_YUV440P12: AVPixelFormat = AV_PIX_FMT_YUV440P12LE;
-#[cfg(target_endian = "little")]
-pub const AV_PIX_FMT_YUV444P12: AVPixelFormat = AV_PIX_FMT_YUV444P12LE;
-#[cfg(target_endian = "little")]
-pub const AV_PIX_FMT_YUV420P14: AVPixelFormat = AV_PIX_FMT_YUV420P14LE;
-#[cfg(target_endian = "little")]
-pub const AV_PIX_FMT_YUV422P14: AVPixelFormat = AV_PIX_FMT_YUV422P14LE;
-#[cfg(target_endian = "little")]
-pub const AV_PIX_FMT_YUV444P14: AVPixelFormat = AV_PIX_FMT_YUV444P14LE;
-#[cfg(target_endian = "little")]
-pub const AV_PIX_FMT_YUV420P16: AVPixelFormat = AV_PIX_FMT_YUV420P16LE;
-#[cfg(target_endian = "little")]
-pub const AV_PIX_FMT_YUV422P16: AVPixelFormat = AV_PIX_FMT_YUV422P16LE;
-#[cfg(target_endian = "little")]
-pub const AV_PIX_FMT_YUV444P16: AVPixelFormat = AV_PIX_FMT_YUV444P16LE;
+    pub const YUV420P9: AVPixelFormat = AVP::YUV420P9BE;
+    pub const YUV422P9: AVPixelFormat = AVP::YUV422P9BE;
+    pub const YUV444P9: AVPixelFormat = AVP::YUV444P9BE;
+    pub const YUV420P10: AVPixelFormat = AVP::YUV420P10BE;
+    pub const YUV422P10: AVPixelFormat = AVP::YUV422P10BE;
+    pub const YUV440P10: AVPixelFormat = AVP::YUV440P10BE;
+    pub const YUV444P10: AVPixelFormat = AVP::YUV444P10BE;
+    pub const YUV420P12: AVPixelFormat = AVP::YUV420P12BE;
+    pub const YUV422P12: AVPixelFormat = AVP::YUV422P12BE;
+    pub const YUV440P12: AVPixelFormat = AVP::YUV440P12BE;
+    pub const YUV444P12: AVPixelFormat = AVP::YUV444P12BE;
+    pub const YUV420P14: AVPixelFormat = AVP::YUV420P14BE;
+    pub const YUV422P14: AVPixelFormat = AVP::YUV422P14BE;
+    pub const YUV444P14: AVPixelFormat = AVP::YUV444P14BE;
+    pub const YUV420P16: AVPixelFormat = AVP::YUV420P16BE;
+    pub const YUV422P16: AVPixelFormat = AVP::YUV422P16BE;
+    pub const YUV444P16: AVPixelFormat = AVP::YUV444P16BE;
 
-#[cfg(target_endian = "little")]
-pub const AV_PIX_FMT_GBRP9: AVPixelFormat = AV_PIX_FMT_GBRP9LE;
-#[cfg(target_endian = "little")]
-pub const AV_PIX_FMT_GBRP10: AVPixelFormat = AV_PIX_FMT_GBRP10LE;
-#[cfg(target_endian = "little")]
-pub const AV_PIX_FMT_GBRP12: AVPixelFormat = AV_PIX_FMT_GBRP12LE;
-#[cfg(target_endian = "little")]
-pub const AV_PIX_FMT_GBRP14: AVPixelFormat = AV_PIX_FMT_GBRP14LE;
-#[cfg(target_endian = "little")]
-pub const AV_PIX_FMT_GBRP16: AVPixelFormat = AV_PIX_FMT_GBRP16LE;
-#[cfg(target_endian = "little")]
-pub const AV_PIX_FMT_GBRAP16: AVPixelFormat = AV_PIX_FMT_GBRAP16LE;
+    pub const GBRP9: AVPixelFormat = AVP::GBRP9BE;
+    pub const GBRP10: AVPixelFormat = AVP::GBRP10BE;
+    pub const GBRP12: AVPixelFormat = AVP::GBRP12BE;
+    pub const GBRP14: AVPixelFormat = AVP::GBRP14BE;
+    pub const GBRP16: AVPixelFormat = AVP::GBRP16BE;
+    pub const GBRAP16: AVPixelFormat = AVP::GBRAP16BE;
 
-#[cfg(target_endian = "little")]
-pub const AV_PIX_FMT_BAYER_BGGR16: AVPixelFormat = AV_PIX_FMT_BAYER_BGGR16LE;
-#[cfg(target_endian = "little")]
-pub const AV_PIX_FMT_BAYER_RGGB16: AVPixelFormat = AV_PIX_FMT_BAYER_RGGB16LE;
-#[cfg(target_endian = "little")]
-pub const AV_PIX_FMT_BAYER_GBRG16: AVPixelFormat = AV_PIX_FMT_BAYER_GBRG16LE;
-#[cfg(target_endian = "little")]
-pub const AV_PIX_FMT_BAYER_GRBG16: AVPixelFormat = AV_PIX_FMT_BAYER_GRBG16LE;
+    pub const BAYER_BGGR16: AVPixelFormat = AVP::BAYER_BGGR16BE;
+    pub const BAYER_RGGB16: AVPixelFormat = AVP::BAYER_RGGB16BE;
+    pub const BAYER_GBRG16: AVPixelFormat = AVP::BAYER_GBRG16BE;
+    pub const BAYER_GRBG16: AVPixelFormat = AVP::BAYER_GRBG16BE;
 
-#[cfg(target_endian = "little")]
-pub const AV_PIX_FMT_YUVA420P9: AVPixelFormat = AV_PIX_FMT_YUVA420P9LE;
-#[cfg(target_endian = "little")]
-pub const AV_PIX_FMT_YUVA422P9: AVPixelFormat = AV_PIX_FMT_YUVA422P9LE;
-#[cfg(target_endian = "little")]
-pub const AV_PIX_FMT_YUVA444P9: AVPixelFormat = AV_PIX_FMT_YUVA444P9LE;
-#[cfg(target_endian = "little")]
-pub const AV_PIX_FMT_YUVA420P10: AVPixelFormat = AV_PIX_FMT_YUVA420P10LE;
-#[cfg(target_endian = "little")]
-pub const AV_PIX_FMT_YUVA422P10: AVPixelFormat = AV_PIX_FMT_YUVA422P10LE;
-#[cfg(target_endian = "little")]
-pub const AV_PIX_FMT_YUVA444P10: AVPixelFormat = AV_PIX_FMT_YUVA444P10LE;
-#[cfg(target_endian = "little")]
-pub const AV_PIX_FMT_YUVA420P16: AVPixelFormat = AV_PIX_FMT_YUVA420P16LE;
-#[cfg(target_endian = "little")]
-pub const AV_PIX_FMT_YUVA422P16: AVPixelFormat = AV_PIX_FMT_YUVA422P16LE;
-#[cfg(target_endian = "little")]
-pub const AV_PIX_FMT_YUVA444P16: AVPixelFormat = AV_PIX_FMT_YUVA444P16LE;
+    pub const YUVA420P9: AVPixelFormat = AVP::YUVA420P9BE;
+    pub const YUVA422P9: AVPixelFormat = AVP::YUVA422P9BE;
+    pub const YUVA444P9: AVPixelFormat = AVP::YUVA444P9BE;
+    pub const YUVA420P10: AVPixelFormat = AVP::YUVA420P10BE;
+    pub const YUVA422P10: AVPixelFormat = AVP::YUVA422P10BE;
+    pub const YUVA444P10: AVPixelFormat = AVP::YUVA444P10BE;
+    pub const YUVA420P16: AVPixelFormat = AVP::YUVA420P16BE;
+    pub const YUVA422P16: AVPixelFormat = AVP::YUVA422P16BE;
+    pub const YUVA444P16: AVPixelFormat = AVP::YUVA444P16BE;
 
-#[cfg(target_endian = "little")]
-pub const AV_PIX_FMT_XYZ12: AVPixelFormat = AV_PIX_FMT_XYZ12LE;
-#[cfg(target_endian = "little")]
-pub const AV_PIX_FMT_NV20: AVPixelFormat = AV_PIX_FMT_NV20LE;
-#[cfg(target_endian = "little")]
-pub const AV_PIX_FMT_AYUV64: AVPixelFormat = AV_PIX_FMT_AYUV64LE;
-
-#[cfg(target_endian = "big")]
-pub const AV_PIX_FMT_RGB32: AVPixelFormat = AV_PIX_FMT_ARGB;
-#[cfg(target_endian = "big")]
-pub const AV_PIX_FMT_RGB32_1: AVPixelFormat = AV_PIX_FMT_RGBA;
-#[cfg(target_endian = "big")]
-pub const AV_PIX_FMT_BGR32: AVPixelFormat = AV_PIX_FMT_ABGR;
-#[cfg(target_endian = "big")]
-pub const AV_PIX_FMT_BGR32_1: AVPixelFormat = AV_PIX_FMT_BGRA;
-#[cfg(target_endian = "big")]
-pub const AV_PIX_FMT_0RGB32: AVPixelFormat = AV_PIX_FMT_0RGB;
-#[cfg(target_endian = "big")]
-pub const AV_PIX_FMT_0BGR32: AVPixelFormat = AV_PIX_FMT_0BGR;
-
-#[cfg(target_endian = "big")]
-pub const AV_PIX_FMT_GRAY16: AVPixelFormat = AV_PIX_FMT_GRAY16BE;
-#[cfg(target_endian = "big")]
-pub const AV_PIX_FMT_YA16: AVPixelFormat = AV_PIX_FMT_YA16BE;
-#[cfg(target_endian = "big")]
-pub const AV_PIX_FMT_RGB48: AVPixelFormat = AV_PIX_FMT_RGB48BE;
-#[cfg(target_endian = "big")]
-pub const AV_PIX_FMT_RGB565: AVPixelFormat = AV_PIX_FMT_RGB565BE;
-#[cfg(target_endian = "big")]
-pub const AV_PIX_FMT_RGB555: AVPixelFormat = AV_PIX_FMT_RGB555BE;
-#[cfg(target_endian = "big")]
-pub const AV_PIX_FMT_RGB444: AVPixelFormat = AV_PIX_FMT_RGB444BE;
-#[cfg(target_endian = "big")]
-pub const AV_PIX_FMT_BGR48: AVPixelFormat = AV_PIX_FMT_BGR48BE;
-#[cfg(target_endian = "big")]
-pub const AV_PIX_FMT_BGR565: AVPixelFormat = AV_PIX_FMT_BGR565BE;
-#[cfg(target_endian = "big")]
-pub const AV_PIX_FMT_BGR555: AVPixelFormat = AV_PIX_FMT_BGR555BE;
-#[cfg(target_endian = "big")]
-pub const AV_PIX_FMT_BGR444: AVPixelFormat = AV_PIX_FMT_BGR444BE;
-
-#[cfg(target_endian = "big")]
-pub const AV_PIX_FMT_YUV420P9: AVPixelFormat = AV_PIX_FMT_YUV420P9BE;
-#[cfg(target_endian = "big")]
-pub const AV_PIX_FMT_YUV422P9: AVPixelFormat = AV_PIX_FMT_YUV422P9BE;
-#[cfg(target_endian = "big")]
-pub const AV_PIX_FMT_YUV444P9: AVPixelFormat = AV_PIX_FMT_YUV444P9BE;
-#[cfg(target_endian = "big")]
-pub const AV_PIX_FMT_YUV420P10: AVPixelFormat = AV_PIX_FMT_YUV420P10BE;
-#[cfg(target_endian = "big")]
-pub const AV_PIX_FMT_YUV422P10: AVPixelFormat = AV_PIX_FMT_YUV422P10BE;
-#[cfg(target_endian = "big")]
-pub const AV_PIX_FMT_YUV440P10: AVPixelFormat = AV_PIX_FMT_YUV440P10BE;
-#[cfg(target_endian = "big")]
-pub const AV_PIX_FMT_YUV444P10: AVPixelFormat = AV_PIX_FMT_YUV444P10BE;
-#[cfg(target_endian = "big")]
-pub const AV_PIX_FMT_YUV420P12: AVPixelFormat = AV_PIX_FMT_YUV420P12BE;
-#[cfg(target_endian = "big")]
-pub const AV_PIX_FMT_YUV422P12: AVPixelFormat = AV_PIX_FMT_YUV422P12BE;
-#[cfg(target_endian = "big")]
-pub const AV_PIX_FMT_YUV440P12: AVPixelFormat = AV_PIX_FMT_YUV440P12BE;
-#[cfg(target_endian = "big")]
-pub const AV_PIX_FMT_YUV444P12: AVPixelFormat = AV_PIX_FMT_YUV444P12BE;
-#[cfg(target_endian = "big")]
-pub const AV_PIX_FMT_YUV420P14: AVPixelFormat = AV_PIX_FMT_YUV420P14BE;
-#[cfg(target_endian = "big")]
-pub const AV_PIX_FMT_YUV422P14: AVPixelFormat = AV_PIX_FMT_YUV422P14BE;
-#[cfg(target_endian = "big")]
-pub const AV_PIX_FMT_YUV444P14: AVPixelFormat = AV_PIX_FMT_YUV444P14BE;
-#[cfg(target_endian = "big")]
-pub const AV_PIX_FMT_YUV420P16: AVPixelFormat = AV_PIX_FMT_YUV420P16BE;
-#[cfg(target_endian = "big")]
-pub const AV_PIX_FMT_YUV422P16: AVPixelFormat = AV_PIX_FMT_YUV422P16BE;
-#[cfg(target_endian = "big")]
-pub const AV_PIX_FMT_YUV444P16: AVPixelFormat = AV_PIX_FMT_YUV444P16BE;
-
-#[cfg(target_endian = "big")]
-pub const AV_PIX_FMT_GBRP9: AVPixelFormat = AV_PIX_FMT_GBRP9BE;
-#[cfg(target_endian = "big")]
-pub const AV_PIX_FMT_GBRP10: AVPixelFormat = AV_PIX_FMT_GBRP10BE;
-#[cfg(target_endian = "big")]
-pub const AV_PIX_FMT_GBRP12: AVPixelFormat = AV_PIX_FMT_GBRP12BE;
-#[cfg(target_endian = "big")]
-pub const AV_PIX_FMT_GBRP14: AVPixelFormat = AV_PIX_FMT_GBRP14BE;
-#[cfg(target_endian = "big")]
-pub const AV_PIX_FMT_GBRP16: AVPixelFormat = AV_PIX_FMT_GBRP16BE;
-#[cfg(target_endian = "big")]
-pub const AV_PIX_FMT_GBRAP16: AVPixelFormat = AV_PIX_FMT_GBRAP16BE;
-
-#[cfg(target_endian = "big")]
-pub const AV_PIX_FMT_BAYER_BGGR16: AVPixelFormat = AV_PIX_FMT_BAYER_BGGR16BE;
-#[cfg(target_endian = "big")]
-pub const AV_PIX_FMT_BAYER_RGGB16: AVPixelFormat = AV_PIX_FMT_BAYER_RGGB16BE;
-#[cfg(target_endian = "big")]
-pub const AV_PIX_FMT_BAYER_GBRG16: AVPixelFormat = AV_PIX_FMT_BAYER_GBRG16BE;
-#[cfg(target_endian = "big")]
-pub const AV_PIX_FMT_BAYER_GRBG16: AVPixelFormat = AV_PIX_FMT_BAYER_GRBG16BE;
-
-#[cfg(target_endian = "big")]
-pub const AV_PIX_FMT_YUVA420P9: AVPixelFormat = AV_PIX_FMT_YUVA420P9BE;
-#[cfg(target_endian = "big")]
-pub const AV_PIX_FMT_YUVA422P9: AVPixelFormat = AV_PIX_FMT_YUVA422P9BE;
-#[cfg(target_endian = "big")]
-pub const AV_PIX_FMT_YUVA444P9: AVPixelFormat = AV_PIX_FMT_YUVA444P9BE;
-#[cfg(target_endian = "big")]
-pub const AV_PIX_FMT_YUVA420P10: AVPixelFormat = AV_PIX_FMT_YUVA420P10BE;
-#[cfg(target_endian = "big")]
-pub const AV_PIX_FMT_YUVA422P10: AVPixelFormat = AV_PIX_FMT_YUVA422P10BE;
-#[cfg(target_endian = "big")]
-pub const AV_PIX_FMT_YUVA444P10: AVPixelFormat = AV_PIX_FMT_YUVA444P10BE;
-#[cfg(target_endian = "big")]
-pub const AV_PIX_FMT_YUVA420P16: AVPixelFormat = AV_PIX_FMT_YUVA420P16BE;
-#[cfg(target_endian = "big")]
-pub const AV_PIX_FMT_YUVA422P16: AVPixelFormat = AV_PIX_FMT_YUVA422P16BE;
-#[cfg(target_endian = "big")]
-pub const AV_PIX_FMT_YUVA444P16: AVPixelFormat = AV_PIX_FMT_YUVA444P16BE;
-
-#[cfg(target_endian = "big")]
-pub const AV_PIX_FMT_XYZ12: AVPixelFormat = AV_PIX_FMT_XYZ12BE;
-#[cfg(target_endian = "big")]
-pub const AV_PIX_FMT_NV20: AVPixelFormat = AV_PIX_FMT_NV20BE;
-#[cfg(target_endian = "big")]
-pub const AV_PIX_FMT_AYUV64: AVPixelFormat = AV_PIX_FMT_AYUV64BE;
+    pub const XYZ12: AVPixelFormat = AVP::XYZ12BE;
+    pub const NV20: AVPixelFormat = AVP::NV20BE;
+    pub const AYUV64: AVPixelFormat = AVP::AYUV64BE;
+}

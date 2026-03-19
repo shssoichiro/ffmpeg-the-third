@@ -9,19 +9,9 @@ env:
   CARGO_INCREMENTAL: 0
   RUSTFLAGS: "-Dwarnings"
 
-  # All default features except non-exhaustive-enums,
-  # to check that FFmpeg versions are properly compatible
-  CARGO_FEATURES: "
-    --no-default-features
-    --features codec,device,filter,format
-    --features software-resampling,software-scaling"
-
   SYS_ARGS: "
     --target-dir target
-    --manifest-path ffmpeg-sys-the-third/Cargo.toml
-    --no-default-features
-    --features avcodec,avdevice,avfilter,avformat
-    --features swresample,swscale"
+    --manifest-path ffmpeg-sys-the-third/Cargo.toml"
 
 jobs:
   build-test-lint-linux:
@@ -84,13 +74,13 @@ jobs:
       - name: Lint
         run: |
           cargo clippy $SYS_ARGS
-          cargo clippy --all-targets $CARGO_FEATURES
+          cargo clippy --all-targets
       - name: Build
-        run: cargo build --all-targets $CARGO_FEATURES
+        run: cargo build --all-targets
       - name: Test
         run: |
           cargo test $SYS_ARGS
-          cargo test $CARGO_FEATURES
+          cargo test
 
   build-test-lint-macos:
     name: macOS - FFmpeg ${{ matrix.ffmpeg_version }} - build, test and lint
@@ -122,13 +112,13 @@ jobs:
       - name: Lint
         run: |
           cargo clippy $SYS_ARGS
-          cargo clippy --all-targets $CARGO_FEATURES
+          cargo clippy --all-targets
       - name: Build
-        run: cargo build --all-targets $CARGO_FEATURES
+        run: cargo build --all-targets
       - name: Test
         run: |
           cargo test $SYS_ARGS
-          cargo test $CARGO_FEATURES
+          cargo test
 
   build-test-lint-windows:
     name: Windows - FFmpeg ${{ matrix.ffmpeg_version }} - build, test and lint
@@ -175,13 +165,13 @@ jobs:
       - name: Lint
         run: |
           cargo clippy $SYS_ARGS
-          cargo clippy --all-targets $CARGO_FEATURES
+          cargo clippy --all-targets
       - name: Build
-        run: cargo build --all-targets $CARGO_FEATURES
+        run: cargo build --all-targets
       - name: Test
         run: |
           cargo test $SYS_ARGS
-          cargo test $CARGO_FEATURES
+          cargo test
 
   msrv:
     runs-on: ubuntu-latest
@@ -209,4 +199,4 @@ jobs:
         with:
           prefix-key: "v3-rust"
       - name: Run cargo check
-        run: cargo check $CARGO_FEATURES
+        run: cargo check

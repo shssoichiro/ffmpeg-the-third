@@ -46,31 +46,30 @@ impl From<AVColorPrimaries> for Primaries {
         use AVColorPrimaries as AV;
 
         match value {
-            AV::AVCOL_PRI_RESERVED0 => Primaries::Reserved0,
-            AV::AVCOL_PRI_BT709 => Primaries::BT709,
-            AV::AVCOL_PRI_UNSPECIFIED => Primaries::Unspecified,
-            AV::AVCOL_PRI_RESERVED => Primaries::Reserved,
-            AV::AVCOL_PRI_BT470M => Primaries::BT470M,
+            AV::RESERVED0 => Primaries::Reserved0,
+            AV::BT709 => Primaries::BT709,
+            AV::UNSPECIFIED => Primaries::Unspecified,
+            AV::RESERVED => Primaries::Reserved,
+            AV::BT470M => Primaries::BT470M,
 
-            AV::AVCOL_PRI_BT470BG => Primaries::BT470BG,
-            AV::AVCOL_PRI_SMPTE170M => Primaries::SMPTE170M,
-            AV::AVCOL_PRI_SMPTE240M => Primaries::SMPTE240M,
-            AV::AVCOL_PRI_FILM => Primaries::Film,
-            AV::AVCOL_PRI_BT2020 => Primaries::BT2020,
-            AV::AVCOL_PRI_NB => unreachable!(),
+            AV::BT470BG => Primaries::BT470BG,
+            AV::SMPTE170M => Primaries::SMPTE170M,
+            AV::SMPTE240M => Primaries::SMPTE240M,
+            AV::FILM => Primaries::Film,
+            AV::BT2020 => Primaries::BT2020,
+            AV::NB => unreachable!(),
 
-            AV::AVCOL_PRI_SMPTE428 => Primaries::SMPTE428,
-            AV::AVCOL_PRI_SMPTE431 => Primaries::SMPTE431,
-            AV::AVCOL_PRI_SMPTE432 => Primaries::SMPTE432,
-            AV::AVCOL_PRI_EBU3213 => Primaries::EBU3213,
+            AV::SMPTE428 => Primaries::SMPTE428,
+            AV::SMPTE431 => Primaries::SMPTE431,
+            AV::SMPTE432 => Primaries::SMPTE432,
+            AV::EBU3213 => Primaries::EBU3213,
 
             #[cfg(feature = "ffmpeg_8_1")]
             // upstream defines it this way
-            AV::AVCOL_PRI_EXT_BASE => Primaries::V_GAMUT,
+            AV::EXT_BASE => Primaries::V_GAMUT,
             #[cfg(feature = "ffmpeg_8_1")]
-            AV::AVCOL_PRI_EXT_NB => unreachable!(),
+            AV::EXT_NB => unreachable!(),
 
-            #[cfg(feature = "non-exhaustive-enums")]
             _ => unimplemented!(),
         }
     }
@@ -81,25 +80,25 @@ impl From<Primaries> for AVColorPrimaries {
         use AVColorPrimaries as AV;
 
         match value {
-            Primaries::Reserved0 => AV::AVCOL_PRI_RESERVED0,
-            Primaries::BT709 => AV::AVCOL_PRI_BT709,
-            Primaries::Unspecified => AV::AVCOL_PRI_UNSPECIFIED,
-            Primaries::Reserved => AV::AVCOL_PRI_RESERVED,
-            Primaries::BT470M => AV::AVCOL_PRI_BT470M,
+            Primaries::Reserved0 => AV::RESERVED0,
+            Primaries::BT709 => AV::BT709,
+            Primaries::Unspecified => AV::UNSPECIFIED,
+            Primaries::Reserved => AV::RESERVED,
+            Primaries::BT470M => AV::BT470M,
 
-            Primaries::BT470BG => AV::AVCOL_PRI_BT470BG,
-            Primaries::SMPTE170M => AV::AVCOL_PRI_SMPTE170M,
-            Primaries::SMPTE240M => AV::AVCOL_PRI_SMPTE240M,
-            Primaries::Film => AV::AVCOL_PRI_FILM,
-            Primaries::BT2020 => AV::AVCOL_PRI_BT2020,
+            Primaries::BT470BG => AV::BT470BG,
+            Primaries::SMPTE170M => AV::SMPTE170M,
+            Primaries::SMPTE240M => AV::SMPTE240M,
+            Primaries::Film => AV::FILM,
+            Primaries::BT2020 => AV::BT2020,
 
-            Primaries::SMPTE428 => AV::AVCOL_PRI_SMPTE428,
-            Primaries::SMPTE431 => AV::AVCOL_PRI_SMPTE431,
-            Primaries::SMPTE432 => AV::AVCOL_PRI_SMPTE432,
-            Primaries::EBU3213 => AV::AVCOL_PRI_EBU3213,
+            Primaries::SMPTE428 => AV::SMPTE428,
+            Primaries::SMPTE431 => AV::SMPTE431,
+            Primaries::SMPTE432 => AV::SMPTE432,
+            Primaries::EBU3213 => AV::EBU3213,
 
             #[cfg(feature = "ffmpeg_8_1")]
-            Primaries::V_GAMUT => AV::AVCOL_PRI_V_GAMUT,
+            Primaries::V_GAMUT => AV::V_GAMUT,
         }
     }
 }

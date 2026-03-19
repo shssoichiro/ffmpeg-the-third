@@ -1,5 +1,4 @@
 use crate::ffi::*;
-use crate::sys::SwrEngine::*;
 #[cfg(feature = "serialize")]
 use serde::{Deserialize, Serialize};
 
@@ -12,12 +11,14 @@ pub enum Engine {
 
 impl From<SwrEngine> for Engine {
     fn from(value: SwrEngine) -> Engine {
-        match value {
-            SWR_ENGINE_SWR => Engine::Software,
-            SWR_ENGINE_SOXR => Engine::SoundExchange,
-            SWR_ENGINE_NB => Engine::Software,
+        use SwrEngine as AV;
 
-            #[cfg(feature = "non-exhaustive-enums")]
+        match value {
+            AV::SWR => Engine::Software,
+            AV::SOXR => Engine::SoundExchange,
+
+            AV::NB => unreachable!(),
+
             _ => unimplemented!(),
         }
     }
@@ -25,9 +26,11 @@ impl From<SwrEngine> for Engine {
 
 impl From<Engine> for SwrEngine {
     fn from(value: Engine) -> SwrEngine {
+        use SwrEngine as AV;
+
         match value {
-            Engine::Software => SWR_ENGINE_SWR,
-            Engine::SoundExchange => SWR_ENGINE_SOXR,
+            Engine::Software => AV::SWR,
+            Engine::SoundExchange => AV::SOXR,
         }
     }
 }

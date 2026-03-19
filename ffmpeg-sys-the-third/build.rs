@@ -308,7 +308,87 @@ static SWSCALE_HEADERS: &[AVHeader] = &[AVHeader::new("swscale.h")];
 static SWRESAMPLE_HEADERS: &[AVHeader] = &[AVHeader::new("swresample.h")];
 
 #[derive(Debug)]
-struct Callbacks;
+struct Callbacks {
+    enum_prefixes: HashMap<&'static str, &'static str>,
+}
+
+impl Default for Callbacks {
+    fn default() -> Self {
+        Self {
+            enum_prefixes: HashMap::from([
+                // pre-8.0
+                ("enum RDFTransformType", ""),
+                ("enum DCTTransformType", ""),
+                // 8.0
+                ("enum AVSampleFormat", "AV_SAMPLE_FMT_"),
+                ("enum AVEscapeMode", "AV_ESCAPE_MODE_"),
+                ("enum AVChannel", "AV_CHAN_"),
+                ("enum AVChannelOrder", "AV_CHANNEL_ORDER_"),
+                ("enum AVMatrixEncoding", "AV_MATRIX_ENCODING"),
+                ("AVCRCId", "AV_CRC_"),
+                ("enum AVMediaType", "AVMEDIA_TYPE_"),
+                ("enum AVPictureType", "AV_PICTURE_TYPE_"),
+                ("enum AVRounding", "AV_ROUND_"),
+                ("AVClassCategory", "AV_CLASS_CATEGORY_"),
+                ("enum AVPixelFormat", "AV_PIX_FMT_"),
+                ("enum AVColorPrimaries", "AVCOL_PRI_"),
+                ("enum AVColorTransferCharacteristic", "AVCOL_TRC_"),
+                ("enum AVColorSpace", "AVCOL_SPC_"),
+                ("enum AVColorRange", "AVCOL_RANGE_"),
+                ("enum AVChromaLocation", "AVCHROMA_LOC_"),
+                ("enum AVFrameSideDataType", "AV_FRAME_DATA_"),
+                ("enum AVActiveFormatDescription", "AV_AFD_"),
+                ("enum AVSideDataProps", "AV_SIDE_DATA_PROP_"),
+                ("enum AVDownmixType", "AV_DOWNMIX_TYPE_"),
+                ("enum AVHMACType", "AV_HMAC_"),
+                ("enum AVHWDeviceType", "AV_HWDEVICE_TYPE_"),
+                (
+                    "enum AVHWFrameTransferDirection",
+                    "AV_HWFRAME_TRANSFER_DIRECTION_",
+                ),
+                ("enum AVOptionType", "AV_OPT_TYPE_"),
+                ("enum AVStereo3DType", "AV_STEREO3D_"),
+                ("enum AVStereo3DPrimaryEye", "AV_PRIMARY_EYE_"),
+                ("enum AVThreadMessageFlags", "AV_THREAD_MESSAGE_"),
+                ("enum AVTimecodeFlag", "AV_TIMECODE_FLAG_"),
+                ("enum AVTXType", "AV_TX_"),
+                ("enum AVTXFlags", "AV_TX_"),
+                ("enum AVCodecID", "AV_CODEC_ID_"),
+                ("enum AVClassStateFlags", "AV_CLASS_STATE_"),
+                ("enum AVStereo3DView", "AV_STEREO3D_VIEW_"),
+                ("enum AVFieldOrder", "AV_FIELD_"),
+                ("enum AVDiscard", "AVDISCARD_"),
+                ("enum AVAudioServiceType", "AV_AUDIO_SERVICE_TYPE_"),
+                ("enum AVPacketSideDataType", "AV_PKT_DATA_"),
+                (
+                    "enum AVSideDataParamChangeFlags",
+                    "AV_SIDE_DATA_PARAM_CHANGE_",
+                ),
+                ("enum AVSubtitleType", "SUBTITLE_"),
+                ("enum AVCodecConfig", "AV_CODEC_CONFIG_"),
+                ("enum AVPictureStructure", "AV_PICTURE_STRUCTURE_"),
+                ("enum AVIODirEntryType", "AVIO_ENTRY_"),
+                ("enum AVIODataMarkerType", "AVIO_DATA_MARKER_"),
+                ("enum AVStreamParseType", "AVSTREAM_PARSE"),
+                ("enum AVStreamGroupParamsType", "AV_STREAM_GROUP_PARAMS_"),
+                ("enum AVDurationEstimationMethod", "AVFMT_DURATION_FROM_"),
+                ("enum AVTimebaseSource", "AVFMT_TBCF_"),
+                ("enum AVAppToDevMessageType", "AV_APP_TO_DEV_"),
+                ("enum AVDevToAppMessageType", "AV_DEV_TO_APP_"),
+                ("enum SwsDither", "SWS_DITHER_"),
+                ("enum SwsAlphaBlend", "SWS_ALPHA_BLEND_"),
+                ("enum SwsFlags", "SWS_"),
+                ("enum SwsIntent", "SWS_INTENT_"),
+                ("enum SwrDitherType", "SWR_DITHER_"),
+                ("enum SwrEngine", "SWR_ENGINE_"),
+                ("enum SwrFilterType", "SWR_FILTER_TYPE_"),
+                // 8.1
+                ("enum AVAlphaMode", "AVALPHA_MODE_"),
+                ("enum AVFormatCommandID", "AVFORMAT_COMMAND_"),
+            ]),
+        }
+    }
+}
 
 impl ParseCallbacks for Callbacks {
     fn int_macro(&self, name: &str, value: i64) -> Option<IntKind> {
@@ -346,6 +426,39 @@ impl ParseCallbacks for Callbacks {
             Some(EnumVariantCustomBehavior::Constify)
         } else {
             None
+        }
+    }
+
+    fn enum_variant_name(
+        &self,
+        enum_name: Option<&str>,
+        original_variant_name: &str,
+        _variant_value: EnumVariantValue,
+    ) -> Option<String> {
+        let enum_name = enum_name?;
+
+        // apparently, some unnamed enums "sneak through". stop them here
+        if enum_name.starts_with("enum") && enum_name.contains("(unnamed") {
+            return None;
+        }
+
+        let Some(prefix) = self.enum_prefixes.get(enum_name) else {
+            println!(
+                "cargo::warning=unknown FFmpeg enum: {original_variant_name} from {enum_name}"
+            );
+            return None;
+        };
+
+        if original_variant_name.len() <= prefix.len() {
+            println!("cargo::warning=enum name too short. name: {original_variant_name}, expected prefix: {prefix}");
+            return None;
+        }
+
+        let variant_name = &original_variant_name[prefix.len()..];
+        if variant_name.starts_with(|c: char| c.is_ascii_digit()) {
+            Some("_".to_owned() + variant_name)
+        } else {
+            Some(variant_name.to_owned())
         }
     }
 
@@ -681,8 +794,9 @@ fn main() {
         .iter()
         .map(|include| format!("-I{}", include.to_string_lossy()));
 
-    let default_enum_style = EnumVariation::Rust {
-        non_exhaustive: cargo_feature_enabled("non_exhaustive_enums"),
+    let default_enum_style = EnumVariation::NewType {
+        is_bitfield: false,
+        is_global: false,
     };
 
     bindgen::Builder::default()
@@ -694,10 +808,7 @@ fn main() {
         .no_debug("AVChannelLayout")
         .no_debug("AVChannelCustom")
         .default_enum_style(default_enum_style)
-        // Some enums can never be rustified, use the newtype
-        // pattern for them instead.
-        .newtype_enum("AVOptionType")
-        .newtype_enum("AVAlphaMode")
+        .prepend_enum_name(false)
         // Only generate bindings from FFmpeg headers
         .allowlist_file(r#".*[/\\]libavutil[/\\].*"#)
         .allowlist_file(r#".*[/\\]libavcodec[/\\].*"#)
@@ -707,10 +818,9 @@ fn main() {
         .allowlist_file(r#".*[/\\]libswscale[/\\].*"#)
         .allowlist_file(r#".*[/\\]libswresample[/\\].*"#)
         .opaque_type("__mingw_ldbl_type_t")
-        .prepend_enum_name(false)
         .derive_eq(true)
         .size_t_is_usize(true)
-        .parse_callbacks(Box::new(Callbacks))
+        .parse_callbacks(Box::new(Callbacks::default()))
         .header_contents("wrapper.h", &wrapper_h)
         .generate()
         .expect("Unable to generate bindings")
