@@ -408,7 +408,7 @@ fn fetch(source_dir: &Path, ffmpeg_version: &str) -> io::Result<()> {
     if status.success() {
         Ok(())
     } else {
-        Err(io::Error::new(io::ErrorKind::Other, "fetch failed"))
+        Err(io::Error::other("fetch failed"))
     }
 }
 
@@ -575,8 +575,7 @@ fn build(out_dir: &Path, ffmpeg_version: &str) -> io::Result<PathBuf> {
     if !output.status.success() {
         println!("configure: {}", String::from_utf8_lossy(&output.stdout));
 
-        return Err(io::Error::new(
-            io::ErrorKind::Other,
+        return Err(io::Error::other(
             format!(
                 "configure failed {}",
                 String::from_utf8_lossy(&output.stderr)
@@ -597,7 +596,7 @@ fn build(out_dir: &Path, ffmpeg_version: &str) -> io::Result<PathBuf> {
         .status()?
         .success()
     {
-        return Err(io::Error::new(io::ErrorKind::Other, "make failed"));
+        return Err(io::Error::other("make failed"));
     }
 
     // run make install
@@ -607,7 +606,7 @@ fn build(out_dir: &Path, ffmpeg_version: &str) -> io::Result<PathBuf> {
         .status()?
         .success()
     {
-        return Err(io::Error::new(io::ErrorKind::Other, "make install failed"));
+        return Err(io::Error::other("make install failed"));
     }
 
     rustc_link_extralibs(&source_dir);

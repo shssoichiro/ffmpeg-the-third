@@ -51,8 +51,8 @@ unnecessary_transmutes = "allow"
 approx_constant = "allow"
 # TODO: Add safety docs and remove this
 missing_safety_doc = "allow"
-redundant_static_lifetimes = "allow"
-too_many_arguments = "allow"
+# bindgen sometimes triggers these
+ptr_offset_with_cast = "allow"
 type_complexity = "allow"
 
 [features]
