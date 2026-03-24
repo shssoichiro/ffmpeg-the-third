@@ -37,6 +37,24 @@ clang = { version = "2.0.0", features = ["clang_3_9", "runtime"] }
 [target.'cfg(target_env = "msvc")'.build-dependencies]
 vcpkg = "0.2"
 
+[lints.rust]
+# C types don't always follow Rust naming conventions
+non_upper_case_globals = "allow"
+non_camel_case_types = "allow"
+non_snake_case = "allow"
+# bindgen auto-derives PartialEq/Eq which sometimes triggers this
+unpredictable_function_pointer_comparisons = "allow"
+# see rust-lang/rust-bindgen#3241
+unnecessary_transmutes = "allow"
+
+[lints.clippy]
+approx_constant = "allow"
+# TODO: Add safety docs and remove this
+missing_safety_doc = "allow"
+redundant_static_lifetimes = "allow"
+too_many_arguments = "allow"
+type_complexity = "allow"
+
 [features]
 default = [
     "avcodec",
