@@ -48,7 +48,6 @@ unpredictable_function_pointer_comparisons = "allow"
 unnecessary_transmutes = "allow"
 
 [lints.clippy]
-approx_constant = "allow"
 # TODO: Add safety docs and remove this
 missing_safety_doc = "allow"
 # bindgen sometimes triggers these

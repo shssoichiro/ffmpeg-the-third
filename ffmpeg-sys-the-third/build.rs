@@ -344,6 +344,12 @@ impl ParseCallbacks for Callbacks {
     fn will_parse_macro(&self, name: &str) -> MacroParsingBehavior {
         use crate::MacroParsingBehavior::*;
 
+        // mathematics.h contains some math constants that also exists in Rust
+        // like M_SQRT2f == std::f32::consts::SQRT_2
+        if name.starts_with("M_") {
+            return Ignore;
+        }
+
         match name {
             "FP_INFINITE" => Ignore,
             "FP_NAN" => Ignore,
