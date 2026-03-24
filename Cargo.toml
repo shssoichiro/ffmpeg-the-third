@@ -43,8 +43,6 @@ non_camel_case_types = "allow"
 module_inception = "allow"
 # FFI Types may differ across platforms, making casts necessary
 unnecessary_cast = "allow"
-# This lint sometimes suggests worse code. See rust-lang/rust-clippy#13514
-needless_lifetimes = "allow"
 # TODO: Add safety docs and remove this
 missing_safety_doc = "allow"
 
