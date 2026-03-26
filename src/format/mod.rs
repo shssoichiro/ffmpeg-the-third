@@ -147,7 +147,7 @@ fn open_context_write(
         )
     };
 
-    if res < 0 {
+    if res >= 0 {
         Ok(())
     } else {
         Err(Error::from(res))
