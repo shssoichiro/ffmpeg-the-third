@@ -40,6 +40,7 @@ pub enum Error {
     HttpUnauthorized,
     HttpForbidden,
     HttpNotFound,
+    HttpTooManyRequests,
     HttpOther4xx,
     HttpServerError,
 
@@ -77,6 +78,7 @@ impl From<c_int> for Error {
             AVERROR_HTTP_UNAUTHORIZED => Error::HttpUnauthorized,
             AVERROR_HTTP_FORBIDDEN => Error::HttpForbidden,
             AVERROR_HTTP_NOT_FOUND => Error::HttpNotFound,
+            AVERROR_HTTP_TOO_MANY_REQUESTS => Error::HttpTooManyRequests,
             AVERROR_HTTP_OTHER_4XX => Error::HttpOther4xx,
             AVERROR_HTTP_SERVER_ERROR => Error::HttpServerError,
             e => Error::Other {
@@ -114,6 +116,7 @@ impl From<Error> for c_int {
             Error::HttpUnauthorized => AVERROR_HTTP_UNAUTHORIZED,
             Error::HttpForbidden => AVERROR_HTTP_FORBIDDEN,
             Error::HttpNotFound => AVERROR_HTTP_NOT_FOUND,
+            Error::HttpTooManyRequests => AVERROR_HTTP_TOO_MANY_REQUESTS,
             Error::HttpOther4xx => AVERROR_HTTP_OTHER_4XX,
             Error::HttpServerError => AVERROR_HTTP_SERVER_ERROR,
             Error::Other { errno } => AVERROR(errno),
@@ -241,5 +244,10 @@ mod tests {
         if cfg!(unix) {
             assert_eq!(s, "Resource temporarily unavailable");
         }
+
+        s.clear();
+
+        write!(&mut s, "{}", Error::HttpTooManyRequests).expect("can write into string");
+        assert_eq!(s, "Server returned 429 Too Many Requests");
     }
 }
