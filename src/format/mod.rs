@@ -181,7 +181,7 @@ pub fn output_as<P: AsRef<OsStr>>(path_or_url: P, format: &str) -> Result<contex
 }
 
 pub fn output_as_with<P, Dict>(
-    path: P,
+    path_or_url: P,
     format: &str,
     mut options: Dict,
 ) -> Result<context::Output, Error>
@@ -191,7 +191,7 @@ where
 {
     unsafe {
         let mut ps = ptr::null_mut();
-        let path = from_os_str(path);
+        let path = from_os_str(path_or_url);
         let format = CString::new(format).unwrap();
 
         match avformat_alloc_output_context2(
