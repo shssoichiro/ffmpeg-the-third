@@ -46,7 +46,7 @@ impl_for_many! {
         /// This function uses case-insensitive matching of the entire key string
         /// to find a value. If you want to customize the way FFmpeg searches
         /// for the key, see [`get_with_flags`][Self::get_with_flags].
-        pub fn get<'d, K: AsRef<str>>(&'d self, key: K) -> Option<&'d str> {
+        pub fn get<K: AsRef<str>>(&self, key: K) -> Option<&str> {
             self.get_with_flags(key, Flags::empty())
         }
 
@@ -55,7 +55,7 @@ impl_for_many! {
         /// See [Flags][crate::dictionary::Flags] to see how each flag works.
         /// Using [`Flags::DONT_STRDUP_KEY`] is heavily discouraged unless you
         /// know what you are doing.
-        pub fn get_with_flags<'d, K: AsRef<str>>(&'d self, key: K, flags: Flags) -> Option<&'d str> {
+        pub fn get_with_flags<K: AsRef<str>>(&self, key: K, flags: Flags) -> Option<&str> {
             // SAFETY: Returned lifetime is bounded by borrow on self
             unsafe { get(self.as_ptr(), key.as_ref(), flags) }
         }
