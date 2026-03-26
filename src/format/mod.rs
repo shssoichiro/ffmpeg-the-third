@@ -220,14 +220,6 @@ where
     }
 }
 
-#[cfg(unix)]
 fn from_os_str(path_or_url: impl AsRef<OsStr>) -> CString {
-    use std::os::unix::ffi::OsStrExt;
-
-    CString::new(path_or_url.as_ref().as_bytes()).unwrap()
-}
-
-#[cfg(not(unix))]
-fn from_os_str(path_or_url: impl AsRef<OsStr>) -> CString {
-    CString::new(path_or_url.as_ref().to_str().unwrap()).unwrap()
+    CString::new(path_or_url.as_ref().as_encoded_bytes()).unwrap()
 }
