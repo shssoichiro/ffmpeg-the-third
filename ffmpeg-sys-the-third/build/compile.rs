@@ -79,7 +79,9 @@ static EXTERNAL_BUILD_LIBS: &[(&str, &str)] = &[
     ("SSH", "libssh"),
 ];
 
-const REPO_URL: &str = "https://github.com/FFmpeg/FFmpeg";
+fn get_repo_url() -> String {
+    env::var("FFMPEG_GIT_URL").unwrap_or("https://github.com/FFmpeg/FFmpeg".into())
+}
 
 fn get_newest_patch_version() -> String {
     let crate_ffmpeg_version = env!("CARGO_PKG_VERSION")
@@ -95,7 +97,7 @@ fn get_newest_patch_version() -> String {
         .arg("-q")
         .arg("--tags")
         .arg("--refs")
-        .arg(REPO_URL)
+        .arg(&get_repo_url())
         .arg(format!("n{}*", crate_ffmpeg_version))
         .output()
         .expect("can run git ls-remote");
@@ -124,7 +126,7 @@ fn fetch(source_dir: &Path, ffmpeg_version: &str) -> io::Result<()> {
         .arg("--depth=1")
         .arg("-b")
         .arg(format!("n{ffmpeg_version}"))
-        .arg(REPO_URL)
+        .arg(&get_repo_url())
         .arg(source_dir)
         .status()?;
 
