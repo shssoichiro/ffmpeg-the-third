@@ -7,6 +7,13 @@ This crate contains low level bindings to FFmpeg. You're probably interested in 
 
 A word on versioning: The crate version includes the **maximum supported** FFmpeg version for each release. E.g. `ffmpeg-sys-the-third@2.0.0+ffmpeg-7.0` supports *up to* FFmpeg 7.0. The minimum supported FFmpeg version at the moment is 5.1.
 
+## Supported environment variables
+
+This crate supports the following environment variables to configure the build process:
+
+- `FFMPEG_DIR` can be used to manually set the FFmpeg directory (root directory, not `/lib`, `/include` etc.) to be used for building the crate. If `FFMPEG_DIR` is set, it will take precedence over auto-detection.
+- `FFMPEG_GIT_URL` (only relevant when using the `build` feature) can be used to set a URL to a git repository containing the FFmpeg source code to build. By default, https://github.com/FFmpeg/FFmpeg.git will be used.
+
 ## Feature flags
 
 In addition to feature flags declared in `Cargo.toml`, this crate performs various compile-time version and feature detections and exposes the results in additional flags. These flags are briefly documented below; run `cargo build -vv` to view more details.
