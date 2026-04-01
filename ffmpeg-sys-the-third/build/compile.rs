@@ -138,6 +138,8 @@ fn fetch(source_dir: &Path, ffmpeg_version: &str) -> io::Result<()> {
 }
 
 pub fn build(libraries: &[Library], out_dir: &Path) -> io::Result<PathBuf> {
+    println!("cargo::rerun-if-env-changed=FFMPEG_GIT_URL");
+
     let ffmpeg_version = get_newest_patch_version();
     let source_dir = out_dir.join(format!("ffmpeg-{ffmpeg_version}"));
     let install_dir = out_dir.join("dist");
