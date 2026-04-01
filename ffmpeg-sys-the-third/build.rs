@@ -292,6 +292,7 @@ static AVUTIL_HEADERS: &[AVHeader] = &[
 ];
 static AVCODEC_HEADERS: &[AVHeader] = &[
     AVHeader::new("avcodec.h"),
+    AVHeader::new("bsf.h"),
     AVHeader::new("dv_profile.h"),
     AVHeader::new("avfft.h").to_ver(61), // pre-8.0
     AVHeader::new("vorbis_parser.h"),
