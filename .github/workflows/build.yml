@@ -16,7 +16,9 @@ env:
     --features codec,device,filter,format
     --features software-resampling,software-scaling"
 
-  SYS_FEATURES: "
+  SYS_ARGS: "
+    --target-dir target
+    --manifest-path ffmpeg-sys-the-third/Cargo.toml
     --no-default-features
     --features avcodec,avdevice,avfilter,avformat
     --features swresample,swscale"
@@ -71,24 +73,24 @@ jobs:
           components: rustfmt, clippy
       - uses: Swatinem/rust-cache@v2
         with:
-          prefix-key: "v4-rust"
+          prefix-key: "v5-rust"
           # Only save cache for one FFmpeg version
-          save-if: ${{ matrix.ffmpeg.version == '8.0' }}
+          save-if: ${{ matrix.ffmpeg.version == '8.1' }}
 
       - name: Check format
-        run: cargo fmt -- --check
+        run: |
+          cargo fmt --check --manifest-path ffmpeg-sys-the-third/Cargo.toml
+          cargo fmt --check
       - name: Lint
-        run: cargo clippy --all-targets $CARGO_FEATURES
+        run: |
+          cargo clippy $SYS_ARGS
+          cargo clippy --all-targets $CARGO_FEATURES
       - name: Build
         run: cargo build --all-targets $CARGO_FEATURES
-      - name: Test bindings
-        run: >
-          cargo test
-          --manifest-path ffmpeg-sys-the-third/Cargo.toml
-          --target-dir target
-          $SYS_FEATURES
       - name: Test
-        run: cargo test $CARGO_FEATURES
+        run: |
+          cargo test $SYS_ARGS
+          cargo test $CARGO_FEATURES
 
   build-test-lint-macos:
     name: macOS - FFmpeg ${{ matrix.ffmpeg_version }} - build, test and lint
@@ -111,22 +113,22 @@ jobs:
           components: rustfmt, clippy
       - uses: Swatinem/rust-cache@v2
         with:
-          prefix-key: "v4-rust"
+          prefix-key: "v5-rust"
 
       - name: Check format
-        run: cargo fmt -- --check
+        run: |
+          cargo fmt --check --manifest-path ffmpeg-sys-the-third/Cargo.toml
+          cargo fmt --check
       - name: Lint
-        run: cargo clippy --all-targets $CARGO_FEATURES
+        run: |
+          cargo clippy $SYS_ARGS
+          cargo clippy --all-targets $CARGO_FEATURES
       - name: Build
         run: cargo build --all-targets $CARGO_FEATURES
-      - name: Test bindings
-        run: >
-          cargo test
-          --manifest-path ffmpeg-sys-the-third/Cargo.toml
-          --target-dir target
-          $SYS_FEATURES
       - name: Test
-        run: cargo test $CARGO_FEATURES
+        run: |
+          cargo test $SYS_ARGS
+          cargo test $CARGO_FEATURES
 
   build-test-lint-windows:
     name: Windows - FFmpeg ${{ matrix.ffmpeg_version }} - build, test and lint
@@ -163,23 +165,23 @@ jobs:
           components: rustfmt, clippy
       - uses: Swatinem/rust-cache@v2
         with:
-          prefix-key: "v4-rust"
-          save-if: ${{ matrix.ffmpeg_version == '8.0' }}
+          prefix-key: "v5-rust"
+          save-if: ${{ matrix.ffmpeg_version == '8.1' }}
 
       - name: Check format
-        run: cargo fmt -- --check
+        run: |
+          cargo fmt --check --manifest-path ffmpeg-sys-the-third/Cargo.toml
+          cargo fmt --check
       - name: Lint
-        run: cargo clippy --all-targets $CARGO_FEATURES
+        run: |
+          cargo clippy $SYS_ARGS
+          cargo clippy --all-targets $CARGO_FEATURES
       - name: Build
         run: cargo build --all-targets $CARGO_FEATURES
-      - name: Test bindings
-        run: >
-          cargo test
-          --manifest-path ffmpeg-sys-the-third/Cargo.toml
-          --target-dir target
-          $SYS_FEATURES
       - name: Test
-        run: cargo test $CARGO_FEATURES
+        run: |
+          cargo test $SYS_ARGS
+          cargo test $CARGO_FEATURES
 
   msrv:
     runs-on: ubuntu-latest
@@ -195,7 +197,7 @@ jobs:
         shell: bash
         run: |
           mkdir ffmpeg-libs
-          curl -L "https://sourceforge.net/projects/avbuild/files/linux/ffmpeg-7.1-linux-clang-lite.tar.xz/download" \
+          curl -L "https://sourceforge.net/projects/avbuild/files/linux/ffmpeg-8.1-linux-clang-lite.tar.xz/download" \
             | tar xJf - --strip 1 -C ffmpeg-libs
 
           echo "PKG_CONFIG_PATH=$PWD/ffmpeg-libs/lib/amd64/pkgconfig" >> "$GITHUB_ENV"
@@ -205,6 +207,6 @@ jobs:
         uses: dtolnay/rust-toolchain@1.80.0
       - uses: Swatinem/rust-cache@v2
         with:
-          prefix-key: "v2-rust"
+          prefix-key: "v3-rust"
       - name: Run cargo check
         run: cargo check $CARGO_FEATURES
