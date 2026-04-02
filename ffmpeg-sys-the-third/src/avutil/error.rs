@@ -66,6 +66,16 @@ pub const AVERROR_HTTP_TOO_MANY_REQUESTS: c_int = FFERRTAG(0xF8, b'4', b'2', b'9
 pub const AVERROR_HTTP_OTHER_4XX: c_int = FFERRTAG(0xF8, b'4', b'X', b'X');
 pub const AVERROR_HTTP_SERVER_ERROR: c_int = FFERRTAG(0xF8, b'5', b'X', b'X');
 
+/// Fills the `errbuf` with a description for `errnum` or a generic message
+/// if no specific description can be found.
+///
+/// The returned C-string will be null-terminated.
+///
+/// # Safety
+///
+/// `errbuf` and `errbuf_size` must describe a valid C-style char array, i.e.
+/// - `errbuf` must be non-null and well-aligned and
+/// - `errbuf` must be valid for `errbuf_size` reads/writes.
 #[inline(always)]
 pub unsafe fn av_make_error_string(
     errbuf: *mut c_char,
