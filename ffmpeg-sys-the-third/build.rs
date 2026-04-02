@@ -210,26 +210,26 @@ static SWRESAMPLE_FEATURES: &[AVFeature] = &[];
 #[derive(Debug, Clone, Copy)]
 struct AVHeader {
     name: &'static str,
-    from_ver: Option<u64>,
-    to_ver: Option<u64>,
+    min_ver: Option<u64>,
+    max_ver: Option<u64>,
 }
 
 impl AVHeader {
     const fn new(name: &'static str) -> Self {
         Self {
             name,
-            from_ver: None,
-            to_ver: None,
+            min_ver: None,
+            max_ver: None,
         }
     }
 
-    const fn from_ver(mut self, ver: u64) -> Self {
-        self.from_ver = Some(ver);
+    const fn min_ver(mut self, ver: u64) -> Self {
+        self.min_ver = Some(ver);
         self
     }
 
-    const fn to_ver(mut self, ver: u64) -> Self {
-        self.to_ver = Some(ver);
+    const fn max_ver(mut self, ver: u64) -> Self {
+        self.max_ver = Some(ver);
         self
     }
 }
@@ -286,7 +286,7 @@ static AVUTIL_HEADERS: &[AVHeader] = &[
     AVHeader::new("time.h"),
     AVHeader::new("timecode.h"),
     AVHeader::new("twofish.h"),
-    AVHeader::new("tx.h").from_ver(60), // post-8.0
+    AVHeader::new("tx.h").min_ver(60), // post-8.0
     AVHeader::new("avutil.h"),
     AVHeader::new("xtea.h"),
 ];
@@ -294,7 +294,7 @@ static AVCODEC_HEADERS: &[AVHeader] = &[
     AVHeader::new("avcodec.h"),
     AVHeader::new("bsf.h"),
     AVHeader::new("dv_profile.h"),
-    AVHeader::new("avfft.h").to_ver(61), // pre-8.0
+    AVHeader::new("avfft.h").max_ver(61), // pre-8.0
     AVHeader::new("vorbis_parser.h"),
 ];
 static AVFORMAT_HEADERS: &[AVHeader] = &[AVHeader::new("avformat.h"), AVHeader::new("avio.h")];
@@ -721,7 +721,7 @@ fn main() {
 fn add_include(s: &mut String, lib: &Library, header: &AVHeader) -> std::fmt::Result {
     let ver_name = format!("LIB{}_VERSION_MAJOR", lib.name.to_uppercase());
 
-    let end_if = match (header.from_ver, header.to_ver) {
+    let end_if = match (header.min_ver, header.max_ver) {
         (Some(from), Some(to)) => {
             writeln!(s, "#if {ver_name} >= {from} && {ver_name} <= {to}")?;
             true

@@ -97,7 +97,7 @@ fn get_newest_patch_version() -> String {
         .arg("-q")
         .arg("--tags")
         .arg("--refs")
-        .arg(&get_repo_url())
+        .arg(get_repo_url())
         .arg(format!("n{}*", crate_ffmpeg_version))
         .output()
         .expect("can run git ls-remote");
@@ -126,7 +126,7 @@ fn fetch(source_dir: &Path, ffmpeg_version: &str) -> io::Result<()> {
         .arg("--depth=1")
         .arg("-b")
         .arg(format!("n{ffmpeg_version}"))
-        .arg(&get_repo_url())
+        .arg(get_repo_url())
         .arg(source_dir)
         .status()?;
 
