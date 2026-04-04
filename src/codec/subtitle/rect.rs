@@ -1,136 +1,29 @@
 use std::marker::PhantomData;
+use std::ptr::NonNull;
 
-use super::{Flags, Type};
+use super::Subtitle;
 use crate::ffi::*;
-use crate::utils;
+use crate::AsPtr;
 
-pub enum Rect<'a> {
-    None(*const AVSubtitleRect),
-    Bitmap(Bitmap<'a>),
-    Text(Text<'a>),
-    Ass(Ass<'a>),
+pub struct RectRef<'s> {
+    ptr: NonNull<AVSubtitleRect>,
+    _marker: PhantomData<&'s Subtitle>,
 }
 
-impl<'a> Rect<'a> {
-    pub unsafe fn wrap(ptr: *const AVSubtitleRect) -> Self {
-        match Type::from((*ptr).type_) {
-            Type::None => Rect::None(ptr),
-            Type::Bitmap => Rect::Bitmap(Bitmap::wrap(ptr)),
-            Type::Text => Rect::Text(Text::wrap(ptr)),
-            Type::Ass => Rect::Ass(Ass::wrap(ptr)),
-        }
-    }
-
-    pub unsafe fn as_ptr(&self) -> *const AVSubtitleRect {
-        match *self {
-            Rect::None(ptr) => ptr,
-            Rect::Bitmap(ref b) => b.as_ptr(),
-            Rect::Text(ref t) => t.as_ptr(),
-            Rect::Ass(ref a) => a.as_ptr(),
-        }
-    }
-}
-
-impl<'a> Rect<'a> {
-    pub fn flags(&self) -> Flags {
-        unsafe {
-            Flags::from_bits_truncate(match *self {
-                Rect::None(ptr) => (*ptr).flags,
-                Rect::Bitmap(ref b) => (*b.as_ptr()).flags,
-                Rect::Text(ref t) => (*t.as_ptr()).flags,
-                Rect::Ass(ref a) => (*a.as_ptr()).flags,
-            })
-        }
-    }
-}
-
-pub struct Bitmap<'a> {
-    ptr: *const AVSubtitleRect,
-
-    _marker: PhantomData<&'a ()>,
-}
-
-impl<'a> Bitmap<'a> {
-    pub unsafe fn wrap(ptr: *const AVSubtitleRect) -> Self {
-        Bitmap {
+impl<'s> RectRef<'s> {
+    /// # Safety
+    /// `ptr` must be a valid pointer to an [`AVSubtitleRect`].
+    /// Ensure that the returned lifetime is correctly bounded.
+    pub unsafe fn from_ptr(ptr: NonNull<AVSubtitleRect>) -> Self {
+        Self {
             ptr,
             _marker: PhantomData,
         }
     }
-
-    pub unsafe fn as_ptr(&self) -> *const AVSubtitleRect {
-        self.ptr
-    }
 }
 
-impl<'a> Bitmap<'a> {
-    pub fn x(&self) -> usize {
-        unsafe { (*self.as_ptr()).x as usize }
-    }
-
-    pub fn y(&self) -> usize {
-        unsafe { (*self.as_ptr()).y as usize }
-    }
-
-    pub fn width(&self) -> u32 {
-        unsafe { (*self.as_ptr()).w as u32 }
-    }
-
-    pub fn height(&self) -> u32 {
-        unsafe { (*self.as_ptr()).h as u32 }
-    }
-
-    pub fn colors(&self) -> usize {
-        unsafe { (*self.as_ptr()).nb_colors as usize }
-    }
-}
-
-pub struct Text<'a> {
-    ptr: *const AVSubtitleRect,
-
-    _marker: PhantomData<&'a ()>,
-}
-
-impl<'a> Text<'a> {
-    pub unsafe fn wrap(ptr: *const AVSubtitleRect) -> Self {
-        Text {
-            ptr,
-            _marker: PhantomData,
-        }
-    }
-
-    pub unsafe fn as_ptr(&self) -> *const AVSubtitleRect {
-        self.ptr
-    }
-}
-
-impl<'a> Text<'a> {
-    pub fn get(&self) -> &str {
-        unsafe { utils::str_from_c_ptr((*self.as_ptr()).text) }
-    }
-}
-
-pub struct Ass<'a> {
-    ptr: *const AVSubtitleRect,
-
-    _marker: PhantomData<&'a ()>,
-}
-
-impl<'a> Ass<'a> {
-    pub unsafe fn wrap(ptr: *const AVSubtitleRect) -> Self {
-        Ass {
-            ptr,
-            _marker: PhantomData,
-        }
-    }
-
-    pub unsafe fn as_ptr(&self) -> *const AVSubtitleRect {
-        self.ptr
-    }
-}
-
-impl<'a> Ass<'a> {
-    pub fn get(&self) -> &str {
-        unsafe { utils::str_from_c_ptr((*self.as_ptr()).ass) }
+impl<'s> AsPtr<AVSubtitleRect> for RectRef<'s> {
+    fn as_ptr(&self) -> *const AVSubtitleRect {
+        self.ptr.as_ptr()
     }
 }

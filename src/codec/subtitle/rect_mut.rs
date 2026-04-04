@@ -1,76 +1,38 @@
-use std::ffi::CString;
-use std::ops::Deref;
-
-use super::{Ass, Bitmap, Flags, Text, Type};
-use crate::ffi::*;
 use libc::c_int;
+use std::ffi::CString;
+use std::marker::PhantomData;
+use std::ptr::NonNull;
 
-pub enum RectMut<'a> {
-    None(*mut AVSubtitleRect),
-    Bitmap(BitmapMut<'a>),
-    Text(TextMut<'a>),
-    Ass(AssMut<'a>),
+use super::{Flags, RectRef, Subtitle};
+use crate::ffi::*;
+use crate::{AsMutPtr, AsPtr};
+
+pub struct RectMut<'s> {
+    ptr: NonNull<AVSubtitleRect>,
+    _marker: PhantomData<&'s mut Subtitle>,
 }
 
-impl<'a> RectMut<'a> {
-    pub unsafe fn wrap(ptr: *mut AVSubtitleRect) -> Self {
-        match Type::from((*ptr).type_) {
-            Type::None => RectMut::None(ptr),
-            Type::Bitmap => RectMut::Bitmap(BitmapMut::wrap(ptr)),
-            Type::Text => RectMut::Text(TextMut::wrap(ptr)),
-            Type::Ass => RectMut::Ass(AssMut::wrap(ptr)),
+impl<'s> RectMut<'s> {
+    /// # Safety
+    /// `ptr` must be a valid pointer to an [`AVSubtitleRect`].
+    /// Ensure that the returned lifetime is correctly bounded.
+    pub unsafe fn from_ptr(ptr: NonNull<AVSubtitleRect>) -> Self {
+        Self {
+            ptr,
+            _marker: PhantomData,
         }
     }
 
-    pub unsafe fn as_ptr(&self) -> *const AVSubtitleRect {
-        match *self {
-            RectMut::None(ptr) => ptr as *const _,
-            RectMut::Bitmap(ref b) => b.as_ptr(),
-            RectMut::Text(ref t) => t.as_ptr(),
-            RectMut::Ass(ref a) => a.as_ptr(),
-        }
+    pub fn as_ref(&self) -> RectRef<'s> {
+        unsafe { RectRef::from_ptr(self.ptr) }
     }
 
-    pub unsafe fn as_mut_ptr(&mut self) -> *mut AVSubtitleRect {
-        match *self {
-            RectMut::None(ptr) => ptr,
-            RectMut::Bitmap(ref mut b) => b.as_mut_ptr(),
-            RectMut::Text(ref mut t) => t.as_mut_ptr(),
-            RectMut::Ass(ref mut a) => a.as_mut_ptr(),
-        }
-    }
-}
-
-impl<'a> RectMut<'a> {
-    pub fn flags(&self) -> Flags {
+    pub fn set_flags(&mut self, flags: Flags) {
         unsafe {
-            Flags::from_bits_truncate(match *self {
-                RectMut::None(ptr) => (*ptr).flags,
-                RectMut::Bitmap(ref b) => (*b.as_ptr()).flags,
-                RectMut::Text(ref t) => (*t.as_ptr()).flags,
-                RectMut::Ass(ref a) => (*a.as_ptr()).flags,
-            })
-        }
-    }
-}
-
-pub struct BitmapMut<'a> {
-    immutable: Bitmap<'a>,
-}
-
-impl<'a> BitmapMut<'a> {
-    pub unsafe fn wrap(ptr: *mut AVSubtitleRect) -> Self {
-        BitmapMut {
-            immutable: Bitmap::wrap(ptr as *const _),
+            (*self.as_mut_ptr()).flags = flags.bits();
         }
     }
 
-    pub unsafe fn as_mut_ptr(&mut self) -> *mut AVSubtitleRect {
-        self.as_ptr() as *mut _
-    }
-}
-
-impl<'a> BitmapMut<'a> {
     pub fn set_x(&mut self, value: usize) {
         unsafe {
             (*self.as_mut_ptr()).x = value as c_int;
@@ -100,68 +62,16 @@ impl<'a> BitmapMut<'a> {
             (*self.as_mut_ptr()).nb_colors = value as c_int;
         }
     }
-}
 
-impl<'a> Deref for BitmapMut<'a> {
-    type Target = Bitmap<'a>;
-
-    fn deref(&self) -> &Self::Target {
-        &self.immutable
-    }
-}
-
-pub struct TextMut<'a> {
-    immutable: Text<'a>,
-}
-
-impl<'a> TextMut<'a> {
-    pub unsafe fn wrap(ptr: *mut AVSubtitleRect) -> Self {
-        TextMut {
-            immutable: Text::wrap(ptr as *const _),
-        }
-    }
-
-    pub unsafe fn as_mut_ptr(&mut self) -> *mut AVSubtitleRect {
-        self.as_ptr() as *mut _
-    }
-}
-
-impl<'a> TextMut<'a> {
-    pub fn set(&mut self, value: &str) {
+    pub fn set_text(&mut self, value: &str) {
         let value = CString::new(value).unwrap();
 
         unsafe {
             (*self.as_mut_ptr()).text = av_strdup(value.as_ptr());
         }
     }
-}
 
-impl<'a> Deref for TextMut<'a> {
-    type Target = Text<'a>;
-
-    fn deref(&self) -> &Self::Target {
-        &self.immutable
-    }
-}
-
-pub struct AssMut<'a> {
-    immutable: Ass<'a>,
-}
-
-impl<'a> AssMut<'a> {
-    pub unsafe fn wrap(ptr: *mut AVSubtitleRect) -> Self {
-        AssMut {
-            immutable: Ass::wrap(ptr),
-        }
-    }
-
-    pub unsafe fn as_mut_ptr(&mut self) -> *mut AVSubtitleRect {
-        self.as_ptr() as *mut _
-    }
-}
-
-impl<'a> AssMut<'a> {
-    pub fn set(&mut self, value: &str) {
+    pub fn set_ass(&mut self, value: &str) {
         let value = CString::new(value).unwrap();
 
         unsafe {
@@ -170,10 +80,14 @@ impl<'a> AssMut<'a> {
     }
 }
 
-impl<'a> Deref for AssMut<'a> {
-    type Target = Ass<'a>;
+impl<'s> AsPtr<AVSubtitleRect> for RectMut<'s> {
+    fn as_ptr(&self) -> *const AVSubtitleRect {
+        self.ptr.as_ptr()
+    }
+}
 
-    fn deref(&self) -> &Self::Target {
-        &self.immutable
+impl<'s> AsMutPtr<AVSubtitleRect> for RectMut<'s> {
+    fn as_mut_ptr(&mut self) -> *mut AVSubtitleRect {
+        self.ptr.as_ptr()
     }
 }

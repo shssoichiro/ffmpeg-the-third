@@ -2,16 +2,17 @@ pub mod flag;
 pub use self::flag::Flags;
 
 mod rect;
-pub use self::rect::{Ass, Bitmap, Rect, Text};
-
+mod rect_common;
+pub use self::rect::RectRef;
 mod rect_mut;
-pub use self::rect_mut::{AssMut, BitmapMut, RectMut, TextMut};
+pub use self::rect_mut::RectMut;
 
-use std::marker::PhantomData;
+use std::iter::FusedIterator;
 use std::mem;
+use std::ptr::NonNull;
 
 use crate::ffi::*;
-use libc::{c_uint, size_t};
+use libc::size_t;
 #[cfg(feature = "serialize")]
 use serde::{Deserialize, Serialize};
 
@@ -97,121 +98,151 @@ impl Subtitle {
     }
 
     pub fn rects(&self) -> RectIter<'_> {
-        RectIter::new(&self.0)
-    }
-
-    pub fn rects_mut(&'_ mut self) -> RectMutIter<'_> {
-        RectMutIter::new(&mut self.0)
-    }
-
-    pub fn add_rect(&mut self, kind: Type) -> RectMut<'_> {
         unsafe {
-            self.0.num_rects += 1;
-            self.0.rects = av_realloc(
+            let ptrs = if (*self.as_ptr()).rects.is_null() {
+                &[]
+            } else {
+                std::slice::from_raw_parts(
+                    (*self.as_ptr()).rects,
+                    (*self.as_ptr()).num_rects as usize,
+                )
+            };
+
+            RectIter::from_av_rects(ptrs)
+        }
+    }
+
+    pub fn rects_mut(&mut self) -> RectMutIter<'_> {
+        unsafe {
+            let ptrs = if (*self.as_ptr()).rects.is_null() {
+                &mut []
+            } else {
+                std::slice::from_raw_parts_mut(
+                    (*self.as_ptr()).rects,
+                    (*self.as_ptr()).num_rects as usize,
+                )
+            };
+
+            RectMutIter::from_av_rects(ptrs)
+        }
+    }
+
+    pub fn add_rect(&mut self, kind: Type) -> Option<RectMut<'_>> {
+        unsafe {
+            let new_sz = 1 + self.0.num_rects as usize;
+            let new_ptr = av_realloc(
                 self.0.rects as *mut _,
-                (size_of::<*const AVSubtitleRect>() * self.0.num_rects as usize) as size_t,
-            ) as *mut _;
+                size_of::<*const AVSubtitleRect>() * new_sz,
+            ) as *mut *mut AVSubtitleRect;
+
+            if new_ptr.is_null() {
+                return None;
+            }
+
+            self.0.rects = new_ptr;
+            self.0.num_rects = new_sz as u32;
 
             let rect = av_mallocz(size_of::<AVSubtitleRect>() as size_t) as *mut AVSubtitleRect;
-            (*rect).type_ = kind.into();
+            let mut rect = NonNull::new(rect)?;
 
-            *self.0.rects.offset((self.0.num_rects - 1) as isize) = rect;
+            rect.as_mut().type_ = kind.into();
+            *self.0.rects.add(new_sz - 1) = rect.as_ptr();
 
-            RectMut::wrap(rect)
+            Some(RectMut::from_ptr(rect))
         }
     }
 }
+
+#[derive(Debug, Clone)]
+pub struct RectIter<'s> {
+    raw_iter: std::slice::Iter<'s, *mut AVSubtitleRect>,
+}
+
+impl<'s> RectIter<'s> {
+    pub fn from_av_rects(rects: &'s [*mut AVSubtitleRect]) -> Self {
+        Self {
+            raw_iter: rects.iter(),
+        }
+    }
+}
+
+impl<'s> Iterator for RectIter<'s> {
+    type Item = RectRef<'s>;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        unsafe {
+            // SAFETY: Lifetime is bounded by Self::Item (= 's)
+            self.raw_iter
+                .next()
+                .map(|&ptr| RectRef::from_ptr(NonNull::new(ptr).expect("ptr is non-null")))
+        }
+    }
+
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        self.raw_iter.size_hint()
+    }
+}
+
+impl<'s> DoubleEndedIterator for RectIter<'s> {
+    fn next_back(&mut self) -> Option<Self::Item> {
+        unsafe {
+            // SAFETY: Lifetime is bounded by Self::Item (= 's)
+            self.raw_iter
+                .next_back()
+                .map(|&ptr| RectRef::from_ptr(NonNull::new(ptr).expect("ptr is non-null")))
+        }
+    }
+}
+
+impl<'s> ExactSizeIterator for RectIter<'s> {}
+impl<'s> FusedIterator for RectIter<'s> {}
+
+#[derive(Debug)]
+pub struct RectMutIter<'s> {
+    raw_iter: std::slice::IterMut<'s, *mut AVSubtitleRect>,
+}
+
+impl<'s> RectMutIter<'s> {
+    pub fn from_av_rects(rects: &'s mut [*mut AVSubtitleRect]) -> Self {
+        Self {
+            raw_iter: rects.iter_mut(),
+        }
+    }
+}
+
+impl<'s> Iterator for RectMutIter<'s> {
+    type Item = RectMut<'s>;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        unsafe {
+            // SAFETY: Lifetime is bounded by Self::Item (= 's)
+            self.raw_iter
+                .next()
+                .map(|&mut ptr| RectMut::from_ptr(NonNull::new(ptr).expect("ptr is non-null")))
+        }
+    }
+
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        self.raw_iter.size_hint()
+    }
+}
+
+impl<'s> DoubleEndedIterator for RectMutIter<'s> {
+    fn next_back(&mut self) -> Option<Self::Item> {
+        unsafe {
+            // SAFETY: Lifetime is bounded by Self::Item (= 's)
+            self.raw_iter
+                .next_back()
+                .map(|&mut ptr| RectMut::from_ptr(NonNull::new(ptr).expect("ptr is non-null")))
+        }
+    }
+}
+
+impl<'s> ExactSizeIterator for RectMutIter<'s> {}
+impl<'s> FusedIterator for RectMutIter<'s> {}
 
 impl Default for Subtitle {
     fn default() -> Self {
         Self::new()
     }
 }
-
-pub struct RectIter<'a> {
-    ptr: *const AVSubtitle,
-    cur: c_uint,
-
-    _marker: PhantomData<&'a Subtitle>,
-}
-
-impl<'a> RectIter<'a> {
-    pub fn new(ptr: *const AVSubtitle) -> Self {
-        RectIter {
-            ptr,
-            cur: 0,
-            _marker: PhantomData,
-        }
-    }
-}
-
-impl<'a> Iterator for RectIter<'a> {
-    type Item = Rect<'a>;
-
-    fn next(&mut self) -> Option<<Self as Iterator>::Item> {
-        unsafe {
-            if self.cur >= (*self.ptr).num_rects {
-                None
-            } else {
-                self.cur += 1;
-                Some(Rect::wrap(
-                    *(*self.ptr).rects.offset((self.cur - 1) as isize),
-                ))
-            }
-        }
-    }
-
-    fn size_hint(&self) -> (usize, Option<usize>) {
-        unsafe {
-            let length = (*self.ptr).num_rects as usize;
-
-            (length - self.cur as usize, Some(length - self.cur as usize))
-        }
-    }
-}
-
-impl<'a> ExactSizeIterator for RectIter<'a> {}
-
-pub struct RectMutIter<'a> {
-    ptr: *mut AVSubtitle,
-    cur: c_uint,
-
-    _marker: PhantomData<&'a Subtitle>,
-}
-
-impl<'a> RectMutIter<'a> {
-    pub fn new(ptr: *mut AVSubtitle) -> Self {
-        RectMutIter {
-            ptr,
-            cur: 0,
-            _marker: PhantomData,
-        }
-    }
-}
-
-impl<'a> Iterator for RectMutIter<'a> {
-    type Item = RectMut<'a>;
-
-    fn next(&mut self) -> Option<<Self as Iterator>::Item> {
-        unsafe {
-            if self.cur >= (*self.ptr).num_rects {
-                None
-            } else {
-                self.cur += 1;
-                Some(RectMut::wrap(
-                    *(*self.ptr).rects.offset((self.cur - 1) as isize),
-                ))
-            }
-        }
-    }
-
-    fn size_hint(&self) -> (usize, Option<usize>) {
-        unsafe {
-            let length = (*self.ptr).num_rects as usize;
-
-            (length - self.cur as usize, Some(length - self.cur as usize))
-        }
-    }
-}
-
-impl<'a> ExactSizeIterator for RectMutIter<'a> {}
