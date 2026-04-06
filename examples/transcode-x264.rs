@@ -181,8 +181,8 @@ fn main() {
     format::context::input::dump(&ictx, 0, Some(&input_file));
 
     let best_video_stream_index = ictx
-        .streams()
-        .best(media::Type::Video)
+        .best_stream()
+        .find(media::Type::Video)
         .map(|stream| stream.index());
     let mut stream_mapping: Vec<isize> = vec![0; ictx.nb_streams() as _];
     let mut ist_time_bases = vec![Rational(0, 0); ictx.nb_streams() as _];
@@ -235,8 +235,8 @@ fn main() {
         ost_time_bases[ost_index] = octx.stream(ost_index as _).unwrap().time_base();
     }
 
-    for (stream, mut packet) in ictx.packets().filter_map(Result::ok) {
-        let ist_index = stream.index();
+    for mut packet in ictx.packets().filter_map(Result::ok) {
+        let ist_index = packet.stream();
         let ost_index = stream_mapping[ist_index];
         if ost_index < 0 {
             continue;

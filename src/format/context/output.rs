@@ -1,27 +1,20 @@
 use std::ffi::CString;
-use std::ops::{Deref, DerefMut};
 use std::ptr;
 
-use super::common::Context;
 use crate::codec::traits;
 use crate::ffi::*;
-use crate::{
-    format, AsMutPtr, ChapterMut, DictionaryMut, DictionaryRef, Error, Rational, StreamMut,
-};
+use crate::{format, ChapterMut, DictionaryMut, Error, Rational, StreamMut};
+use crate::{AsMutPtr, AsPtr};
 
 pub struct Output {
     ptr: *mut AVFormatContext,
-    ctx: Context,
 }
 
 unsafe impl Send for Output {}
 
 impl Output {
     pub unsafe fn wrap(ptr: *mut AVFormatContext) -> Self {
-        Output {
-            ptr,
-            ctx: Context::wrap(ptr),
-        }
+        Output { ptr }
     }
 
     pub unsafe fn as_ptr(&self) -> *const AVFormatContext {
@@ -79,13 +72,7 @@ impl Output {
             let codec = codec.map_or(ptr::null(), |c| c.as_ptr());
             let ptr = avformat_new_stream(self.as_mut_ptr(), codec);
 
-            if ptr.is_null() {
-                return Err(Error::Unknown);
-            }
-
-            let index = (*self.ctx.as_ptr()).nb_streams - 1;
-
-            Ok(StreamMut::wrap(&mut self.ctx, index as usize))
+            StreamMut::from_raw(ptr).ok_or(Error::Unknown)
         }
     }
 
@@ -104,9 +91,9 @@ impl Output {
         }
 
         let mut existing = None;
-        for chapter in self.chapters() {
+        for (idx, chapter) in self.chapters().enumerate() {
             if chapter.id() == id {
-                existing = Some(chapter.index());
+                existing = Some(idx);
                 break;
             }
         }
@@ -114,9 +101,11 @@ impl Output {
         let index = match existing {
             Some(index) => index,
             None => unsafe {
-                let ptr = av_mallocz(size_of::<AVChapter>())
-                    .as_mut()
-                    .ok_or(Error::Bug)?;
+                let ptr = av_mallocz(size_of::<AVChapter>());
+                if ptr.is_null() {
+                    return Err(Error::Bug);
+                }
+
                 let mut nb_chapters = (*self.as_ptr()).nb_chapters as i32;
 
                 // chapters array will be freed by `avformat_free_context`
@@ -128,7 +117,7 @@ impl Output {
 
                 if nb_chapters > 0 {
                     (*self.as_mut_ptr()).nb_chapters = nb_chapters as u32;
-                    let index = (*self.ctx.as_ptr()).nb_chapters - 1;
+                    let index = (*self.as_ptr()).nb_chapters - 1;
                     index as usize
                 } else {
                     // failed to add the chapter
@@ -149,26 +138,20 @@ impl Output {
         Ok(chapter)
     }
 
-    pub fn metadata(&self) -> DictionaryRef<'_> {
-        unsafe { DictionaryRef::from_raw((*self.as_ptr()).metadata) }
-    }
-
     pub fn metadata_mut(&mut self) -> DictionaryMut<'_> {
         unsafe { DictionaryMut::from_raw(&mut (*self.as_mut_ptr()).metadata) }
     }
 }
 
-impl Deref for Output {
-    type Target = Context;
-
-    fn deref(&self) -> &Self::Target {
-        &self.ctx
+impl AsPtr<AVFormatContext> for Output {
+    fn as_ptr(&self) -> *const AVFormatContext {
+        self.ptr
     }
 }
 
-impl DerefMut for Output {
-    fn deref_mut(&mut self) -> &mut Self::Target {
-        &mut self.ctx
+impl AsMutPtr<AVFormatContext> for Output {
+    fn as_mut_ptr(&mut self) -> *mut AVFormatContext {
+        self.ptr
     }
 }
 

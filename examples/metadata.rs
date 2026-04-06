@@ -6,20 +6,20 @@ fn main() -> Result<(), ffmpeg::Error> {
     ffmpeg::init().unwrap();
 
     match ffmpeg::format::input(env::args().nth(1).expect("missing file")) {
-        Ok(context) => {
+        Ok(mut context) => {
             for (k, v) in context.metadata().iter() {
                 println!("{k}: {v}");
             }
 
-            if let Some(stream) = context.streams().best(ffmpeg::media::Type::Video) {
+            if let Some(stream) = context.best_stream().find(ffmpeg::media::Type::Video) {
                 println!("Best video stream index: {}", stream.index());
             }
 
-            if let Some(stream) = context.streams().best(ffmpeg::media::Type::Audio) {
+            if let Some(stream) = context.best_stream().find(ffmpeg::media::Type::Audio) {
                 println!("Best audio stream index: {}", stream.index());
             }
 
-            if let Some(stream) = context.streams().best(ffmpeg::media::Type::Subtitle) {
+            if let Some(stream) = context.best_stream().find(ffmpeg::media::Type::Subtitle) {
                 println!("Best subtitle stream index: {}", stream.index());
             }
 

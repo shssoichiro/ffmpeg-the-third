@@ -71,8 +71,8 @@ fn transcoder<P: AsRef<Path> + ?Sized>(
     filter_spec: &str,
 ) -> Result<Transcoder, ffmpeg::Error> {
     let input = ictx
-        .streams()
-        .best(media::Type::Audio)
+        .best_stream()
+        .find(media::Type::Audio)
         .expect("could not find best audio stream");
     let context = ffmpeg::codec::context::Context::from_parameters(input.parameters())?;
     let mut decoder = context.decoder().audio()?;
@@ -227,9 +227,9 @@ fn main() {
     octx.metadata_mut().replace_with(ictx.metadata().to_owned());
     octx.write_header().unwrap();
 
-    for (stream, mut packet) in ictx.packets().filter_map(Result::ok) {
-        if stream.index() == transcoder.stream {
-            packet.rescale_ts(stream.time_base(), transcoder.in_time_base);
+    for mut packet in ictx.packets().filter_map(Result::ok) {
+        if packet.stream() == transcoder.stream {
+            packet.rescale_ts(packet.time_base(), transcoder.in_time_base);
             transcoder.send_packet_to_decoder(&packet);
             transcoder.receive_and_process_decoded_frames(&mut octx);
         }

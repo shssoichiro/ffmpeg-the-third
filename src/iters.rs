@@ -23,3 +23,54 @@ pub(crate) trait TerminatedPtrIter<AVType, WrapperType>:
         unsafe { NonNull::new(ptr as *mut _).map(|ptr| Self::from_ptr(ptr)) }
     }
 }
+
+macro_rules! impl_slice_iter {
+    (
+        $iter:ident,
+        $ty:ident,
+        $av_ty:ty
+    ) => {
+        pub struct $iter<'s> {
+            raw_iter: ::std::slice::Iter<'s, *mut $av_ty>,
+        }
+
+        impl<'s> $iter<'s> {
+            pub fn from_slice(slice: &'s [*mut $av_ty]) -> Self {
+                Self {
+                    raw_iter: slice.iter(),
+                }
+            }
+        }
+
+        impl<'s> Iterator for $iter<'s> {
+            type Item = $ty<'s>;
+
+            fn next(&mut self) -> Option<Self::Item> {
+                unsafe {
+                    // SAFETY: Lifetime is bounded by Self::Item
+                    self.raw_iter.next().and_then(|&ptr| $ty::from_raw(ptr))
+                }
+            }
+
+            fn size_hint(&self) -> (usize, Option<usize>) {
+                self.raw_iter.size_hint()
+            }
+        }
+
+        impl<'s> DoubleEndedIterator for $iter<'s> {
+            fn next_back(&mut self) -> Option<Self::Item> {
+                unsafe {
+                    // SAFETY: Lifetime is bounded by Self::Item
+                    self.raw_iter
+                        .next_back()
+                        .and_then(|&ptr| $ty::from_raw(ptr))
+                }
+            }
+        }
+
+        impl<'s> ExactSizeIterator for $iter<'s> {}
+        impl<'s> ::std::iter::FusedIterator for $iter<'s> {}
+    };
+}
+
+pub(crate) use impl_slice_iter;

@@ -1,24 +1,19 @@
 use std::ffi::CString;
-use std::mem;
-use std::ops::{Bound, Deref, DerefMut, RangeBounds};
+use std::ops::{Bound, RangeBounds};
 
-use super::common::Context;
 use crate::ffi::*;
-use crate::{format, Error, Packet, Stream};
+use crate::{format, Error, Packet};
+use crate::{AsMutPtr, AsPtr};
 
 pub struct Input {
     ptr: *mut AVFormatContext,
-    ctx: Context,
 }
 
 unsafe impl Send for Input {}
 
 impl Input {
     pub unsafe fn wrap(ptr: *mut AVFormatContext) -> Self {
-        Input {
-            ptr,
-            ctx: Context::wrap(ptr),
-        }
+        Input { ptr }
     }
 
     pub unsafe fn as_ptr(&self) -> *const AVFormatContext {
@@ -83,17 +78,15 @@ impl Input {
     }
 }
 
-impl Deref for Input {
-    type Target = Context;
-
-    fn deref(&self) -> &Self::Target {
-        &self.ctx
+impl AsPtr<AVFormatContext> for Input {
+    fn as_ptr(&self) -> *const AVFormatContext {
+        self.ptr
     }
 }
 
-impl DerefMut for Input {
-    fn deref_mut(&mut self) -> &mut Self::Target {
-        &mut self.ctx
+impl AsMutPtr<AVFormatContext> for Input {
+    fn as_mut_ptr(&mut self) -> *mut AVFormatContext {
+        self.ptr
     }
 }
 
@@ -108,18 +101,13 @@ impl<'a> PacketIter<'a> {
 }
 
 impl<'a> Iterator for PacketIter<'a> {
-    type Item = Result<(Stream<'a>, Packet), Error>;
+    type Item = Result<Packet, Error>;
 
     fn next(&mut self) -> Option<<Self as Iterator>::Item> {
         let mut packet = Packet::empty();
 
         match packet.read(self.context) {
-            Ok(..) => unsafe {
-                Some(Ok((
-                    Stream::wrap(mem::transmute_copy(&self.context), packet.stream()),
-                    packet,
-                )))
-            },
+            Ok(()) => Some(Ok(packet)),
 
             Err(Error::Eof) => None,
 
