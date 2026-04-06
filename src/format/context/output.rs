@@ -3,7 +3,6 @@ use std::ops::{Deref, DerefMut};
 use std::ptr;
 
 use super::common::Context;
-use super::destructor;
 use crate::codec::traits;
 use crate::ffi::*;
 use crate::{
@@ -21,7 +20,7 @@ impl Output {
     pub unsafe fn wrap(ptr: *mut AVFormatContext) -> Self {
         Output {
             ptr,
-            ctx: Context::wrap(ptr, destructor::Mode::Output),
+            ctx: Context::wrap(ptr),
         }
     }
 
@@ -183,5 +182,14 @@ pub fn dump(ctx: &Output, index: i32, url: Option<&str>) {
             url.unwrap_or_else(|| CString::new("").unwrap()).as_ptr(),
             1,
         );
+    }
+}
+
+impl Drop for Output {
+    fn drop(&mut self) {
+        unsafe {
+            avio_close((*self.ptr).pb);
+            avformat_free_context(self.ptr);
+        }
     }
 }

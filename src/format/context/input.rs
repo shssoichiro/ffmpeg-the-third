@@ -3,7 +3,6 @@ use std::mem;
 use std::ops::{Bound, Deref, DerefMut, RangeBounds};
 
 use super::common::Context;
-use super::destructor;
 use crate::ffi::*;
 use crate::{format, Error, Packet, Stream};
 
@@ -18,7 +17,7 @@ impl Input {
     pub unsafe fn wrap(ptr: *mut AVFormatContext) -> Self {
         Input {
             ptr,
-            ctx: Context::wrap(ptr, destructor::Mode::Input),
+            ctx: Context::wrap(ptr),
         }
     }
 
@@ -139,5 +138,13 @@ pub fn dump(ctx: &Input, index: i32, url: Option<&str>) {
             url.unwrap_or_else(|| CString::new("").unwrap()).as_ptr(),
             0,
         );
+    }
+}
+
+impl Drop for Input {
+    fn drop(&mut self) {
+        unsafe {
+            avformat_close_input(&mut self.ptr);
+        }
     }
 }

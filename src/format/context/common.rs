@@ -2,26 +2,19 @@ use std::fmt;
 use std::mem;
 use std::ptr;
 
-use super::destructor::{self, Destructor};
 use crate::ffi::*;
 use crate::{media, Chapter, ChapterMut, DictionaryRef, Stream, StreamMut};
 use libc::{c_int, c_uint};
 
-type DtorHolder = Destructor;
-
 pub struct Context {
     ptr: *mut AVFormatContext,
-    _dtor: DtorHolder,
 }
 
 unsafe impl Send for Context {}
 
 impl Context {
-    pub unsafe fn wrap(ptr: *mut AVFormatContext, mode: destructor::Mode) -> Self {
-        Context {
-            ptr,
-            _dtor: Self::new_destructor_holder(ptr, mode),
-        }
+    pub unsafe fn wrap(ptr: *mut AVFormatContext) -> Self {
+        Context { ptr }
     }
 
     pub unsafe fn as_ptr(&self) -> *const AVFormatContext {
@@ -30,13 +23,6 @@ impl Context {
 
     pub unsafe fn as_mut_ptr(&mut self) -> *mut AVFormatContext {
         self.ptr
-    }
-
-    unsafe fn new_destructor_holder(
-        ptr: *mut AVFormatContext,
-        mode: destructor::Mode,
-    ) -> DtorHolder {
-        Destructor::new(ptr, mode)
     }
 }
 
