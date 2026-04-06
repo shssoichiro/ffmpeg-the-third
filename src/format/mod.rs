@@ -43,7 +43,7 @@ pub fn input<P: AsRef<OsStr>>(path_or_url: P) -> Result<context::Input, Error> {
 
         match avformat_open_input(&mut ps, path.as_ptr(), ptr::null_mut(), ptr::null_mut()) {
             0 => match avformat_find_stream_info(ps, ptr::null_mut()) {
-                r if r >= 0 => Ok(context::Input::wrap(ps)),
+                r if r >= 0 => Ok(context::Input::from_raw(ps).expect("ps is non-null")),
                 e => {
                     avformat_close_input(&mut ps);
                     Err(Error::from(e))
@@ -75,7 +75,7 @@ where
 
         match res {
             0 => match avformat_find_stream_info(ps, ptr::null_mut()) {
-                r if r >= 0 => Ok(context::Input::wrap(ps)),
+                r if r >= 0 => Ok(context::Input::from_raw(ps).expect("ps is non-null")),
                 e => {
                     avformat_close_input(&mut ps);
                     Err(Error::from(e))
@@ -99,7 +99,7 @@ where
 
         match avformat_open_input(&mut ps, path.as_ptr(), ptr::null_mut(), ptr::null_mut()) {
             0 => match avformat_find_stream_info(ps, ptr::null_mut()) {
-                r if r >= 0 => Ok(context::Input::wrap(ps)),
+                r if r >= 0 => Ok(context::Input::from_raw(ps).expect("ps is non-null")),
                 e => {
                     avformat_close_input(&mut ps);
                     Err(Error::from(e))
@@ -124,7 +124,7 @@ fn alloc_context(
     unsafe {
         let res = avformat_alloc_output_context2(&mut ps, ptr::null(), format_name, filename);
         if res >= 0 {
-            Ok(context::Output::wrap(ps))
+            Ok(context::Output::from_raw(ps).expect("ps is non-null"))
         } else {
             Err(Error::from(res))
         }

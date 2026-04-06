@@ -1,31 +1,25 @@
 use std::ffi::CString;
 use std::ops::{Bound, RangeBounds};
+use std::ptr::NonNull;
 
 use crate::ffi::*;
 use crate::{format, Error, Packet};
 use crate::{AsMutPtr, AsPtr};
 
 pub struct Input {
-    ptr: *mut AVFormatContext,
+    ptr: NonNull<AVFormatContext>,
 }
 
+// SAFETY: Abstraction follows Rust ownership rules.
 unsafe impl Send for Input {}
+// SAFETY: Abstraction follows Rust ownership rules.
+unsafe impl Sync for Input {}
 
 impl Input {
-    pub unsafe fn wrap(ptr: *mut AVFormatContext) -> Self {
-        Input { ptr }
+    pub unsafe fn from_raw(ptr: *mut AVFormatContext) -> Option<Self> {
+        NonNull::new(ptr).map(|ptr| Self { ptr })
     }
 
-    pub unsafe fn as_ptr(&self) -> *const AVFormatContext {
-        self.ptr as *const _
-    }
-
-    pub unsafe fn as_mut_ptr(&mut self) -> *mut AVFormatContext {
-        self.ptr
-    }
-}
-
-impl Input {
     pub fn format(&self) -> format::Input {
         unsafe { format::Input::from_raw((*self.as_ptr()).iformat).expect("iformat is non-null") }
     }
@@ -80,13 +74,13 @@ impl Input {
 
 impl AsPtr<AVFormatContext> for Input {
     fn as_ptr(&self) -> *const AVFormatContext {
-        self.ptr
+        self.ptr.as_ptr()
     }
 }
 
 impl AsMutPtr<AVFormatContext> for Input {
     fn as_mut_ptr(&mut self) -> *mut AVFormatContext {
-        self.ptr
+        self.ptr.as_ptr()
     }
 }
 
@@ -132,7 +126,7 @@ pub fn dump(ctx: &Input, index: i32, url: Option<&str>) {
 impl Drop for Input {
     fn drop(&mut self) {
         unsafe {
-            avformat_close_input(&mut self.ptr);
+            avformat_close_input(&mut self.as_mut_ptr());
         }
     }
 }

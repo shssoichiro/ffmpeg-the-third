@@ -1,5 +1,5 @@
 use std::ffi::CString;
-use std::ptr;
+use std::ptr::{self, NonNull};
 
 use crate::codec::traits;
 use crate::ffi::*;
@@ -7,26 +7,19 @@ use crate::{format, ChapterMut, DictionaryMut, Error, Rational, StreamMut};
 use crate::{AsMutPtr, AsPtr};
 
 pub struct Output {
-    ptr: *mut AVFormatContext,
+    ptr: NonNull<AVFormatContext>,
 }
 
+// SAFETY: Abstraction follows Rust ownership rules.
 unsafe impl Send for Output {}
+// SAFETY: Abstraction follows Rust ownership rules.
+unsafe impl Sync for Output {}
 
 impl Output {
-    pub unsafe fn wrap(ptr: *mut AVFormatContext) -> Self {
-        Output { ptr }
+    pub unsafe fn from_raw(ptr: *mut AVFormatContext) -> Option<Self> {
+        NonNull::new(ptr).map(|ptr| Self { ptr })
     }
 
-    pub unsafe fn as_ptr(&self) -> *const AVFormatContext {
-        self.ptr as *const _
-    }
-
-    pub unsafe fn as_mut_ptr(&mut self) -> *mut AVFormatContext {
-        self.ptr
-    }
-}
-
-impl Output {
     pub fn format(&self) -> format::Output {
         unsafe { format::Output::from_raw((*self.as_ptr()).oformat).expect("oformat is non-null") }
     }
@@ -145,13 +138,13 @@ impl Output {
 
 impl AsPtr<AVFormatContext> for Output {
     fn as_ptr(&self) -> *const AVFormatContext {
-        self.ptr
+        self.ptr.as_ptr()
     }
 }
 
 impl AsMutPtr<AVFormatContext> for Output {
     fn as_mut_ptr(&mut self) -> *mut AVFormatContext {
-        self.ptr
+        self.ptr.as_ptr()
     }
 }
 
@@ -171,8 +164,8 @@ pub fn dump(ctx: &Output, index: i32, url: Option<&str>) {
 impl Drop for Output {
     fn drop(&mut self) {
         unsafe {
-            avio_close((*self.ptr).pb);
-            avformat_free_context(self.ptr);
+            avio_close((*self.as_mut_ptr()).pb);
+            avformat_free_context(self.as_mut_ptr());
         }
     }
 }

@@ -1,14 +1,14 @@
-use super::{Input, Output};
-use crate::iters::impl_slice_iter;
-use crate::macros::impl_for_many;
-use crate::utils;
-
 use libc::c_int;
 use std::marker::PhantomData;
 use std::ptr;
 
+use super::{Input, Output};
 use crate::ffi::*;
+use crate::iters::impl_slice_iter;
+use crate::macros::impl_for_many;
+use crate::utils;
 use crate::{media, Chapter, ChapterMut, Codec, DictionaryRef, Stream, StreamMut};
+use crate::{AsMutPtr, AsPtr};
 
 impl_for_many! {
     impl for Input, Output {

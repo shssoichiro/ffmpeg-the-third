@@ -4,6 +4,7 @@ use std::slice;
 
 use super::{Borrow, Flags, Mut, Ref, SideData};
 use crate::ffi::*;
+use crate::AsMutPtr;
 use crate::{format, Error, Rational};
 use libc::c_int;
 

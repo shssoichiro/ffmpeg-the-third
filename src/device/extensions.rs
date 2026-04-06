@@ -4,6 +4,7 @@ use std::ptr;
 use crate::device;
 use crate::ffi::*;
 use crate::format::context;
+use crate::AsPtr;
 use crate::Error;
 use libc::c_int;
 
