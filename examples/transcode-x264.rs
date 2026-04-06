@@ -160,7 +160,7 @@ fn parse_opts(s: String) -> Option<Dictionary> {
         .collect()
 }
 
-fn main() {
+fn main() -> Result<(), ffmpeg::Error> {
     let input_file = env::args().nth(1).expect("missing input file");
     let output_file = env::args().nth(2).expect("missing output file");
     let x264_opts = parse_opts(
@@ -172,10 +172,10 @@ fn main() {
 
     eprintln!("x264 options: {x264_opts:?}");
 
-    ffmpeg::init().unwrap();
+    ffmpeg::init()?;
     log::set_level(log::Level::Info);
 
-    let mut ictx = format::input(&input_file).unwrap();
+    let mut ictx = format::input(&input_file).build()?;
     let mut octx = format::output(&output_file).unwrap();
 
     format::context::input::dump(&ictx, 0, Some(&input_file));
@@ -229,7 +229,7 @@ fn main() {
 
     octx.metadata_mut().replace_with(ictx.metadata().to_owned());
     format::context::output::dump(&octx, 0, Some(&output_file));
-    octx.write_header().unwrap();
+    octx.write_header()?;
 
     for (ost_index, _) in octx.streams().enumerate() {
         ost_time_bases[ost_index] = octx.stream(ost_index as _).unwrap().time_base();
@@ -271,5 +271,5 @@ fn main() {
         transcoder.receive_and_process_encoded_packets(&mut octx, ost_time_base);
     }
 
-    octx.write_trailer().unwrap();
+    octx.write_trailer()
 }

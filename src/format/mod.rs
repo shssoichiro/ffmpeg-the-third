@@ -10,6 +10,7 @@ pub mod stream;
 pub mod chapter;
 
 pub mod context;
+use context::builder::InputBuilder;
 
 pub mod format;
 pub use self::format::{flag, Flags};
@@ -36,55 +37,8 @@ pub fn license() -> &'static str {
     unsafe { utils::str_from_c_ptr(avformat_license()) }
 }
 
-pub fn input<P: AsRef<OsStr>>(path_or_url: P) -> Result<context::Input, Error> {
-    unsafe {
-        let mut ps = ptr::null_mut();
-        let path = from_os_str(path_or_url);
-
-        match avformat_open_input(&mut ps, path.as_ptr(), ptr::null_mut(), ptr::null_mut()) {
-            0 => match avformat_find_stream_info(ps, ptr::null_mut()) {
-                r if r >= 0 => Ok(context::Input::from_raw(ps).expect("ps is non-null")),
-                e => {
-                    avformat_close_input(&mut ps);
-                    Err(Error::from(e))
-                }
-            },
-
-            e => Err(Error::from(e)),
-        }
-    }
-}
-
-pub fn input_with_dictionary<P, Dict>(
-    path_or_url: P,
-    mut options: Dict,
-) -> Result<context::Input, Error>
-where
-    Dict: AsMutPtr<*mut AVDictionary>,
-    P: AsRef<OsStr>,
-{
-    unsafe {
-        let mut ps = ptr::null_mut();
-        let path = from_os_str(path_or_url);
-        let res = avformat_open_input(
-            &mut ps,
-            path.as_ptr(),
-            ptr::null_mut(),
-            options.as_mut_ptr(),
-        );
-
-        match res {
-            0 => match avformat_find_stream_info(ps, ptr::null_mut()) {
-                r if r >= 0 => Ok(context::Input::from_raw(ps).expect("ps is non-null")),
-                e => {
-                    avformat_close_input(&mut ps);
-                    Err(Error::from(e))
-                }
-            },
-
-            e => Err(Error::from(e)),
-        }
-    }
+pub fn input<'d, P: AsRef<OsStr>>(path_or_url: P) -> InputBuilder<'d> {
+    InputBuilder::new(path_or_url)
 }
 
 pub fn input_with_interrupt<P, F>(path_or_url: P, closure: F) -> Result<context::Input, Error>

@@ -4,14 +4,14 @@ use std::env;
 
 use crate::ffmpeg::{codec, encoder, format, log, media, Rational};
 
-fn main() {
+fn main() -> Result<(), ffmpeg::Error> {
     let input_file = env::args().nth(1).expect("missing input file");
     let output_file = env::args().nth(2).expect("missing output file");
 
-    ffmpeg::init().unwrap();
+    ffmpeg::init()?;
     log::set_level(log::Level::Warning);
 
-    let mut ictx = format::input(&input_file).unwrap();
+    let mut ictx = format::input(&input_file).build()?;
     let mut octx = format::output(&output_file).unwrap();
 
     let mut stream_mapping = vec![0; ictx.nb_streams() as _];
@@ -55,5 +55,5 @@ fn main() {
         packet.write_interleaved(&mut octx).unwrap();
     }
 
-    octx.write_trailer().unwrap();
+    octx.write_trailer()
 }

@@ -9,62 +9,60 @@ use std::fs::File;
 use std::io::prelude::*;
 
 fn main() -> Result<(), ffmpeg::Error> {
-    ffmpeg::init().unwrap();
+    ffmpeg::init()?;
 
-    if let Ok(mut ictx) = input(env::args().nth(1).expect("Cannot open file.")) {
-        let input = ictx
-            .best_stream()
-            .find(Type::Video)
-            .ok_or(ffmpeg::Error::StreamNotFound)?;
-        let video_stream_index = input.index();
+    let mut ictx = input(env::args().nth(1).expect("Cannot open file.")).build()?;
+    let input = ictx
+        .best_stream()
+        .find(Type::Video)
+        .ok_or(ffmpeg::Error::StreamNotFound)?;
+    let video_stream_index = input.index();
 
-        let mut context_decoder =
-            ffmpeg::codec::context::Context::from_parameters(input.parameters())?;
+    let mut context_decoder = ffmpeg::codec::context::Context::from_parameters(input.parameters())?;
 
-        if let Ok(parallelism) = std::thread::available_parallelism() {
-            context_decoder.set_threading(ffmpeg::threading::Config {
-                kind: ffmpeg::threading::Type::Frame,
-                count: parallelism.get(),
-                #[cfg(not(feature = "ffmpeg_6_0"))]
-                safe: false,
-            });
-        }
-
-        let mut decoder = context_decoder.decoder().video()?;
-
-        let mut scaler = Context::get(
-            decoder.format(),
-            decoder.width(),
-            decoder.height(),
-            Pixel::RGB24,
-            decoder.width(),
-            decoder.height(),
-            Flags::BILINEAR,
-        )?;
-
-        let mut frame_index = 0;
-
-        let mut receive_and_process_decoded_frames =
-            |decoder: &mut ffmpeg::decoder::Video| -> Result<(), ffmpeg::Error> {
-                let mut decoded = Video::empty();
-                while decoder.receive_frame(&mut decoded).is_ok() {
-                    let mut rgb_frame = Video::empty();
-                    scaler.run(&decoded, &mut rgb_frame)?;
-                    save_file(&rgb_frame, frame_index).unwrap();
-                    frame_index += 1;
-                }
-                Ok(())
-            };
-
-        for packet in ictx.packets().filter_map(Result::ok) {
-            if packet.stream() == video_stream_index {
-                decoder.send_packet(&packet)?;
-                receive_and_process_decoded_frames(&mut decoder)?;
-            }
-        }
-        decoder.send_eof()?;
-        receive_and_process_decoded_frames(&mut decoder)?;
+    if let Ok(parallelism) = std::thread::available_parallelism() {
+        context_decoder.set_threading(ffmpeg::threading::Config {
+            kind: ffmpeg::threading::Type::Frame,
+            count: parallelism.get(),
+            #[cfg(not(feature = "ffmpeg_6_0"))]
+            safe: false,
+        });
     }
+
+    let mut decoder = context_decoder.decoder().video()?;
+
+    let mut scaler = Context::get(
+        decoder.format(),
+        decoder.width(),
+        decoder.height(),
+        Pixel::RGB24,
+        decoder.width(),
+        decoder.height(),
+        Flags::BILINEAR,
+    )?;
+
+    let mut frame_index = 0;
+
+    let mut receive_and_process_decoded_frames =
+        |decoder: &mut ffmpeg::decoder::Video| -> Result<(), ffmpeg::Error> {
+            let mut decoded = Video::empty();
+            while decoder.receive_frame(&mut decoded).is_ok() {
+                let mut rgb_frame = Video::empty();
+                scaler.run(&decoded, &mut rgb_frame)?;
+                save_file(&rgb_frame, frame_index).unwrap();
+                frame_index += 1;
+            }
+            Ok(())
+        };
+
+    for packet in ictx.packets().filter_map(Result::ok) {
+        if packet.stream() == video_stream_index {
+            decoder.send_packet(&packet)?;
+            receive_and_process_decoded_frames(&mut decoder)?;
+        }
+    }
+    decoder.send_eof()?;
+    receive_and_process_decoded_frames(&mut decoder)?;
 
     Ok(())
 }
