@@ -69,98 +69,38 @@ fn from_os_str(path_or_url: impl AsRef<OsStr>) -> CString {
     CString::new(path_or_url.as_ref().as_encoded_bytes()).unwrap()
 }
 
-fn alloc_context(
-    format_name: *const libc::c_char,
-    filename: *const libc::c_char,
-) -> Result<context::Output, Error> {
-    let mut ps = ptr::null_mut();
-
-    unsafe {
-        let res = avformat_alloc_output_context2(&mut ps, ptr::null(), format_name, filename);
-        if res >= 0 {
-            Ok(context::Output::from_raw(ps).expect("ps is non-null"))
-        } else {
-            Err(Error::from(res))
-        }
-    }
-}
-
-fn open_context_write(
-    ctx: &mut context::Output,
-    filename: *const libc::c_char,
-    opts: *mut *mut AVDictionary,
-) -> Result<(), Error> {
-    let res = unsafe {
-        avio_open2(
-            &mut (*ctx.as_mut_ptr()).pb,
-            filename,
-            AVIO_FLAG_WRITE,
-            ptr::null(),
-            opts,
-        )
-    };
-
-    if res >= 0 {
-        Ok(())
-    } else {
-        Err(Error::from(res))
-    }
-}
-
 pub fn output<P: AsRef<OsStr>>(path_or_url: P) -> Result<context::Output, Error> {
-    let filename = from_os_str(path_or_url);
-    let mut ctx = alloc_context(ptr::null(), filename.as_ptr())?;
-
-    if !ctx.format().flags().contains(Flags::NO_FILE) {
-        open_context_write(&mut ctx, filename.as_ptr(), ptr::null_mut())?;
-    }
-
+    let mut ctx = context::Output::from_filename(&path_or_url)?;
+    ctx.open_file(path_or_url)?;
     Ok(ctx)
 }
 
-pub fn output_with<P, Dict>(path_or_url: P, mut options: Dict) -> Result<context::Output, Error>
+pub fn output_with<P, Dict>(path_or_url: P, options: Dict) -> Result<context::Output, Error>
 where
     P: AsRef<OsStr>,
     Dict: AsMutPtr<*mut AVDictionary>,
 {
-    let path = from_os_str(path_or_url);
-    let mut ctx = alloc_context(ptr::null(), path.as_ptr())?;
-
-    if !ctx.format().flags().contains(Flags::NO_FILE) {
-        open_context_write(&mut ctx, path.as_ptr(), options.as_mut_ptr())?;
-    }
-
+    let mut ctx = context::Output::from_filename(&path_or_url)?;
+    ctx.open_file_with(path_or_url, options)?;
     Ok(ctx)
 }
 
 pub fn output_as<P: AsRef<OsStr>>(path_or_url: P, format: &str) -> Result<context::Output, Error> {
-    let path = from_os_str(path_or_url);
-    let format = CString::new(format).unwrap();
-    let mut ctx = alloc_context(format.as_ptr(), path.as_ptr())?;
-
-    if !ctx.format().flags().contains(Flags::NO_FILE) {
-        open_context_write(&mut ctx, path.as_ptr(), ptr::null_mut())?;
-    }
-
+    let mut ctx = context::Output::from_format_name(format)?;
+    ctx.open_file(path_or_url)?;
     Ok(ctx)
 }
 
 pub fn output_as_with<P, Dict>(
     path_or_url: P,
     format: &str,
-    mut options: Dict,
+    options: Dict,
 ) -> Result<context::Output, Error>
 where
     P: AsRef<OsStr>,
     Dict: AsMutPtr<*mut AVDictionary>,
 {
-    let path = from_os_str(path_or_url);
-    let format = CString::new(format).unwrap();
-    let mut ctx = alloc_context(format.as_ptr(), path.as_ptr())?;
-
-    if !ctx.format().flags().contains(Flags::NO_FILE) {
-        open_context_write(&mut ctx, path.as_ptr(), options.as_mut_ptr())?;
-    }
-
+    let mut ctx = context::Output::from_format_name(format)?;
+    ctx.open_file_with(path_or_url, options)?;
     Ok(ctx)
 }

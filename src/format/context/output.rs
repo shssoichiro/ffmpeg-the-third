@@ -1,9 +1,10 @@
-use std::ffi::CString;
+use std::ffi::{CString, OsStr};
 use std::ptr::{self, NonNull};
 
 use crate::codec::traits;
 use crate::ffi::*;
-use crate::{format, ChapterMut, DictionaryMut, Error, Rational, StreamMut};
+use crate::format::Flags;
+use crate::{format, ChapterMut, Dictionary, DictionaryMut, Error, Rational, StreamMut};
 use crate::{AsMutPtr, AsPtr};
 
 pub struct Output {
@@ -18,6 +19,53 @@ unsafe impl Sync for Output {}
 impl Output {
     pub unsafe fn from_raw(ptr: *mut AVFormatContext) -> Option<Self> {
         NonNull::new(ptr).map(|ptr| Self { ptr })
+    }
+
+    pub fn from_format(format: format::Output) -> Result<Self, Error> {
+        OutputFormat::Format(format).create_output()
+    }
+
+    pub fn from_format_name(format_name: impl AsRef<str>) -> Result<Self, Error> {
+        let format_name = CString::new(format_name.as_ref()).unwrap();
+        OutputFormat::Name(format_name).create_output()
+    }
+
+    pub fn from_filename(filename: impl AsRef<OsStr>) -> Result<Self, Error> {
+        let filename = CString::new(filename.as_ref().as_encoded_bytes()).unwrap();
+        OutputFormat::Filename(filename).create_output()
+    }
+
+    pub fn open_file(&mut self, filename: impl AsRef<OsStr>) -> Result<(), Error> {
+        self.open_file_with(filename, Dictionary::new())
+    }
+
+    pub fn open_file_with<P, D>(&mut self, filename: P, mut options: D) -> Result<(), Error>
+    where
+        P: AsRef<OsStr>,
+        D: AsMutPtr<*mut AVDictionary>,
+    {
+        if self.format().flags().contains(Flags::NO_FILE) {
+            // The demuxer handles IO itself
+            return Err(Error::InvalidData);
+        }
+
+        let res = unsafe {
+            let filename = CString::new(filename.as_ref().as_encoded_bytes()).unwrap();
+
+            avio_open2(
+                &mut (*self.as_mut_ptr()).pb,
+                filename.as_ptr(),
+                AVIO_FLAG_WRITE,
+                ptr::null(),
+                options.as_mut_ptr(),
+            )
+        };
+
+        if res >= 0 {
+            Ok(())
+        } else {
+            Err(Error::from(res))
+        }
     }
 
     pub fn format(&self) -> format::Output {
@@ -166,6 +214,50 @@ impl Drop for Output {
         unsafe {
             avio_close((*self.as_mut_ptr()).pb);
             avformat_free_context(self.as_mut_ptr());
+        }
+    }
+}
+
+#[derive(Debug)]
+enum OutputFormat {
+    Format(format::Output),
+    Name(CString),
+    Filename(CString),
+}
+
+impl OutputFormat {
+    pub fn create_output(self) -> Result<Output, Error> {
+        let mut ctx = ptr::null_mut();
+
+        unsafe {
+            let oformat = if let OutputFormat::Format(fmt) = &self {
+                fmt.as_ptr()
+            } else {
+                ptr::null()
+            };
+
+            let format_name = if let OutputFormat::Name(format_name) = &self {
+                format_name.as_ptr()
+            } else {
+                ptr::null()
+            };
+
+            let filename = if let OutputFormat::Filename(filename) = &self {
+                filename.as_ptr()
+            } else {
+                ptr::null()
+            };
+
+            let ret = avformat_alloc_output_context2(&mut ctx, oformat, format_name, filename);
+
+            // ensure `self` is not dropped before this so the char pointers stay valid
+            let _ = self;
+
+            if ret >= 0 {
+                Ok(Output::from_raw(ctx).expect("ctx is non-null"))
+            } else {
+                Err(Error::from(ret))
+            }
         }
     }
 }
