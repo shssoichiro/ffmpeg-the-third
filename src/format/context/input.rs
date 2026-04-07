@@ -1,37 +1,22 @@
 use std::ffi::CString;
-use std::mem;
-use std::ops::{Bound, Deref, DerefMut, RangeBounds};
+use std::ops::{Bound, RangeBounds};
+use std::ptr::NonNull;
 
-use super::common::Context;
-use super::destructor;
 use crate::ffi::*;
-use crate::{format, Error, Packet, Stream};
+use crate::{format, Error, Packet};
+use crate::{AsMutPtr, AsPtr};
 
 pub struct Input {
-    ptr: *mut AVFormatContext,
-    ctx: Context,
+    ptr: NonNull<AVFormatContext>,
 }
 
 unsafe impl Send for Input {}
 
 impl Input {
-    pub unsafe fn wrap(ptr: *mut AVFormatContext) -> Self {
-        Input {
-            ptr,
-            ctx: Context::wrap(ptr, destructor::Mode::Input),
-        }
+    pub unsafe fn from_raw(ptr: *mut AVFormatContext) -> Option<Self> {
+        NonNull::new(ptr).map(|ptr| Self { ptr })
     }
 
-    pub unsafe fn as_ptr(&self) -> *const AVFormatContext {
-        self.ptr as *const _
-    }
-
-    pub unsafe fn as_mut_ptr(&mut self) -> *mut AVFormatContext {
-        self.ptr
-    }
-}
-
-impl Input {
     pub fn format(&self) -> format::Input {
         unsafe { format::Input::from_raw((*self.as_ptr()).iformat).expect("iformat is non-null") }
     }
@@ -84,17 +69,15 @@ impl Input {
     }
 }
 
-impl Deref for Input {
-    type Target = Context;
-
-    fn deref(&self) -> &Self::Target {
-        &self.ctx
+impl AsPtr<AVFormatContext> for Input {
+    fn as_ptr(&self) -> *const AVFormatContext {
+        self.ptr.as_ptr()
     }
 }
 
-impl DerefMut for Input {
-    fn deref_mut(&mut self) -> &mut Self::Target {
-        &mut self.ctx
+impl AsMutPtr<AVFormatContext> for Input {
+    fn as_mut_ptr(&mut self) -> *mut AVFormatContext {
+        self.ptr.as_ptr()
     }
 }
 
@@ -109,18 +92,13 @@ impl<'a> PacketIter<'a> {
 }
 
 impl<'a> Iterator for PacketIter<'a> {
-    type Item = Result<(Stream<'a>, Packet), Error>;
+    type Item = Result<Packet, Error>;
 
     fn next(&mut self) -> Option<<Self as Iterator>::Item> {
         let mut packet = Packet::empty();
 
         match packet.read(self.context) {
-            Ok(..) => unsafe {
-                Some(Ok((
-                    Stream::wrap(mem::transmute_copy(&self.context), packet.stream()),
-                    packet,
-                )))
-            },
+            Ok(()) => Some(Ok(packet)),
 
             Err(Error::Eof) => None,
 
@@ -139,5 +117,13 @@ pub fn dump(ctx: &Input, index: i32, url: Option<&str>) {
             url.unwrap_or_else(|| CString::new("").unwrap()).as_ptr(),
             0,
         );
+    }
+}
+
+impl Drop for Input {
+    fn drop(&mut self) {
+        unsafe {
+            avformat_close_input(&mut self.as_mut_ptr());
+        }
     }
 }

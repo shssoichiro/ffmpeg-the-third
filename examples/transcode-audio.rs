@@ -71,8 +71,8 @@ fn transcoder<P: AsRef<Path> + ?Sized>(
     filter_spec: &str,
 ) -> Result<Transcoder, ffmpeg::Error> {
     let input = ictx
-        .streams()
-        .best(media::Type::Audio)
+        .best_stream()
+        .find(media::Type::Audio)
         .expect("could not find best audio stream");
     let context = ffmpeg::codec::context::Context::from_parameters(input.parameters())?;
     let mut decoder = context.decoder().audio()?;
@@ -204,17 +204,17 @@ impl Transcoder {
 //
 // Example 3: Seek to a specified position (in seconds)
 // transcode-audio in.mp3 out.mp3 anull 30
-fn main() {
-    ffmpeg::init().unwrap();
+fn main() -> Result<(), ffmpeg::Error> {
+    ffmpeg::init()?;
 
     let input = env::args().nth(1).expect("missing input");
     let output = env::args().nth(2).expect("missing output");
     let filter = env::args().nth(3).unwrap_or_else(|| "anull".to_owned());
     let seek = env::args().nth(4).and_then(|s| s.parse::<i64>().ok());
 
-    let mut ictx = format::input(&input).unwrap();
+    let mut ictx = format::input(&input).build()?;
     let mut octx = format::output(&output).unwrap();
-    let mut transcoder = transcoder(&mut ictx, &mut octx, &output, &filter).unwrap();
+    let mut transcoder = transcoder(&mut ictx, &mut octx, &output, &filter)?;
 
     if let Some(position) = seek {
         // If the position was given in seconds, rescale it to ffmpegs base timebase.
@@ -225,11 +225,11 @@ fn main() {
     }
 
     octx.metadata_mut().replace_with(ictx.metadata().to_owned());
-    octx.write_header().unwrap();
+    octx.write_header()?;
 
-    for (stream, mut packet) in ictx.packets().filter_map(Result::ok) {
-        if stream.index() == transcoder.stream {
-            packet.rescale_ts(stream.time_base(), transcoder.in_time_base);
+    for mut packet in ictx.packets().filter_map(Result::ok) {
+        if packet.stream() == transcoder.stream {
+            packet.rescale_ts(packet.time_base(), transcoder.in_time_base);
             transcoder.send_packet_to_decoder(&packet);
             transcoder.receive_and_process_decoded_frames(&mut octx);
         }
@@ -244,5 +244,5 @@ fn main() {
     transcoder.send_eof_to_encoder();
     transcoder.receive_and_process_encoded_packets(&mut octx);
 
-    octx.write_trailer().unwrap();
+    octx.write_trailer()
 }

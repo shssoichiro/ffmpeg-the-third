@@ -1,143 +1,43 @@
-use super::Disposition;
-use crate::codec;
+use std::marker::PhantomData;
+use std::ptr::NonNull;
+
 use crate::ffi::*;
-use crate::format::context::common::Context;
-use crate::{DictionaryRef, Discard, Rational};
+use crate::utils;
+use crate::AsPtr;
 
-#[cfg(not(feature = "ffmpeg_8_0"))]
-use crate::codec::packet;
-#[cfg(not(feature = "ffmpeg_8_0"))]
-use libc::c_int;
-
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq)]
 pub struct Stream<'a> {
-    context: &'a Context,
-    index: usize,
+    ptr: NonNull<AVStream>,
+    _marker: PhantomData<&'a AVFormatContext>,
 }
 
 impl<'a> Stream<'a> {
-    pub unsafe fn wrap(context: &Context, index: usize) -> Stream<'_> {
-        Stream { context, index }
-    }
-
-    pub unsafe fn as_ptr(&self) -> *const AVStream {
-        *(*self.context.as_ptr()).streams.add(self.index)
-    }
-}
-
-impl<'a> Stream<'a> {
-    pub fn id(&self) -> i32 {
-        unsafe { (*self.as_ptr()).id }
-    }
-
-    pub fn parameters(&self) -> codec::ParametersRef<'_> {
+    /// # Safety
+    /// The pointer returned by `ctx` must be non-null and valid.
+    pub unsafe fn from_ctx_and_idx<C: AsPtr<AVFormatContext>>(
+        ctx: &'a C,
+        idx: usize,
+    ) -> Option<Self> {
+        // SAFETY: Lifetime is correctly bounded (constraint on type parameter `C`).
         unsafe {
-            codec::ParametersRef::from_raw((*self.as_ptr()).codecpar).expect("codecpar is non-null")
+            utils::c_slice_or_empty((*ctx.as_ptr()).streams, (*ctx.as_ptr()).nb_streams as usize)
+                .get(idx)
+                .and_then(|&ptr| Self::from_raw(ptr))
         }
     }
 
-    pub fn index(&self) -> usize {
-        unsafe { (*self.as_ptr()).index as usize }
-    }
-
-    pub fn time_base(&self) -> Rational {
-        unsafe { Rational::from((*self.as_ptr()).time_base) }
-    }
-
-    pub fn start_time(&self) -> i64 {
-        unsafe { (*self.as_ptr()).start_time }
-    }
-
-    pub fn duration(&self) -> i64 {
-        unsafe { (*self.as_ptr()).duration }
-    }
-
-    pub fn frames(&self) -> i64 {
-        unsafe { (*self.as_ptr()).nb_frames }
-    }
-
-    pub fn disposition(&self) -> Disposition {
-        unsafe { Disposition::from_bits_truncate((*self.as_ptr()).disposition) }
-    }
-
-    pub fn discard(&self) -> Discard {
-        unsafe { Discard::from((*self.as_ptr()).discard) }
-    }
-
-    #[cfg(not(feature = "ffmpeg_8_0"))]
-    pub fn side_data(&self) -> SideDataIter<'_> {
-        SideDataIter::new(self)
-    }
-
-    pub fn rate(&self) -> Rational {
-        unsafe { Rational::from((*self.as_ptr()).r_frame_rate) }
-    }
-
-    pub fn avg_frame_rate(&self) -> Rational {
-        unsafe { Rational::from((*self.as_ptr()).avg_frame_rate) }
-    }
-
-    pub fn metadata(&self) -> DictionaryRef<'_> {
-        unsafe { DictionaryRef::from_raw((*self.as_ptr()).metadata) }
-    }
-
-    pub fn sample_aspect_ratio(&self) -> Rational {
-        unsafe { Rational::from((*self.as_ptr()).sample_aspect_ratio) }
+    /// # Safety
+    /// `ptr` must be null or valid. Ensure the returned lifetime is correctly bounded.
+    pub unsafe fn from_raw(ptr: *const AVStream) -> Option<Self> {
+        NonNull::new(ptr as *mut _).map(|ptr| Self {
+            ptr,
+            _marker: PhantomData,
+        })
     }
 }
 
-impl<'a> PartialEq for Stream<'a> {
-    fn eq(&self, other: &Self) -> bool {
-        unsafe { self.as_ptr() == other.as_ptr() }
+impl<'a> AsPtr<AVStream> for Stream<'a> {
+    fn as_ptr(&self) -> *const AVStream {
+        self.ptr.as_ptr()
     }
 }
-
-impl<'a> Eq for Stream<'a> {}
-
-#[cfg(not(feature = "ffmpeg_8_0"))]
-pub struct SideDataIter<'a> {
-    stream: &'a Stream<'a>,
-    current: c_int,
-}
-
-#[cfg(not(feature = "ffmpeg_8_0"))]
-impl<'a> SideDataIter<'a> {
-    pub fn new<'sd, 's: 'sd>(stream: &'s Stream) -> SideDataIter<'sd> {
-        SideDataIter { stream, current: 0 }
-    }
-}
-
-#[cfg(not(feature = "ffmpeg_8_0"))]
-impl<'a> Iterator for SideDataIter<'a> {
-    type Item = packet::SideData<'a>;
-
-    fn next(&mut self) -> Option<<Self as Iterator>::Item> {
-        unsafe {
-            if self.current >= (*self.stream.as_ptr()).nb_side_data {
-                return None;
-            }
-
-            self.current += 1;
-
-            Some(packet::SideData::wrap(
-                (*self.stream.as_ptr())
-                    .side_data
-                    .offset((self.current - 1) as isize),
-            ))
-        }
-    }
-
-    fn size_hint(&self) -> (usize, Option<usize>) {
-        unsafe {
-            let length = (*self.stream.as_ptr()).nb_side_data as usize;
-
-            (
-                length - self.current as usize,
-                Some(length - self.current as usize),
-            )
-        }
-    }
-}
-
-#[cfg(not(feature = "ffmpeg_8_0"))]
-impl<'a> ExactSizeIterator for SideDataIter<'a> {}

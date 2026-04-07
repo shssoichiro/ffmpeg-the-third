@@ -1,35 +1,44 @@
-use std::mem;
-use std::ops::Deref;
+use std::marker::PhantomData;
+use std::ptr::NonNull;
 
-use super::Stream;
 use crate::ffi::*;
-use crate::format::context::common::Context;
-use crate::AsPtr;
+use crate::utils;
 use crate::{codec, DictionaryMut, Rational};
+use crate::{AsMutPtr, AsPtr};
 
+#[derive(Debug, PartialEq, Eq)]
 pub struct StreamMut<'a> {
-    context: &'a mut Context,
-    index: usize,
-
-    immutable: Stream<'a>,
+    ptr: NonNull<AVStream>,
+    _marker: PhantomData<&'a mut AVFormatContext>,
 }
 
 impl<'a> StreamMut<'a> {
-    pub unsafe fn wrap(context: &mut Context, index: usize) -> StreamMut<'_> {
-        StreamMut {
-            context: mem::transmute_copy(&context),
-            index,
-
-            immutable: Stream::wrap(mem::transmute_copy(&context), index),
+    /// # Safety
+    /// The pointer returned by `ctx` must be non-null and valid.
+    pub unsafe fn from_ctx_and_idx<C: AsMutPtr<AVFormatContext>>(
+        ctx: &'a mut C,
+        idx: usize,
+    ) -> Option<Self> {
+        // SAFETY: Lifetime is correctly bounded (constraint on type parameter `C`).
+        unsafe {
+            utils::c_mut_slice_or_empty(
+                (*ctx.as_mut_ptr()).streams,
+                (*ctx.as_mut_ptr()).nb_streams as usize,
+            )
+            .get(idx)
+            .and_then(|&ptr| Self::from_raw(ptr))
         }
     }
 
-    pub unsafe fn as_mut_ptr(&mut self) -> *mut AVStream {
-        *(*self.context.as_mut_ptr()).streams.add(self.index)
+    /// # Safety
+    /// `ptr` must be null or valid. Ensure the returned lifetime is correctly bounded.
+    pub unsafe fn from_raw(ptr: *mut AVStream) -> Option<Self> {
+        NonNull::new(ptr).map(|ptr| Self {
+            ptr,
+            _marker: PhantomData,
+        })
     }
-}
 
-impl<'a> StreamMut<'a> {
     pub fn set_time_base<R: Into<Rational>>(&mut self, value: R) {
         unsafe {
             (*self.as_mut_ptr()).time_base = value.into().into();
@@ -78,10 +87,14 @@ impl<'a> StreamMut<'a> {
     }
 }
 
-impl<'a> Deref for StreamMut<'a> {
-    type Target = Stream<'a>;
+impl<'a> AsPtr<AVStream> for StreamMut<'a> {
+    fn as_ptr(&self) -> *const AVStream {
+        self.ptr.as_ptr()
+    }
+}
 
-    fn deref(&self) -> &Self::Target {
-        &self.immutable
+impl<'a> AsMutPtr<AVStream> for StreamMut<'a> {
+    fn as_mut_ptr(&mut self) -> *mut AVStream {
+        self.ptr.as_ptr()
     }
 }

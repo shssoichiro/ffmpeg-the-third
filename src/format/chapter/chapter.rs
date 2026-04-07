@@ -1,53 +1,46 @@
+use std::marker::PhantomData;
+use std::ptr::NonNull;
+
 use crate::ffi::*;
-use crate::{DictionaryRef, Rational};
+use crate::utils;
+use crate::AsPtr;
 
-use crate::format::context::common::Context;
-
-// WARNING: index refers to the offset in the chapters array (starting from 0)
-// it is not necessarly equal to the id (which may start at 1)
+#[derive(Debug, PartialEq, Eq)]
 pub struct Chapter<'a> {
-    context: &'a Context,
-    index: usize,
+    ptr: NonNull<AVChapter>,
+    _marker: PhantomData<&'a AVFormatContext>,
 }
 
 impl<'a> Chapter<'a> {
-    pub unsafe fn wrap(context: &Context, index: usize) -> Chapter<'_> {
-        Chapter { context, index }
+    /// # Safety
+    /// The pointer returned by `ctx` must be non-null and valid.
+    pub unsafe fn from_ctx_and_idx<C: AsPtr<AVFormatContext>>(
+        ctx: &'a C,
+        idx: usize,
+    ) -> Option<Self> {
+        // SAFETY: Lifetime is correctly bounded (constraint on type parameter `C`).
+        unsafe {
+            utils::c_slice_or_empty(
+                (*ctx.as_ptr()).chapters,
+                (*ctx.as_ptr()).nb_chapters as usize,
+            )
+            .get(idx)
+            .and_then(|&ptr| Self::from_raw(ptr))
+        }
     }
 
-    pub unsafe fn as_ptr(&self) -> *const AVChapter {
-        *(*self.context.as_ptr()).chapters.add(self.index)
-    }
-}
-
-impl<'a> Chapter<'a> {
-    pub fn index(&self) -> usize {
-        self.index
-    }
-
-    pub fn id(&self) -> i64 {
-        unsafe { (*self.as_ptr()).id as i64 }
-    }
-
-    pub fn time_base(&self) -> Rational {
-        unsafe { Rational::from((*self.as_ptr()).time_base) }
-    }
-
-    pub fn start(&self) -> i64 {
-        unsafe { (*self.as_ptr()).start }
-    }
-
-    pub fn end(&self) -> i64 {
-        unsafe { (*self.as_ptr()).end }
-    }
-
-    pub fn metadata(&self) -> DictionaryRef<'_> {
-        unsafe { DictionaryRef::from_raw((*self.as_ptr()).metadata) }
+    /// # Safety
+    /// `ptr` must be null or valid. Ensure the returned lifetime is correctly bounded.
+    pub unsafe fn from_raw(ptr: *const AVChapter) -> Option<Self> {
+        NonNull::new(ptr as *mut _).map(|ptr| Self {
+            ptr,
+            _marker: PhantomData,
+        })
     }
 }
 
-impl<'a> PartialEq for Chapter<'a> {
-    fn eq(&self, other: &Self) -> bool {
-        unsafe { self.as_ptr() == other.as_ptr() }
+impl<'a> AsPtr<AVChapter> for Chapter<'a> {
+    fn as_ptr(&self) -> *const AVChapter {
+        self.ptr.as_ptr()
     }
 }
