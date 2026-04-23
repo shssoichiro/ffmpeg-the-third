@@ -4,10 +4,10 @@ use std::ptr;
 
 use super::common::Context;
 use super::destructor;
-use crate::codec::traits;
+use crate::codec::codec;
 use crate::ffi::*;
 use crate::{
-    format, AsMutPtr, ChapterMut, DictionaryMut, DictionaryRef, Error, Rational, StreamMut,
+    format, AsMutPtr, AsPtr, ChapterMut, DictionaryMut, DictionaryRef, Error, Rational, StreamMut,
 };
 
 pub struct Output {
@@ -71,14 +71,9 @@ impl Output {
         }
     }
 
-    pub fn add_stream<T, E: traits::Encoder<T>>(
-        &mut self,
-        codec: E,
-    ) -> Result<StreamMut<'_>, Error> {
+    pub fn add_stream<T>(&mut self, codec: codec::Encoder<T>) -> Result<StreamMut<'_>, Error> {
         unsafe {
-            let codec = codec.encoder();
-            let codec = codec.map_or(ptr::null(), |c| c.as_ptr());
-            let ptr = avformat_new_stream(self.as_mut_ptr(), codec);
+            let ptr = avformat_new_stream(self.as_mut_ptr(), codec.as_ptr());
 
             if ptr.is_null() {
                 return Err(Error::Unknown);

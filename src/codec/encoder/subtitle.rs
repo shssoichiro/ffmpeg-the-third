@@ -5,8 +5,8 @@ use crate::ffi::*;
 use libc::c_int;
 
 use super::Encoder as Super;
-use crate::codec::{traits, Context};
-use crate::{AsMutPtr, Error};
+use crate::codec::{codec, Context};
+use crate::{AsMutPtr, AsPtr, Error};
 
 pub struct Subtitle(pub Super);
 
@@ -20,41 +20,29 @@ impl Subtitle {
         }
     }
 
-    pub fn open_as<T, Enc>(mut self, codec: Enc) -> Result<Encoder, Error>
-    where
-        Enc: traits::Encoder<T>,
-    {
+    pub fn open_as<T>(mut self, codec: codec::Encoder<T>) -> Result<Encoder, Error> {
         unsafe {
-            if let Some(codec) = codec.encoder() {
-                match avcodec_open2(self.as_mut_ptr(), codec.as_ptr(), ptr::null_mut()) {
-                    0 => Ok(Encoder(self)),
-                    e => Err(Error::from(e)),
-                }
-            } else {
-                Err(Error::EncoderNotFound)
+            match avcodec_open2(self.as_mut_ptr(), codec.as_ptr(), ptr::null_mut()) {
+                0 => Ok(Encoder(self)),
+                e => Err(Error::from(e)),
             }
         }
     }
 
-    pub fn open_as_with<T, Enc, Dict>(
+    pub fn open_as_with<T, Dict>(
         mut self,
-        codec: Enc,
+        codec: codec::Encoder<T>,
         mut options: Dict,
     ) -> Result<Encoder, Error>
     where
-        Enc: traits::Encoder<T>,
         Dict: AsMutPtr<*mut AVDictionary>,
     {
         unsafe {
-            if let Some(codec) = codec.encoder() {
-                let res = avcodec_open2(self.as_mut_ptr(), codec.as_ptr(), options.as_mut_ptr());
+            let res = avcodec_open2(self.as_mut_ptr(), codec.as_ptr(), options.as_mut_ptr());
 
-                match res {
-                    0 => Ok(Encoder(self)),
-                    e => Err(Error::from(e)),
-                }
-            } else {
-                Err(Error::EncoderNotFound)
+            match res {
+                0 => Ok(Encoder(self)),
+                e => Err(Error::from(e)),
             }
         }
     }

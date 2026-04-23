@@ -53,7 +53,6 @@ pub mod threading;
 
 pub mod decoder;
 pub mod encoder;
-pub mod traits;
 
 use crate::ffi::*;
 use crate::utils;
