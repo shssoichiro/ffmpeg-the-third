@@ -23,6 +23,7 @@ use std::ptr;
 
 use crate::ffi::*;
 use crate::utils;
+use crate::Dictionary;
 use crate::{AsMutPtr, Error};
 
 pub fn version() -> u32 {
@@ -70,9 +71,7 @@ fn from_os_str(path_or_url: impl AsRef<OsStr>) -> CString {
 }
 
 pub fn output<P: AsRef<OsStr>>(path_or_url: P) -> Result<context::Output, Error> {
-    let mut ctx = context::Output::from_filename(&path_or_url)?;
-    ctx.open_file(path_or_url)?;
-    Ok(ctx)
+    output_with(path_or_url, Dictionary::new())
 }
 
 pub fn output_with<P, Dict>(path_or_url: P, options: Dict) -> Result<context::Output, Error>
@@ -81,14 +80,14 @@ where
     Dict: AsMutPtr<*mut AVDictionary>,
 {
     let mut ctx = context::Output::from_filename(&path_or_url)?;
-    ctx.open_file_with(path_or_url, options)?;
+    if !ctx.format().flags().contains(Flags::NO_FILE) {
+        ctx.open_file_with(path_or_url, options)?;
+    }
     Ok(ctx)
 }
 
 pub fn output_as<P: AsRef<OsStr>>(path_or_url: P, format: &str) -> Result<context::Output, Error> {
-    let mut ctx = context::Output::from_format_name(format)?;
-    ctx.open_file(path_or_url)?;
-    Ok(ctx)
+    output_as_with(path_or_url, format, Dictionary::new())
 }
 
 pub fn output_as_with<P, Dict>(
@@ -101,6 +100,8 @@ where
     Dict: AsMutPtr<*mut AVDictionary>,
 {
     let mut ctx = context::Output::from_format_name(format)?;
-    ctx.open_file_with(path_or_url, options)?;
+    if !ctx.format().flags().contains(Flags::NO_FILE) {
+        ctx.open_file_with(path_or_url, options)?;
+    }
     Ok(ctx)
 }
