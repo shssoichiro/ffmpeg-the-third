@@ -4,6 +4,7 @@ use std::slice;
 
 use super::{Borrow, Flags, Mut, Ref, SideData};
 use crate::ffi::*;
+use crate::AsMutPtr;
 use crate::{format, Error, Rational};
 use libc::c_int;
 
@@ -166,6 +167,16 @@ impl Packet {
     #[inline]
     pub fn set_position(&mut self, value: isize) {
         self.0.pos = value as i64
+    }
+
+    #[inline]
+    pub fn time_base(&self) -> Rational {
+        self.0.time_base.into()
+    }
+
+    #[inline]
+    pub fn set_time_base(&mut self, value: Rational) {
+        self.0.time_base = value.into()
     }
 
     #[inline]

@@ -1,3 +1,5 @@
+mod common;
+
 mod chapter;
 pub use self::chapter::Chapter;
 
