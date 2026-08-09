@@ -4,6 +4,8 @@ use crate::iters::TerminatedPtrIter;
 use std::ptr::NonNull;
 
 #[cfg(feature = "ffmpeg_7_1")]
+use crate::codec::codec::ChannelLayoutIter;
+#[cfg(feature = "ffmpeg_7_1")]
 use crate::codec::Context;
 #[cfg(feature = "ffmpeg_7_1")]
 use crate::ffi::*;
@@ -220,6 +222,17 @@ impl_config_iter!(
     crate::ffi::AVSampleFormat,
     crate::ffi::AVSampleFormat::NONE
 );
+
+/// Low-level function interacting with the FFmpeg API via
+/// `avcodec_get_supported_config()`. Consider using the convenience method on
+/// audio codecs instead.
+#[cfg(feature = "ffmpeg_7_1")]
+pub fn supported_channel_layouts<T>(
+    codec: Codec<T>,
+    ctx: Option<&Context>,
+) -> Result<Supported<ChannelLayoutIter<'_>>, Error> {
+    supported(codec, ctx, AVCodecConfig::CHANNEL_LAYOUT)
+}
 
 #[cfg(feature = "ffmpeg_7_1")]
 impl_config_iter!(

@@ -4,6 +4,8 @@ use std::ffi::CString;
 use crate::ffi::*;
 use crate::utils;
 use crate::Error;
+#[cfg(feature = "serialize")]
+use serde::{Deserialize, Serialize};
 
 /// Correlation between the alpha channel and color values.
 #[derive(Eq, PartialEq, Clone, Copy, Debug)]

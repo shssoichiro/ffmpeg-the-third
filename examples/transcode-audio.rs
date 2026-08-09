@@ -95,13 +95,23 @@ fn transcoder<P: AsRef<Path> + ?Sized>(
         encoder.set_flags(ffmpeg::codec::flag::Flags::GLOBAL_HEADER);
     }
 
+    #[cfg(not(feature = "ffmpeg_9_0"))]
     let ch_layout = codec
         .ch_layouts()
         .map(|cls| cls.best(decoder.ch_layout().channels()))
         .unwrap_or(ffmpeg::channel_layout::ChannelLayout::STEREO);
 
+    #[cfg(feature = "ffmpeg_9_0")]
+    let ch_layout = match codec.supported_layouts() {
+        ffmpeg::codec::config::Supported::All => ffmpeg::channel_layout::ChannelLayout::STEREO,
+        ffmpeg::codec::config::Supported::Specific(layouts) => {
+            layouts.best(decoder.ch_layout().channels())
+        }
+    };
+
     encoder.set_ch_layout(ch_layout);
     encoder.set_rate(decoder.rate() as i32);
+    #[cfg(not(feature = "ffmpeg_9_0"))]
     encoder.set_format(
         codec
             .formats()
@@ -109,6 +119,14 @@ fn transcoder<P: AsRef<Path> + ?Sized>(
             .next()
             .unwrap(),
     );
+
+    #[cfg(feature = "ffmpeg_9_0")]
+    encoder.set_format(match codec.supported_formats() {
+        ffmpeg::codec::config::Supported::All => decoder.format(),
+        ffmpeg::codec::config::Supported::Specific(mut formats) => {
+            formats.next().expect("unknown supported formats")
+        }
+    });
     encoder.set_bit_rate(decoder.bit_rate());
     encoder.set_max_bit_rate(decoder.max_bit_rate());
 

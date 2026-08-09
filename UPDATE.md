@@ -13,7 +13,7 @@ Do this on the `master` branch:
 
 Download FFmpeg itself and build the new version:
 
-1. `git checkout n8.0`
+1. `git checkout n9.0`
 2. `./configure --prefix=<somepath>` (remember this path for later)
 3. `make -j install`
 
@@ -26,17 +26,17 @@ First, prepare your development environment:
 
 The build script inside `ffmpeg-sys` needs to be updated. This means:
 
-1. Go through `libavutil/version.h` and `libav*/version_major.h` and note the API feature changes (`FF_API_*`). In `build.rs`, add a new divider per library ("before 9.0") and add all existing API features below it. Move old features into the new version.
+1. Go through `libavutil/version.h` and `libav*/version_major.h` and note the API feature changes (`FF_API_*`). In `build.rs`, add a new divider per library ("before 10.0") and add all existing API features below it. Move old features into the new version.
 2. Check the FFmpeg `configure` script for new features and libraries. Add them to `build.rs` and _both_ `Cargo.toml` files (-sys and main crate).
 3. Check `libavcodec/version_major.h` for the new major and minor versions. Add them to `ffmpeg_lavc_versions` in `build.rs`.
 
 There is a bug in bindgen which means we have to add the channel layout values manually. So go into the FFmpeg source code directory and run
 
 ```sh
-git diff n7.1..n8.0 libavutil/channel_layout.h
+git diff n8.1..n9.0 libavutil/channel_layout.h
 ```
 
-Adjust the git tags accordingly. Look for new or changed `AV_CHAN_*`, `AV_CH_LAYOUT_*` and `AV_CHANNEL_LAYOUT_*` values and add them to `ffmpeg-sys-the-third/src/avutil/channel_layout.rs`. Don't forget to add cfg-gates to new constants like `#[cfg(feature = "ffmpeg_8_0")]`.
+Adjust the git tags accordingly. Look for new or changed `AV_CHAN_*`, `AV_CH_LAYOUT_*` and `AV_CHANNEL_LAYOUT_*` values and add them to `ffmpeg-sys-the-third/src/avutil/channel_layout.rs`. Don't forget to add cfg-gates to new constants like `#[cfg(feature = "ffmpeg_9_0")]`.
 
 The `-sys` crate should now build. If it doesn't, figure out why and fix the remaining errors.
 
@@ -53,9 +53,9 @@ It is helpful to have FFmpeg's `doc/APIchanges` open in a separate window. `git 
 Run `diff old-bindings.rs new-bindings.rs` and go through all changes. This can mean:
 
 - Adding new enums to build.rs (build.rs, Callback::default)
-- Adding new enum variants (including `#[cfg(feature = "ffmpeg_8_0")]`)
+- Adding new enum variants (including `#[cfg(feature = "ffmpeg_9_0")]`)
   - also update the related `From<AVEnum> for Enum` and `From<Enum> for AVEnum` implementations
-- Marking removed enum variants with a cfg gate (`#[cfg(not(feature = "ffmpeg_8_0"))]`)
+- Marking removed enum variants with a cfg gate (`#[cfg(not(feature = "ffmpeg_9_0"))]`)
 - Updating getter/setter functions for added/removed struct fields
 - Updating/adding/removing calls to FFmpeg API functions (read the docs)
 

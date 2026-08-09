@@ -39,6 +39,9 @@ jobs:
           - version: "8.1"
             file: "ffmpeg-8.1-linux-clang-default.tar.xz"
             lib_subdir: "amd64"
+          - version: "9.0"
+            file: "ffmpeg-9.0-linux-clang-default.tar.xz"
+            lib_subdir: "amd64"
       fail-fast: false
 
     steps:
@@ -63,9 +66,9 @@ jobs:
           components: rustfmt, clippy
       - uses: Swatinem/rust-cache@v2
         with:
-          prefix-key: "v5-rust"
+          prefix-key: "v6-rust"
           # Only save cache for one FFmpeg version
-          save-if: ${{ matrix.ffmpeg.version == '8.1' }}
+          save-if: ${{ matrix.ffmpeg.version == '9.0' }}
 
       - name: Check format
         run: |
@@ -83,27 +86,35 @@ jobs:
           cargo test
 
   build-test-lint-macos:
-    name: macOS - FFmpeg ${{ matrix.ffmpeg_version }} - build, test and lint
+    name: macOS - FFmpeg ${{ matrix.ffmpeg.version }} - build, test and lint
     runs-on: macos-latest
     strategy:
       matrix:
-        ffmpeg_version: ["5", "6", "7", "8"]
+        ffmpeg:
+          - version: "5"
+            formula: "ffmpeg@5"
+          - version: "6"
+            formula: "ffmpeg@6"
+          - version: "7"
+            formula: "ffmpeg@7"
+          - version: "8.1"
+            formula: "ffmpeg"
       fail-fast: false
 
     env:
-      PKG_CONFIG_PATH: /opt/homebrew/opt/ffmpeg@${{ matrix.ffmpeg_version }}/lib/pkgconfig
+      PKG_CONFIG_PATH: /opt/homebrew/opt/${{ matrix.ffmpeg.formula }}/lib/pkgconfig
 
     steps:
       - uses: actions/checkout@v5
       - name: Install dependencies
-        run: brew install ffmpeg@${{ matrix.ffmpeg_version }}
+        run: brew install ${{ matrix.ffmpeg.formula }}
       - name: Install Rust stable with clippy and rustfmt
         uses: dtolnay/rust-toolchain@stable
         with:
           components: rustfmt, clippy
       - uses: Swatinem/rust-cache@v2
         with:
-          prefix-key: "v5-rust"
+          prefix-key: "v6-rust"
 
       - name: Check format
         run: |
@@ -125,7 +136,7 @@ jobs:
     runs-on: windows-latest
     strategy:
       matrix:
-        ffmpeg_version: ["5.1", "6.0", "6.1", "7.0", "7.1", "8.0", "8.1"]
+        ffmpeg_version: ["5.1", "6.0", "6.1", "7.0", "7.1", "8.0", "8.1", "9.0"]
       fail-fast: false
 
     env:
@@ -155,8 +166,8 @@ jobs:
           components: rustfmt, clippy
       - uses: Swatinem/rust-cache@v2
         with:
-          prefix-key: "v5-rust"
-          save-if: ${{ matrix.ffmpeg_version == '8.1' }}
+          prefix-key: "v6-rust"
+          save-if: ${{ matrix.ffmpeg_version == '9.0' }}
 
       - name: Check format
         run: |
@@ -187,7 +198,7 @@ jobs:
         shell: bash
         run: |
           mkdir ffmpeg-libs
-          curl -L "https://sourceforge.net/projects/avbuild/files/linux/ffmpeg-8.1-linux-clang-lite.tar.xz/download" \
+          curl -L "https://sourceforge.net/projects/avbuild/files/linux/ffmpeg-9.0-linux-clang-lite.tar.xz/download" \
             | tar xJf - --strip 1 -C ffmpeg-libs
 
           echo "PKG_CONFIG_PATH=$PWD/ffmpeg-libs/lib/amd64/pkgconfig" >> "$GITHUB_ENV"
@@ -197,6 +208,6 @@ jobs:
         uses: dtolnay/rust-toolchain@1.80.0
       - uses: Swatinem/rust-cache@v2
         with:
-          prefix-key: "v3-rust"
+          prefix-key: "v4-rust"
       - name: Run cargo check
         run: cargo check

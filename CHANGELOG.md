@@ -1,5 +1,13 @@
 # Changelog
 
+## Version 6.0.0
+
+- [Breaking] FFmpeg 9.0 removes public codec IDs `V308`, `V408`, and `V410`, and updates public side-data enums
+- [Breaking] FFmpeg 9.0 removes legacy `Codec::{rates, formats, ch_layouts}` accessors in favor of `supported_rates`, `supported_formats`, and `supported_layouts`
+- [Feature] FFmpeg 9.0 build detection and bindings compatibility
+- Continue supporting FFmpeg 5.1-8.1
+- ci: Add Linux and Windows FFmpeg 9.0 CI; macOS 9 support is pending Homebrew availability
+
 ## Version 5.0.0
 
 - [Breaking] Switch to newtype enums for AV/sys types to avoid UB with unexpected FFmpeg values (#127)

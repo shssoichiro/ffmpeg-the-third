@@ -167,6 +167,7 @@ pub enum Id {
     BMV_VIDEO,
     VBLE,
     DXTORY,
+    #[cfg(not(feature = "ffmpeg_9_0"))]
     V410,
     XWD,
     CDXL,
@@ -212,7 +213,9 @@ pub enum Id {
     #[cfg(not(feature = "ffmpeg_7_0"))]
     AYUV,
     TARGA_Y216,
+    #[cfg(not(feature = "ffmpeg_9_0"))]
     V308,
+    #[cfg(not(feature = "ffmpeg_9_0"))]
     V408,
     YUV4,
     AVRN,
@@ -643,6 +646,11 @@ pub enum Id {
     ADPCM_IMA_ESCAPE,
     #[cfg(feature = "ffmpeg_8_1")]
     AHX,
+
+    #[cfg(feature = "ffmpeg_9_0")]
+    WEBP_ANIM,
+    #[cfg(feature = "ffmpeg_9_0")]
+    APPLE_APAC,
 }
 
 impl Id {
@@ -818,6 +826,7 @@ impl From<AVCodecID> for Id {
             AV::BMV_VIDEO => Id::BMV_VIDEO,
             AV::VBLE => Id::VBLE,
             AV::DXTORY => Id::DXTORY,
+            #[cfg(not(feature = "ffmpeg_9_0"))]
             AV::V410 => Id::V410,
             AV::XWD => Id::XWD,
             AV::CDXL => Id::CDXL,
@@ -862,7 +871,9 @@ impl From<AVCodecID> for Id {
             #[cfg(not(feature = "ffmpeg_7_0"))]
             AV::AYUV => Id::AYUV,
             AV::TARGA_Y216 => Id::TARGA_Y216,
+            #[cfg(not(feature = "ffmpeg_9_0"))]
             AV::V308 => Id::V308,
+            #[cfg(not(feature = "ffmpeg_9_0"))]
             AV::V408 => Id::V408,
             AV::YUV4 => Id::YUV4,
             AV::AVRN => Id::AVRN,
@@ -1293,6 +1304,11 @@ impl From<AVCodecID> for Id {
             #[cfg(feature = "ffmpeg_8_1")]
             AV::AHX => Id::AHX,
 
+            #[cfg(feature = "ffmpeg_9_0")]
+            AV::WEBP_ANIM => Id::WEBP_ANIM,
+            #[cfg(feature = "ffmpeg_9_0")]
+            AV::APPLE_APAC => Id::APPLE_APAC,
+
             _ => unimplemented!(),
         }
     }
@@ -1462,6 +1478,7 @@ impl From<Id> for AVCodecID {
             Id::BMV_VIDEO => AV::BMV_VIDEO,
             Id::VBLE => AV::VBLE,
             Id::DXTORY => AV::DXTORY,
+            #[cfg(not(feature = "ffmpeg_9_0"))]
             Id::V410 => AV::V410,
             Id::XWD => AV::XWD,
             Id::CDXL => AV::CDXL,
@@ -1507,7 +1524,9 @@ impl From<Id> for AVCodecID {
             #[cfg(not(feature = "ffmpeg_7_0"))]
             Id::AYUV => AV::AYUV,
             Id::TARGA_Y216 => AV::TARGA_Y216,
+            #[cfg(not(feature = "ffmpeg_9_0"))]
             Id::V308 => AV::V308,
+            #[cfg(not(feature = "ffmpeg_9_0"))]
             Id::V408 => AV::V408,
             Id::YUV4 => AV::YUV4,
             Id::AVRN => AV::AVRN,
@@ -1937,6 +1956,24 @@ impl From<Id> for AVCodecID {
             Id::ADPCM_IMA_ESCAPE => AV::ADPCM_IMA_ESCAPE,
             #[cfg(feature = "ffmpeg_8_1")]
             Id::AHX => AV::AHX,
+
+            #[cfg(feature = "ffmpeg_9_0")]
+            Id::WEBP_ANIM => AV::WEBP_ANIM,
+            #[cfg(feature = "ffmpeg_9_0")]
+            Id::APPLE_APAC => AV::APPLE_APAC,
+        }
+    }
+}
+
+#[cfg(all(test, feature = "ffmpeg_9_0"))]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn ffmpeg_9_codec_ids_round_trip() {
+        for id in [Id::WEBP_ANIM, Id::APPLE_APAC] {
+            let raw: AVCodecID = id.into();
+            assert_eq!(Id::from(raw), id);
         }
     }
 }

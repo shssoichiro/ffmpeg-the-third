@@ -70,6 +70,11 @@ pub enum Type {
 
     #[cfg(feature = "ffmpeg_8_1")]
     EXIF,
+
+    #[cfg(feature = "ffmpeg_9_0")]
+    DYNAMIC_HDR_SMPTE_2094_APP5,
+    #[cfg(feature = "ffmpeg_9_0")]
+    HEVC_CONF,
 }
 
 impl From<AVPacketSideDataType> for Type {
@@ -138,6 +143,11 @@ impl From<AVPacketSideDataType> for Type {
 
             #[cfg(feature = "ffmpeg_8_1")]
             AV::EXIF => Type::EXIF,
+
+            #[cfg(feature = "ffmpeg_9_0")]
+            AV::DYNAMIC_HDR_SMPTE_2094_APP5 => Type::DYNAMIC_HDR_SMPTE_2094_APP5,
+            #[cfg(feature = "ffmpeg_9_0")]
+            AV::HEVC_CONF => Type::HEVC_CONF,
 
             _ => unimplemented!(),
         }
@@ -210,6 +220,11 @@ impl From<Type> for AVPacketSideDataType {
 
             #[cfg(feature = "ffmpeg_8_1")]
             Type::EXIF => AV::EXIF,
+
+            #[cfg(feature = "ffmpeg_9_0")]
+            Type::DYNAMIC_HDR_SMPTE_2094_APP5 => AV::DYNAMIC_HDR_SMPTE_2094_APP5,
+            #[cfg(feature = "ffmpeg_9_0")]
+            Type::HEVC_CONF => AV::HEVC_CONF,
         }
     }
 }
@@ -240,5 +255,18 @@ impl<'a> SideData<'a> {
 
     pub fn data(&self) -> &[u8] {
         unsafe { slice::from_raw_parts((*self.as_ptr()).data, (*self.as_ptr()).size as usize) }
+    }
+}
+
+#[cfg(all(test, feature = "ffmpeg_9_0"))]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn ffmpeg_9_side_data_round_trips() {
+        for kind in [Type::DYNAMIC_HDR_SMPTE_2094_APP5, Type::HEVC_CONF] {
+            let raw: AVPacketSideDataType = kind.into();
+            assert_eq!(Type::from(raw), kind);
+        }
     }
 }

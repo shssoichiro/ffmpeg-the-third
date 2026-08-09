@@ -101,10 +101,10 @@ static AVUTIL_FEATURES: &[AVFeature] = &[
     AVFeature::new("VULKAN_FIXED_QUEUES"),
     AVFeature::new("OPT_INT_LIST"),
     AVFeature::new("OPT_PTR"),
+    // before 10.0 (< v62)
     AVFeature::new("CPU_FLAG_FORCE"),
     AVFeature::new("DOVI_L11_INVALID_PROPS"),
     AVFeature::new("ASSERT_FPU"),
-    // before 10.0 (< v62)
     AVFeature::new("VULKAN_SYNC_QUEUES"),
 ];
 
@@ -139,18 +139,20 @@ static AVCODEC_FEATURES: &[AVFeature] = &[
     AVFeature::new("BUFFER_MIN_SIZE"),
     AVFeature::new("VDPAU_ALLOC_GET_SET"),
     AVFeature::new("QUALITY_FACTOR"),
-    // before 9.0 (< v63)
-    AVFeature::new("INIT_PACKET"),
+    // before 9.0 (< v63): retain removed FF_API_* names for old builds
     AVFeature::new("V408_CODECID"),
     AVFeature::new("CODEC_PROPS"),
     AVFeature::new("EXR_GAMMA"),
-    AVFeature::new("INTRA_DC_PRECISION"),
     AVFeature::new("NVDEC_OLD_PIX_FMTS"),
     AVFeature::new("PARSER_PRIVATE"),
     AVFeature::new("PARSER_CODECID"),
     AVFeature::new("OMX"),
     AVFeature::new("SONIC_ENC"),
     AVFeature::new("SONIC_DEC"),
+    // before 10.0 (< v64)
+    AVFeature::new("INIT_PACKET"),
+    AVFeature::new("INTRA_DC_PRECISION"),
+    AVFeature::new("MJPEG_EXTERN_HUFF"),
 ];
 
 static AVFORMAT_FEATURES: &[AVFeature] = &[
@@ -167,10 +169,13 @@ static AVFORMAT_FEATURES: &[AVFeature] = &[
     AVFeature::new("ALLOW_FLUSH"),
     AVFeature::new("AVSTREAM_SIDE_DATA"),
     AVFeature::new("GET_DUR_ESTIMATE_METHOD"),
-    // before 9.0 (< v63)
-    AVFeature::new("COMPUTE_PKT_FIELDS2"),
+    // before 9.0 (< v63): retain removed FF_API_* names for old builds
     AVFeature::new("INTERNAL_TIMING"),
     AVFeature::new("NO_DEFAULT_TLS_VERIFY"),
+    // before 10.0 (< v64)
+    AVFeature::new("COMPUTE_PKT_FIELDS2"),
+    AVFeature::new("FDEBUG_TS"),
+    AVFeature::new("LCEVC_STRUCT"),
     // after 5.0 (> v59)
     AVFeature::new("AVSTREAM_CLASS"),
     // for all eternity
@@ -200,7 +205,7 @@ static AVFILTER_FEATURES: &[AVFeature] = &[
     // before 9.0 (< v12)
     AVFeature::new("BUFFERSINK_OPTS"),
     AVFeature::new("CONTEXT_PUBLIC"),
-    AVFeature::new("LIBNPP_SUPPOR"),
+    AVFeature::new("LIBNPP_SUPPORT"),
 ];
 
 static SWSCALE_FEATURES: &[AVFeature] = &[];
@@ -379,6 +384,8 @@ impl Default for Callbacks {
                 ("enum SwsAlphaBlend", "SWS_ALPHA_BLEND_"),
                 ("enum SwsFlags", "SWS_"),
                 ("enum SwsIntent", "SWS_INTENT_"),
+                ("enum SwsScaler", "SWS_SCALE_"),
+                ("enum SwsBackend", "SWS_BACKEND_"),
                 ("enum SwrDitherType", "SWR_DITHER_"),
                 ("enum SwrEngine", "SWR_ENGINE_"),
                 ("enum SwrFilterType", "SWR_FILTER_TYPE_"),
@@ -646,6 +653,7 @@ fn check_features(libraries: &[Library], include_paths: &[PathBuf]) -> u64 {
         ("ffmpeg_7_1", 61, 19),
         ("ffmpeg_8_0", 62, 11),
         ("ffmpeg_8_1", 62, 28),
+        ("ffmpeg_9_0", 63, 1),
     ];
 
     let lavc_version = *versions

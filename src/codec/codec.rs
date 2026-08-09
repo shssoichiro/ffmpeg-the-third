@@ -196,6 +196,7 @@ impl Codec<AudioType> {
         supported_sample_rates(self, None).expect("audio codec returns supported sample rates")
     }
 
+    #[cfg(not(feature = "ffmpeg_9_0"))]
     pub fn rates(&self) -> Option<SampleRateIter<'_>> {
         unsafe { SampleRateIter::from_raw((*self.as_ptr()).supported_samplerates) }
     }
@@ -213,6 +214,15 @@ impl Codec<AudioType> {
         supported_sample_formats(self, None).expect("audio codec returns supported sample formats")
     }
 
+    /// Returns a [`Supported`] representing the supported channel layouts.
+    #[cfg(feature = "ffmpeg_7_1")]
+    pub fn supported_layouts(self) -> Supported<ChannelLayoutIter<'static>> {
+        use super::config::supported_channel_layouts;
+        supported_channel_layouts(self, None)
+            .expect("audio codec returns supported channel layouts")
+    }
+
+    #[cfg(not(feature = "ffmpeg_9_0"))]
     pub fn formats(&self) -> Option<SampleFormatIter<'_>> {
         unsafe { SampleFormatIter::from_raw((*self.as_ptr()).sample_fmts) }
     }
@@ -222,6 +232,7 @@ impl Codec<AudioType> {
         unsafe { ChannelLayoutMaskIter::from_raw((*self.as_ptr()).channel_layouts) }
     }
 
+    #[cfg(not(feature = "ffmpeg_9_0"))]
     pub fn ch_layouts(&self) -> Option<ChannelLayoutIter<'_>> {
         unsafe { ChannelLayoutIter::from_raw((*self.as_ptr()).ch_layouts) }
     }
@@ -241,6 +252,7 @@ impl Codec<VideoType> {
         supported_frame_rates(self, None).expect("video codec returns supported frame rates")
     }
 
+    #[cfg(not(feature = "ffmpeg_9_0"))]
     pub fn rates(&self) -> Option<FrameRateIter<'_>> {
         unsafe { FrameRateIter::from_raw((*self.as_ptr()).supported_framerates) }
     }
@@ -258,6 +270,7 @@ impl Codec<VideoType> {
         supported_pixel_formats(self, None).expect("video codec returns supported pixel formats")
     }
 
+    #[cfg(not(feature = "ffmpeg_9_0"))]
     pub fn formats(&self) -> Option<PixelFormatIter<'_>> {
         unsafe { PixelFormatIter::from_raw((*self.as_ptr()).pix_fmts) }
     }
@@ -341,6 +354,14 @@ impl<'a> ChannelLayoutIter<'a> {
     }
 }
 
+impl<'a> TerminatedPtrIter<AVChannelLayout, ChannelLayout<'a>> for ChannelLayoutIter<'a> {
+    unsafe fn from_ptr(ptr: NonNull<AVChannelLayout>) -> Self {
+        Self {
+            next: unsafe { ptr.as_ref() },
+        }
+    }
+}
+
 impl<'a> ChannelLayoutIter<'a> {
     pub fn best(self, max: u32) -> ChannelLayout<'a> {
         self.fold(ChannelLayout::MONO, |acc, cur| {
@@ -369,6 +390,24 @@ impl<'a> Iterator for ChannelLayoutIter<'a> {
             // the zeroed-out AVChannelLayout, which signals the end of iteration.
             self.next = (curr as *const AVChannelLayout).add(1).as_ref().unwrap();
             Some(ChannelLayout::from(curr))
+        }
+    }
+}
+
+#[cfg(all(test, feature = "ffmpeg_9_0"))]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn ffmpeg_9_supported_layouts_are_available() {
+        let codec = crate::codec::decoder::find(Id::MP3)
+            .expect("can find MP3 decoder")
+            .audio()
+            .expect("MP3 decoder is audio");
+
+        match codec.supported_layouts() {
+            Supported::All => {}
+            Supported::Specific(mut layouts) => assert!(layouts.next().is_some()),
         }
     }
 }

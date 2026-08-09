@@ -61,6 +61,17 @@ pub enum Type {
 
     #[cfg(feature = "ffmpeg_8_1")]
     EXIF,
+
+    #[cfg(feature = "ffmpeg_9_0")]
+    DYNAMIC_HDR_SMPTE_2094_APP5,
+    #[cfg(feature = "ffmpeg_9_0")]
+    IAMF_MIX_GAIN_PARAM,
+    #[cfg(feature = "ffmpeg_9_0")]
+    IAMF_DEMIXING_INFO_PARAM,
+    #[cfg(feature = "ffmpeg_9_0")]
+    IAMF_RECON_GAIN_INFO_PARAM,
+    #[cfg(feature = "ffmpeg_9_0")]
+    RAW_COLOR_PARAMS,
 }
 
 impl Type {
@@ -127,6 +138,17 @@ impl From<AVFrameSideDataType> for Type {
             #[cfg(feature = "ffmpeg_8_1")]
             AV::EXIF => Type::EXIF,
 
+            #[cfg(feature = "ffmpeg_9_0")]
+            AV::DYNAMIC_HDR_SMPTE_2094_APP5 => Type::DYNAMIC_HDR_SMPTE_2094_APP5,
+            #[cfg(feature = "ffmpeg_9_0")]
+            AV::IAMF_MIX_GAIN_PARAM => Type::IAMF_MIX_GAIN_PARAM,
+            #[cfg(feature = "ffmpeg_9_0")]
+            AV::IAMF_DEMIXING_INFO_PARAM => Type::IAMF_DEMIXING_INFO_PARAM,
+            #[cfg(feature = "ffmpeg_9_0")]
+            AV::IAMF_RECON_GAIN_INFO_PARAM => Type::IAMF_RECON_GAIN_INFO_PARAM,
+            #[cfg(feature = "ffmpeg_9_0")]
+            AV::RAW_COLOR_PARAMS => Type::RAW_COLOR_PARAMS,
+
             _ => unimplemented!(),
         }
     }
@@ -188,6 +210,17 @@ impl From<Type> for AVFrameSideDataType {
 
             #[cfg(feature = "ffmpeg_8_1")]
             Type::EXIF => AV::EXIF,
+
+            #[cfg(feature = "ffmpeg_9_0")]
+            Type::DYNAMIC_HDR_SMPTE_2094_APP5 => AV::DYNAMIC_HDR_SMPTE_2094_APP5,
+            #[cfg(feature = "ffmpeg_9_0")]
+            Type::IAMF_MIX_GAIN_PARAM => AV::IAMF_MIX_GAIN_PARAM,
+            #[cfg(feature = "ffmpeg_9_0")]
+            Type::IAMF_DEMIXING_INFO_PARAM => AV::IAMF_DEMIXING_INFO_PARAM,
+            #[cfg(feature = "ffmpeg_9_0")]
+            Type::IAMF_RECON_GAIN_INFO_PARAM => AV::IAMF_RECON_GAIN_INFO_PARAM,
+            #[cfg(feature = "ffmpeg_9_0")]
+            Type::RAW_COLOR_PARAMS => AV::RAW_COLOR_PARAMS,
         }
     }
 }
@@ -231,5 +264,24 @@ impl<'a> SideData<'a> {
 
     pub fn metadata(&self) -> DictionaryRef<'_> {
         unsafe { DictionaryRef::from_raw((*self.as_ptr()).metadata) }
+    }
+}
+
+#[cfg(all(test, feature = "ffmpeg_9_0"))]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn ffmpeg_9_side_data_round_trips() {
+        for kind in [
+            Type::DYNAMIC_HDR_SMPTE_2094_APP5,
+            Type::IAMF_MIX_GAIN_PARAM,
+            Type::IAMF_DEMIXING_INFO_PARAM,
+            Type::IAMF_RECON_GAIN_INFO_PARAM,
+            Type::RAW_COLOR_PARAMS,
+        ] {
+            let raw: AVFrameSideDataType = kind.into();
+            assert_eq!(Type::from(raw), kind);
+        }
     }
 }

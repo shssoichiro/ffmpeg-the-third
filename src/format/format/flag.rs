@@ -21,5 +21,7 @@ bitflags::bitflags! {
         const TS_NONSTRICT  = AVFMT_TS_NONSTRICT;
         const TS_NEGATIVE   = AVFMT_TS_NEGATIVE;
         const SEEK_TO_PTS   = AVFMT_SEEK_TO_PTS;
+        #[cfg(feature = "ffmpeg_9_0")]
+        const FIXED_FRAME_SIZE = AVFMT_FIXED_FRAMESIZE;
     }
 }
