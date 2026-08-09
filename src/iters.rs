@@ -19,6 +19,7 @@ pub(crate) trait TerminatedPtrIter<AVType, WrapperType>:
     /// # Safety
     ///
     /// See [`from_ptr`][TerminatedPtrIter::from_ptr].
+    #[cfg(not(feature = "ffmpeg_9_0"))]
     unsafe fn from_raw(ptr: *const AVType) -> Option<Self> {
         unsafe { NonNull::new(ptr as *mut _).map(|ptr| Self::from_ptr(ptr)) }
     }
