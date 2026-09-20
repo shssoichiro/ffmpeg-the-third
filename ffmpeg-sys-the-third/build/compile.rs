@@ -177,10 +177,17 @@ pub fn build(libraries: &[Library], out_dir: &Path) -> io::Result<PathBuf> {
             "--arch={}",
             env::var("CARGO_CFG_TARGET_ARCH").unwrap()
         ));
-        configure.arg(format!(
-            "--target_os={}",
-            env::var("CARGO_CFG_TARGET_OS").unwrap()
-        ));
+        // FFmpeg's configure has its own names for operating systems: it does not know Rust's
+        // "windows", and wants "mingw32" for the GNU toolchain.
+        let target_os = env::var("CARGO_CFG_TARGET_OS").unwrap();
+        let target_os = match (
+            target_os.as_str(),
+            env::var("CARGO_CFG_TARGET_ENV").as_deref(),
+        ) {
+            ("windows", Ok("gnu")) => "mingw32",
+            (other, _) => other,
+        };
+        configure.arg(format!("--target_os={target_os}"));
     }
 
     // control debug build
