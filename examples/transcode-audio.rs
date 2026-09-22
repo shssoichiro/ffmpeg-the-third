@@ -61,6 +61,7 @@ struct Transcoder {
     decoder: codec::decoder::Audio,
     encoder: codec::encoder::Audio,
     in_time_base: ffmpeg::Rational,
+    encoder_time_base: ffmpeg::Rational,
     out_time_base: ffmpeg::Rational,
 }
 
@@ -69,6 +70,7 @@ fn transcoder<P: AsRef<Path> + ?Sized>(
     octx: &mut format::context::Output,
     path: &P,
     filter_spec: &str,
+    target_rate: Option<i32>,
 ) -> Result<Transcoder, ffmpeg::Error> {
     let input = ictx
         .streams()
@@ -108,9 +110,9 @@ fn transcoder<P: AsRef<Path> + ?Sized>(
             layouts.best(decoder.ch_layout().channels())
         }
     };
-
+    let output_rate = target_rate.unwrap_or(decoder.rate() as i32);
     encoder.set_ch_layout(ch_layout);
-    encoder.set_rate(decoder.rate() as i32);
+    encoder.set_rate(output_rate);
     #[cfg(not(feature = "ffmpeg_9_0"))]
     encoder.set_format(
         codec
@@ -130,8 +132,9 @@ fn transcoder<P: AsRef<Path> + ?Sized>(
     encoder.set_bit_rate(decoder.bit_rate());
     encoder.set_max_bit_rate(decoder.max_bit_rate());
 
-    encoder.set_time_base((1, decoder.rate() as i32));
-    output.set_time_base((1, decoder.rate() as i32));
+    let encoder_time_base: ffmpeg::Rational = (1, output_rate).into();
+    encoder.set_time_base(encoder_time_base);
+    output.set_time_base(encoder_time_base);
 
     let encoder = encoder.open_as(codec)?;
     output.set_parameters(Parameters::from(&encoder));
@@ -147,6 +150,7 @@ fn transcoder<P: AsRef<Path> + ?Sized>(
         decoder,
         encoder,
         in_time_base,
+        encoder_time_base,
         out_time_base,
     })
 }
@@ -164,7 +168,7 @@ impl Transcoder {
         let mut encoded = ffmpeg::Packet::empty();
         while self.encoder.receive_packet(&mut encoded).is_ok() {
             encoded.set_stream(0);
-            encoded.rescale_ts(self.in_time_base, self.out_time_base);
+            encoded.rescale_ts(self.encoder_time_base, self.out_time_base);
             encoded.write_interleaved(octx).unwrap();
         }
     }
@@ -211,7 +215,7 @@ impl Transcoder {
     }
 }
 
-// Transcode the `best` audio stream of the input file into a the output file while applying a
+// Transcode the `best` audio stream of the input file into the output file while applying a
 // given filter. If no filter was specified the stream gets copied (`anull` filter).
 //
 // Example 1: Transcode *.mp3 file to *.wmv while speeding it up
@@ -222,6 +226,12 @@ impl Transcoder {
 //
 // Example 3: Seek to a specified position (in seconds)
 // transcode-audio in.mp3 out.mp3 anull 30
+//
+// Example 4: Set the output sample rate. This only re-tags the encoder's
+// rate -- it does not resample the audio data itself, so pair it with a
+// matching resample filter (e.g. aresample) or the output will be
+// mistimed.
+// transcode-audio in.wav out.wav "aresample=44100" "" 44100
 fn main() {
     ffmpeg::init().unwrap();
 
@@ -229,10 +239,11 @@ fn main() {
     let output = env::args().nth(2).expect("missing output");
     let filter = env::args().nth(3).unwrap_or_else(|| "anull".to_owned());
     let seek = env::args().nth(4).and_then(|s| s.parse::<i64>().ok());
+    let target_rate = env::args().nth(5).and_then(|s| s.parse::<i32>().ok());
 
     let mut ictx = format::input(&input).unwrap();
     let mut octx = format::output(&output).unwrap();
-    let mut transcoder = transcoder(&mut ictx, &mut octx, &output, &filter).unwrap();
+    let mut transcoder = transcoder(&mut ictx, &mut octx, &output, &filter, target_rate).unwrap();
 
     if let Some(position) = seek {
         // If the position was given in seconds, rescale it to ffmpegs base timebase.
