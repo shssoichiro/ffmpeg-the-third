@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- [Feature] Add `format::context::Input::find_stream_info`, which accepts per-stream probe options
+
 ## Version 6.0.0
 
 - [Breaking] FFmpeg 9.0 removes public codec IDs `V308`, `V408`, and `V410`, and updates public side-data enums
