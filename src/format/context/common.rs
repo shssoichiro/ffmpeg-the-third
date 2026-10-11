@@ -32,6 +32,11 @@ impl Context {
         self.ptr
     }
 
+    /// Keeps `interrupt` alive until this context has been closed.
+    pub(crate) fn retain_interrupt(&mut self, interrupt: crate::util::interrupt::Interrupt) {
+        self._dtor.retain_interrupt(interrupt);
+    }
+
     unsafe fn new_destructor_holder(
         ptr: *mut AVFormatContext,
         mode: destructor::Mode,

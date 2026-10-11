@@ -1,4 +1,5 @@
 use crate::ffi::*;
+use crate::util::interrupt::Interrupt;
 #[cfg(feature = "serialize")]
 use serde::{Deserialize, Serialize};
 
@@ -12,11 +13,22 @@ pub enum Mode {
 pub struct Destructor {
     ptr: *mut AVFormatContext,
     mode: Mode,
+    // Dropped after `drop` has closed the context, because FFmpeg may invoke the callback
+    // while closing. Kept here rather than in `Input` so that it moves with the context.
+    interrupt: Option<Interrupt>,
 }
 
 impl Destructor {
     pub unsafe fn new(ptr: *mut AVFormatContext, mode: Mode) -> Self {
-        Destructor { ptr, mode }
+        Destructor {
+            ptr,
+            mode,
+            interrupt: None,
+        }
+    }
+
+    pub(crate) fn retain_interrupt(&mut self, interrupt: Interrupt) {
+        self.interrupt = Some(interrupt);
     }
 }
 

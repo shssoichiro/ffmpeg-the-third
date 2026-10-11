@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- [Breaking] `format::input_with_interrupt` requires the callback to be `Send + 'static`; calls to it are now serialized
+- [Breaking] `util::interrupt::Interrupt` and `util::interrupt::new` are no longer public
+- fix: `format::input_with_interrupt` no longer leaks its callback; it is kept alive until the input is closed
+
 ## Version 6.0.0
 
 - [Breaking] FFmpeg 9.0 removes public codec IDs `V308`, `V408`, and `V410`, and updates public side-data enums
