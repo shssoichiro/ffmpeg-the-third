@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- [Feature] Add `ParametersRef::side_data` to borrow global coded side data (FFmpeg 7.0+)
+
 ## Version 6.0.0
 
 - [Breaking] FFmpeg 9.0 removes public codec IDs `V308`, `V408`, and `V410`, and updates public side-data enums
