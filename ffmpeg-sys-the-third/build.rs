@@ -808,6 +808,8 @@ fn main() {
     };
 
     bindgen::Builder::default()
+        .clang_arg("-fretain-comments-from-system-headers")
+        .clang_arg("-fparse-all-comments")
         .clang_args(clang_includes)
         .ctypes_prefix("libc")
         // Not trivially copyable
